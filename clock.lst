@@ -1,0 +1,358 @@
+              	; --------------------------------------
+              	; zasm: assemble "clock.a80"
+              	; opts: --reqcolon
+              	; date: 2019-03-13 19:55:52
+              	; --------------------------------------
+
+
+              	;*********************************************************************
+              	; Z80 based, 3 time zone clock
+              	;
+              	; This code has been written to be compiled with the zasm assembler
+              	; available from:
+              	;
+              	; https://k1.spdns.de/Develop/Projects/zasm/Distributions/
+              	;
+              	; Command line options used:
+              	;
+              	; ./zasm --hex --opcodes --labels --reqcolon -v2 clock.a80
+              	;*********************************************************************
+              	
+              	#target ROM
+              	;---------------------------------------------------------------------­
+              	;                            MEMORY SIZES                            :
+              	;---------------------------------------------------------------------
+0000:         	ROM_BASE          EQU   0
+6000:         	ROM_SZ            EQU   24576
+5FFF:         	ROM_MAX           EQU   ROM_BASE + ROM_SZ - 1
+              	
+8000:         	RAM_BASE          EQU   0x8000
+2000:         	RAM_SZ            EQU   8192
+9FFF:         	RAM_MAX           EQU   RAM_BASE + RAM_SZ - 1
+              	      
+C000:         	TZ_ROM_BASE       EQU   0xC000
+2000:         	TZ_ROM_SZ         EQU   8192
+DFFF:         	TZ_ROM_MAX        EQU   TZ_ROM_BASE + TZ_ROM_SZ - 1
+              	      
+E000:         	CHAR_ROM_BASE     EQU   0xE000
+2000:         	CHAR_ROM_SZ       EQU   8192
+FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
+              	
+              	;---- Begin allocation of variables in RAM
+8000:         	#data RAM, RAM_BASE, RAM_SZ
+              	
+              	;---------------------------------------------------------------------­
+              	;                 MAIN LOOP STATE MACHINE VARIABLES                  :
+              	;---------------------------------------------------------------------
+8000: 00      	SM_MAIN:          DB    0           ; Variable to hold state
+0001:         	SM_MAIN_RESET     EQU   0x01        ; Reset state
+              	
+              	;---- Begin application code
+0000:         	#code ROM, ROM_BASE, ROM_SZ
+              	
+              	;---------------------------------------------------------------------­
+              	;                            RST VECTORS                             :
+              	;---------------------------------------------------------------------
+              	
+              	      ORG 0
+0000:         	RST0:
+0000: C30002  	      JP    RESET
+0003: 76      	      HALT
+              	
+              	;       ORG 0x08
+              	; RST1:
+              	;       RET
+              	
+              	;       ORG 0x10
+              	; RST2:
+              	;       RET
+              	
+              	;       ORG 0x18
+              	; RST3:
+              	;       RET
+              	
+              	;       ORG 0x20
+              	; RST4:
+              	;       RET
+              	
+              	;       ORG 0x28
+              	; RST5:
+              	;       RET
+              	
+              	;       ORG 0x30
+              	; RST6:
+              	;       RET
+              	
+              	;       ORG 0x38
+              	; RST7:
+              	;       RET
+              	
+              	;---------------------------------------------------------------------­
+              	;                         INTERRUPT VECTORS                          :
+              	;---------------------------------------------------------------------
+0004: FFFFFFFF	      ORG 0x0066
+0008: FF...   	
+0066:         	NMI_VECTOR:
+0066: C9      	      RET
+              	
+0067: FFFFFFFF	      ORG 0x0100
+006B: FF...   	
+0100:         	INT_VECTOR_TABLE:
+0100: 0002    	      DW    RESET
+              	
+              	;---------------------------------------------------------------------­
+              	;                            RESET VECTOR                            :
+              	;---------------------------------------------------------------------
+0102: FFFFFFFF	      ORG 0x0200
+0106: FF...   	
+0200:         	RESET:
+0200: ED5E    	      IM    2                       ; Z80 family vectored interrupts
+              	      
+              	;---- On reset, fall through to processor/RAM test routines. SP and
+              	;     I registers will be loaded later as their values will be
+              	;     destroyed during processor tests.
+              	
+              	;---------------------------------------------------------------------
+              	;     Z80 PROCESSOR TEST                                             :
+              	;                                                                    :
+              	; DESCRIPTION                                                        :
+              	;     Verify Z80 flags, registers (except IX/IY) and conditional     :
+              	;     jumps.                                                         :
+              	;                                                                    :
+              	;     Adapted from IBM 5150 BIOS.                                    :
+              	;---------------------------------------------------------------------
+0202:         	PROC_TEST:
+0202: F3      	      DI                            ; Disable maskable interrupts
+              	      
+0203: AF      	      XOR   A
+0204: 3845    	      JR    C, PROC_TEST_ERR        ; CARRY should be CLEAR
+0206: E24B02  	      JP    PO, PROC_TEST_ERR       ; PARITY should be EVEN
+0209: 2040    	      JR    NZ, PROC_TEST_ERR       ; Result should be ZERO
+020B: FA4B02  	      JP    M, PROC_TEST_ERR        ; Result should be POSITIVE
+              	      
+020E: D601    	      SUB   1
+0210: 3039    	      JR    NC, PROC_TEST_ERR       ; CARRY should be SET
+0212: EA4B02  	      JP    PE, PROC_TEST_ERR       ; PARITY should be ODD
+0215: 2834    	      JR    Z, PROC_TEST_ERR        ; Result should be NON-ZERO
+0217: F24B02  	      JP    P, PROC_TEST_ERR        ; Result should be NEGATIVE
+              	      
+021A: 3E01    	      LD    A, 0x01
+021C: CB3F    	      SRL   A
+021E: 302B    	      JR    NC, PROC_TEST_ERR       ; CARRY should be SET
+0220: 2029    	      JR    NZ, PROC_TEST_ERR       ; Result should be ZERO
+              	      
+0222: CB17    	      RL    A
+0224: 3825    	      JR    C, PROC_TEST_ERR        ; CARRY should be CLEAR
+0226: 2823    	      JR    Z, PROC_TEST_ERR        ; Result should be NON-ZERO
+              	
+0228: 3EFF    	      LD    A, 0xFF                 ; Setup one's pattern in A
+022A: 37      	      SCF
+              	      
+022B:         	C8:
+022B: ED47    	      LD    I, A                    ; Write pattern to all regs
+022D: ED57    	      LD    A, I
+022F: 6F      	      LD    L, A
+0230: 65      	      LD    H, L
+0231: 5C      	      LD    E, H
+0232: 53      	      LD    D, E
+0233: 4A      	      LD    C, D
+0234: 41      	      LD    B, C
+0235: 78      	      LD    A, B
+0236: D9      	      EXX
+0237: 6F      	      LD    L, A
+0238: 65      	      LD    H, L
+0239: 5C      	      LD    E, H
+023A: 53      	      LD    D, E
+023B: 4A      	      LD    C, D
+023C: 41      	      LD    B, C
+023D: 78      	      LD    A, B
+023E: 3006    	      JR    NC, C9
+0240: EEFF    	      XOR   0xFF                    ; Pattern make it through all regs
+0242: 2007    	      JR    NZ, PROC_TEST_ERR       ; NO - go to err routine
+0244: 18E5    	      JR    C8
+              	      
+0246:         	C9:
+0246: ED57    	      LD    A, I                    ; Zero pattern make it through?
+0248: B0      	      OR    B
+0249: 2801    	      JR    Z, MEM_TEST             ; Next test if yes
+              	
+024B:         	PROC_TEST_ERR:
+024B: 76      	      HALT                          ; HALT on error
+              	
+              	;---------------------------------------------------------------------
+              	;     RAM TEST                                                       :
+              	;                                                                    :
+              	; DESCRIPTION                                                        :
+              	;     Performs a read/write storage test on RAM address space as     :
+              	;     defined by RAM_BASE and RAM_SZ variables.                      :
+              	;                                                                    :
+              	;     Writes a series of patterns (0xAA, 0x55, 0xFF, 0x01 and 0x00)  :
+              	;     and reads them back to check for errors.                       :
+              	;                                                                    :
+              	;     !!! DESTROYS CONTENTS OF ENTIRE MEMORY BLOCK !!!               :
+              	;---------------------------------------------------------------------
+024C:         	MEM_TEST:
+024C: 1E00    	      LD    E, 0
+              	      
+024E:         	MEM_TEST_NEXT:
+024E: 210080  	      LD    HL, RAM_BASE            ; HL is address to begin test from
+0251: 010020  	      LD    BC, RAM_SZ              ; BC is number of bytes to test
+              	      
+0254: 7B      	      LD    A, E                    ; Select next test pattern
+0255: FEAA    	      CP    0xAA
+0257: 2810    	      JR    Z, MEM_TEST_55
+0259: FE55    	      CP    0x55
+025B: 2810    	      JR    Z, MEM_TEST_FF
+025D: FEFF    	      CP    0xFF
+025F: 2810    	      JR    Z, MEM_TEST_01
+0261: FE01    	      CP    0x01
+0263: 2810    	      JR    Z, MEM_TEST_0
+              	      
+0265: 1EAA    	      LD    E, 0xAA
+0267: 1810    	      JR    MEM_TEST_LOOP
+              	      
+0269:         	MEM_TEST_55:
+0269: 1E55    	      LD    E, 0x55
+026B: 180C    	      JR    MEM_TEST_LOOP
+              	      
+026D:         	MEM_TEST_FF:
+026D: 1EFF    	      LD    E, 0xFF
+026F: 1808    	      JR    MEM_TEST_LOOP
+              	      
+0271:         	MEM_TEST_01:
+0271: 1E01    	      LD    E, 0x01
+0273: 1804    	      JR    MEM_TEST_LOOP
+              	      
+0275:         	MEM_TEST_0:
+0275: 1E00    	      LD    E, 0
+0277: 1800    	      JR    MEM_TEST_LOOP
+              	      
+              	      
+0279:         	MEM_TEST_LOOP:
+0279: 73      	      LD    (HL), E                 ; Write test pattern from E, read
+027A: 7E      	      LD    A, (HL)                 ; back, XOR and ensure result is
+027B: AB      	      XOR   E                       ; zero to indicate success.
+027C: 200B    	      JR    NZ, MEM_TEST_ERR
+              	      
+027E: 23      	      INC   HL
+027F: 0B      	      DEC   BC
+              	      
+0280: 78      	      LD    A, B                    ; BC = 0?
+0281: B1      	      OR    C
+0282: 20F5    	      JR    NZ, MEM_TEST_LOOP       ; NO
+              	      
+0284: B3      	      OR    E                       ; Completed zero test?
+0285: 20C7    	      JR    NZ, MEM_TEST_NEXT       ; NO - next test pattern
+              	
+0287:         	MEM_TEST_DONE:      
+0287: 1801    	      JR    INDEX_REG_TEST
+              	
+0289:         	MEM_TEST_ERR:
+0289: 76      	      HALT                          ; Halt on error
+              	
+              	;---------------------------------------------------------------------
+              	;     INDEX REGISTER TEST                                            :
+              	;                                                                    :
+              	; DESCRIPTION                                                        :
+              	;     Performs a test on the IX and IY registers.                    :
+              	;                                                                    :
+              	;     To be executed only after PROC_TEST and MEM_TEST, as           :
+              	;     functional and error free registers and RAM are required.      :
+              	;---------------------------------------------------------------------
+028A:         	INDEX_REG_TEST:
+028A: DD210000	      LD    IX, 0                   ; Load and store test patterns
+028E: FD210000	      LD    IY, 0
+0292: DDE5    	      PUSH  IX
+0294: FDE5    	      PUSH  IY
+              	      
+0296: DD21FFFF	      LD    IX, 0xFFFF
+029A: FD21FFFF	      LD    IY, 0xFFFF
+029E: DDE5    	      PUSH  IX
+02A0: FDE5    	      PUSH  IY
+              	      
+02A2: 0604    	      LD    B, 4                    ; Will POP 2 pairs
+              	      
+02A4:         	NEXT_INDEX_REG:
+02A4: D1      	      POP   DE
+02A5: 7A      	      LD    A, D
+02A6: AB      	      XOR   E
+02A7: 2004    	      JR    NZ, INDEX_REG_TEST_ERR  ; Result should be zero
+02A9: 10F9    	      DJNZ  NEXT_INDEX_REG
+              	      
+02AB: 1801    	      JR    MAIN                    ; End of tests - go to main SM
+              	      
+02AD:         	INDEX_REG_TEST_ERR:
+02AD: 76      	      HALT
+              	
+              	;---------------------------------------------------------------------
+              	;     MAIN APPLICATION LOOP
+              	;
+              	; DESCRIPTION
+              	;     Implemented here is a state machine responsible for scheduling
+              	;     all I/O operations and other tasks.
+              	;---------------------------------------------------------------------
+02AE:         	MAIN:
+02AE: 3100A0  	      LD    SP, RAM_MAX + 1         ; Stack starts at top of RAM
+              	      
+02B1: 3E01    	      LD    A, 0x01                 ; INT vector table in page 1
+02B3: ED47    	      LD    I, A
+              	      
+              	      
+02B5: 76      	      HALT
+              	
+              	#end
+
+
+; +++ segments +++
+
+#CODE ROM      = $0000 =     0,  size = $6000 = 24576
+#DATA RAM      = $8000 = 32768,  size = $2000 =  8192
+
+; +++ global symbols +++
+
+C8                 = $022B =   555  ROM     clock.a80:141
+C9                 = $0246 =   582  ROM     clock.a80:164
+CHAR_ROM_BASE      = $E000 = 57344          clock.a80:30
+CHAR_ROM_MAX       = $FFFF = 65535          clock.a80:32 (unused)
+CHAR_ROM_SZ        = $2000 =  8192          clock.a80:31
+INDEX_REG_TEST     = $028A =   650  ROM     clock.a80:252
+INDEX_REG_TEST_ERR = $02AD =   685  ROM     clock.a80:274
+INT_VECTOR_TABLE   = $0100 =   256  ROM     clock.a80:91 (unused)
+MAIN               = $02AE =   686  ROM     clock.a80:284
+MEM_TEST           = $024C =   588  ROM     clock.a80:184
+MEM_TEST_0         = $0275 =   629  ROM     clock.a80:216
+MEM_TEST_01        = $0271 =   625  ROM     clock.a80:212
+MEM_TEST_55        = $0269 =   617  ROM     clock.a80:204
+MEM_TEST_DONE      = $0287 =   647  ROM     clock.a80:237 (unused)
+MEM_TEST_ERR       = $0289 =   649  ROM     clock.a80:240
+MEM_TEST_FF        = $026D =   621  ROM     clock.a80:208
+MEM_TEST_LOOP      = $0279 =   633  ROM     clock.a80:221
+MEM_TEST_NEXT      = $024E =   590  ROM     clock.a80:187
+NEXT_INDEX_REG     = $02A4 =   676  ROM     clock.a80:265
+NMI_VECTOR         = $0066 =   102  ROM     clock.a80:87 (unused)
+PROC_TEST          = $0202 =   514  ROM     clock.a80:114 (unused)
+PROC_TEST_ERR      = $024B =   587  ROM     clock.a80:169
+RAM                = $8000 = 32768  RAM     clock.a80:34 (unused)
+RAM_BASE           = $8000 = 32768          clock.a80:22
+RAM_MAX            = $9FFF = 40959          clock.a80:24
+RAM_SZ             = $2000 =  8192          clock.a80:23
+RAM_end            = $A000 = 40960  RAM     clock.a80:34 (unused)
+RAM_size           = $2000 =  8192  RAM     clock.a80:34 (unused)
+RESET              = $0200 =   512  ROM     clock.a80:98
+ROM                = $0000 =     0  ROM     clock.a80:43 (unused)
+ROM_BASE           = $0000 =     0          clock.a80:18
+ROM_MAX            = $5FFF = 24575          clock.a80:20 (unused)
+ROM_SZ             = $6000 = 24576          clock.a80:19
+ROM_end            = $6000 = 24576  ROM     clock.a80:43 (unused)
+ROM_size           = $6000 = 24576  ROM     clock.a80:43 (unused)
+RST0               = $0000 =     0  ROM     clock.a80:51 (unused)
+SM_MAIN            = $8000 = 32768  RAM     clock.a80:40 (unused)
+SM_MAIN_RESET      = $0001 =     1  RAM     clock.a80:41 (unused)
+TZ_ROM_BASE        = $C000 = 49152          clock.a80:26
+TZ_ROM_MAX         = $DFFF = 57343          clock.a80:28 (unused)
+TZ_ROM_SZ          = $2000 =  8192          clock.a80:27
+_reqcolon_         = $0001 =     1          :1 (unused)
+
+
+total time: 0.0061 sec.
+no errors

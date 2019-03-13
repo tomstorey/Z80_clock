@@ -1,0 +1,293 @@
+;*********************************************************************
+; Z80 based, 3 time zone clock
+;
+; This code has been written to be compiled with the zasm assembler
+; available from:
+;
+; https://k1.spdns.de/Develop/Projects/zasm/Distributions/
+;
+; Command line options used:
+;
+; ./zasm --hex --opcodes --labels --reqcolon -v2 clock.a80
+;*********************************************************************
+
+#target ROM
+;---------------------------------------------------------------------­
+;                            MEMORY SIZES                            :
+;---------------------------------------------------------------------
+ROM_BASE          EQU   0
+ROM_SZ            EQU   24576
+ROM_MAX           EQU   ROM_BASE + ROM_SZ - 1
+
+RAM_BASE          EQU   0x8000
+RAM_SZ            EQU   8192
+RAM_MAX           EQU   RAM_BASE + RAM_SZ - 1
+      
+TZ_ROM_BASE       EQU   0xC000
+TZ_ROM_SZ         EQU   8192
+TZ_ROM_MAX        EQU   TZ_ROM_BASE + TZ_ROM_SZ - 1
+      
+CHAR_ROM_BASE     EQU   0xE000
+CHAR_ROM_SZ       EQU   8192
+CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
+
+;---- Begin allocation of variables in RAM
+#data RAM, RAM_BASE, RAM_SZ
+
+;---------------------------------------------------------------------­
+;                 MAIN LOOP STATE MACHINE VARIABLES                  :
+;---------------------------------------------------------------------
+SM_MAIN:          DB    0           ; Variable to hold state
+SM_MAIN_RESET     EQU   0x01        ; Reset state
+
+;---- Begin application code
+#code ROM, ROM_BASE, ROM_SZ
+
+;---------------------------------------------------------------------­
+;                            RST VECTORS                             :
+;---------------------------------------------------------------------
+
+      ORG 0
+RST0:
+      JP    RESET
+      HALT
+
+;       ORG 0x08
+; RST1:
+;       RET
+
+;       ORG 0x10
+; RST2:
+;       RET
+
+;       ORG 0x18
+; RST3:
+;       RET
+
+;       ORG 0x20
+; RST4:
+;       RET
+
+;       ORG 0x28
+; RST5:
+;       RET
+
+;       ORG 0x30
+; RST6:
+;       RET
+
+;       ORG 0x38
+; RST7:
+;       RET
+
+;---------------------------------------------------------------------­
+;                         INTERRUPT VECTORS                          :
+;---------------------------------------------------------------------
+      ORG 0x0066
+NMI_VECTOR:
+      RET
+
+      ORG 0x0100
+INT_VECTOR_TABLE:
+      DW    RESET
+
+;---------------------------------------------------------------------­
+;                            RESET VECTOR                            :
+;---------------------------------------------------------------------
+      ORG 0x0200
+RESET:
+      IM    2                       ; Z80 family vectored interrupts
+      
+;---- On reset, fall through to processor/RAM test routines. SP and
+;     I registers will be loaded later as their values will be
+;     destroyed during processor tests.
+
+;---------------------------------------------------------------------
+;     Z80 PROCESSOR TEST                                             :
+;                                                                    :
+; DESCRIPTION                                                        :
+;     Verify Z80 flags, registers (except IX/IY) and conditional     :
+;     jumps.                                                         :
+;                                                                    :
+;     Adapted from IBM 5150 BIOS.                                    :
+;---------------------------------------------------------------------
+PROC_TEST:
+      DI                            ; Disable maskable interrupts
+      
+      XOR   A
+      JR    C, PROC_TEST_ERR        ; CARRY should be CLEAR
+      JP    PO, PROC_TEST_ERR       ; PARITY should be EVEN
+      JR    NZ, PROC_TEST_ERR       ; Result should be ZERO
+      JP    M, PROC_TEST_ERR        ; Result should be POSITIVE
+      
+      SUB   1
+      JR    NC, PROC_TEST_ERR       ; CARRY should be SET
+      JP    PE, PROC_TEST_ERR       ; PARITY should be ODD
+      JR    Z, PROC_TEST_ERR        ; Result should be NON-ZERO
+      JP    P, PROC_TEST_ERR        ; Result should be NEGATIVE
+      
+      LD    A, 0x01
+      SRL   A
+      JR    NC, PROC_TEST_ERR       ; CARRY should be SET
+      JR    NZ, PROC_TEST_ERR       ; Result should be ZERO
+      
+      RL    A
+      JR    C, PROC_TEST_ERR        ; CARRY should be CLEAR
+      JR    Z, PROC_TEST_ERR        ; Result should be NON-ZERO
+
+      LD    A, 0xFF                 ; Setup one's pattern in A
+      SCF
+      
+C8:
+      LD    I, A                    ; Write pattern to all regs
+      LD    A, I
+      LD    L, A
+      LD    H, L
+      LD    E, H
+      LD    D, E
+      LD    C, D
+      LD    B, C
+      LD    A, B
+      EXX
+      LD    L, A
+      LD    H, L
+      LD    E, H
+      LD    D, E
+      LD    C, D
+      LD    B, C
+      LD    A, B
+      JR    NC, C9
+      XOR   0xFF                    ; Pattern make it through all regs
+      JR    NZ, PROC_TEST_ERR       ; NO - go to err routine
+      JR    C8
+      
+C9:
+      LD    A, I                    ; Zero pattern make it through?
+      OR    B
+      JR    Z, MEM_TEST             ; Next test if yes
+
+PROC_TEST_ERR:
+      HALT                          ; HALT on error
+
+;---------------------------------------------------------------------
+;     RAM TEST                                                       :
+;                                                                    :
+; DESCRIPTION                                                        :
+;     Performs a read/write storage test on RAM address space as     :
+;     defined by RAM_BASE and RAM_SZ variables.                      :
+;                                                                    :
+;     Writes a series of patterns (0xAA, 0x55, 0xFF, 0x01 and 0x00)  :
+;     and reads them back to check for errors.                       :
+;                                                                    :
+;     !!! DESTROYS CONTENTS OF ENTIRE MEMORY BLOCK !!!               :
+;---------------------------------------------------------------------
+MEM_TEST:
+      LD    E, 0
+      
+MEM_TEST_NEXT:
+      LD    HL, RAM_BASE            ; HL is address to begin test from
+      LD    BC, RAM_SZ              ; BC is number of bytes to test
+      
+      LD    A, E                    ; Select next test pattern
+      CP    0xAA
+      JR    Z, MEM_TEST_55
+      CP    0x55
+      JR    Z, MEM_TEST_FF
+      CP    0xFF
+      JR    Z, MEM_TEST_01
+      CP    0x01
+      JR    Z, MEM_TEST_0
+      
+      LD    E, 0xAA
+      JR    MEM_TEST_LOOP
+      
+MEM_TEST_55:
+      LD    E, 0x55
+      JR    MEM_TEST_LOOP
+      
+MEM_TEST_FF:
+      LD    E, 0xFF
+      JR    MEM_TEST_LOOP
+      
+MEM_TEST_01:
+      LD    E, 0x01
+      JR    MEM_TEST_LOOP
+      
+MEM_TEST_0:
+      LD    E, 0
+      JR    MEM_TEST_LOOP
+      
+      
+MEM_TEST_LOOP:
+      LD    (HL), E                 ; Write test pattern from E, read
+      LD    A, (HL)                 ; back, XOR and ensure result is
+      XOR   E                       ; zero to indicate success.
+      JR    NZ, MEM_TEST_ERR
+      
+      INC   HL
+      DEC   BC
+      
+      LD    A, B                    ; BC = 0?
+      OR    C
+      JR    NZ, MEM_TEST_LOOP       ; NO
+      
+      OR    E                       ; Completed zero test?
+      JR    NZ, MEM_TEST_NEXT       ; NO - next test pattern
+
+MEM_TEST_DONE:      
+      JR    INDEX_REG_TEST
+
+MEM_TEST_ERR:
+      HALT                          ; Halt on error
+
+;---------------------------------------------------------------------
+;     INDEX REGISTER TEST                                            :
+;                                                                    :
+; DESCRIPTION                                                        :
+;     Performs a test on the IX and IY registers.                    :
+;                                                                    :
+;     To be executed only after PROC_TEST and MEM_TEST, as           :
+;     functional and error free registers and RAM are required.      :
+;---------------------------------------------------------------------
+INDEX_REG_TEST:
+      LD    IX, 0                   ; Load and store test patterns
+      LD    IY, 0
+      PUSH  IX
+      PUSH  IY
+      
+      LD    IX, 0xFFFF
+      LD    IY, 0xFFFF
+      PUSH  IX
+      PUSH  IY
+      
+      LD    B, 4                    ; Will POP 2 pairs
+      
+NEXT_INDEX_REG:
+      POP   DE
+      LD    A, D
+      XOR   E
+      JR    NZ, INDEX_REG_TEST_ERR  ; Result should be zero
+      DJNZ  NEXT_INDEX_REG
+      
+      JR    MAIN                    ; End of tests - go to main SM
+      
+INDEX_REG_TEST_ERR:
+      HALT
+
+;---------------------------------------------------------------------
+;     MAIN APPLICATION LOOP
+;
+; DESCRIPTION
+;     Implemented here is a state machine responsible for scheduling
+;     all I/O operations and other tasks.
+;---------------------------------------------------------------------
+MAIN:
+      LD    SP, RAM_MAX + 1         ; Stack starts at top of RAM
+      
+      LD    A, 0x01                 ; INT vector table in page 1
+      LD    I, A
+      
+      
+      HALT
+
+#end

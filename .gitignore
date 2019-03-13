@@ -1,0 +1,9 @@
+*.*
+!*.sch
+!*.brd
+!*.a80
+!*.lst
+!*.hex
+!*.lbr
+!.gitignore
+!build.sh
