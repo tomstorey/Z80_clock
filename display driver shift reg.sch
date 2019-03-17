@@ -15622,17 +15622,17 @@ DRIVER BOARD</text>
 <attribute name="NAME" x="55.88" y="11.938" size="1.778" layer="95"/>
 <attribute name="VALUE" x="53.086" y="9.779" size="1.778" layer="96"/>
 </instance>
-<instance part="SV4" gate="-34" x="88.9" y="45.72" smashed="yes">
-<attribute name="NAME" x="91.44" y="44.958" size="1.778" layer="95"/>
-<attribute name="VALUE" x="88.646" y="42.799" size="1.778" layer="96"/>
+<instance part="SV4" gate="-34" x="91.44" y="45.72" smashed="yes">
+<attribute name="NAME" x="93.98" y="44.958" size="1.778" layer="95"/>
+<attribute name="VALUE" x="91.186" y="42.799" size="1.778" layer="96"/>
 </instance>
-<instance part="SV4" gate="-35" x="88.9" y="43.18" smashed="yes">
-<attribute name="NAME" x="91.44" y="42.418" size="1.778" layer="95"/>
-<attribute name="VALUE" x="88.646" y="40.259" size="1.778" layer="96"/>
+<instance part="SV4" gate="-35" x="91.44" y="43.18" smashed="yes">
+<attribute name="NAME" x="93.98" y="42.418" size="1.778" layer="95"/>
+<attribute name="VALUE" x="91.186" y="40.259" size="1.778" layer="96"/>
 </instance>
-<instance part="SV4" gate="-36" x="88.9" y="40.64" smashed="yes">
-<attribute name="NAME" x="91.44" y="39.878" size="1.778" layer="95"/>
-<attribute name="VALUE" x="88.646" y="37.719" size="1.778" layer="96"/>
+<instance part="SV4" gate="-36" x="91.44" y="40.64" smashed="yes">
+<attribute name="NAME" x="93.98" y="39.878" size="1.778" layer="95"/>
+<attribute name="VALUE" x="91.186" y="37.719" size="1.778" layer="96"/>
 </instance>
 <instance part="SV4" gate="-37" x="-106.68" y="-15.24" smashed="yes">
 <attribute name="NAME" x="-104.14" y="-16.002" size="1.778" layer="95"/>
@@ -18039,391 +18039,7 @@ DRIVER BOARD</text>
 <pinref part="R9" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL7_A" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QA"/>
-<label x="190.5" y="182.88" size="1.778" layer="95"/>
-<wire x1="203.2" y1="182.88" x2="187.96" y2="182.88" width="0.1524" layer="91"/>
-<pinref part="R10" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_M" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QB"/>
-<label x="190.5" y="180.34" size="1.778" layer="95"/>
-<wire x1="203.2" y1="180.34" x2="187.96" y2="180.34" width="0.1524" layer="91"/>
-<pinref part="R11" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_K" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QC"/>
-<label x="190.5" y="177.8" size="1.778" layer="95"/>
-<wire x1="203.2" y1="177.8" x2="187.96" y2="177.8" width="0.1524" layer="91"/>
-<pinref part="R12" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_H" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QD"/>
-<label x="190.5" y="175.26" size="1.778" layer="95"/>
-<wire x1="203.2" y1="175.26" x2="187.96" y2="175.26" width="0.1524" layer="91"/>
-<pinref part="R13" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_U" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QE"/>
-<label x="190.5" y="172.72" size="1.778" layer="95"/>
-<wire x1="203.2" y1="172.72" x2="187.96" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="R14" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_S" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QF"/>
-<label x="190.5" y="170.18" size="1.778" layer="95"/>
-<wire x1="203.2" y1="170.18" x2="187.96" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="R15" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_T" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QG"/>
-<label x="190.5" y="167.64" size="1.778" layer="95"/>
-<wire x1="203.2" y1="167.64" x2="187.96" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="R16" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_G" class="0">
-<segment>
-<pinref part="U16" gate="A" pin="QH"/>
-<label x="190.5" y="165.1" size="1.778" layer="95"/>
-<wire x1="203.2" y1="165.1" x2="187.96" y2="165.1" width="0.1524" layer="91"/>
-<pinref part="R17" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_F" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QA"/>
-<label x="274.32" y="182.88" size="1.778" layer="95"/>
-<wire x1="287.02" y1="182.88" x2="271.78" y2="182.88" width="0.1524" layer="91"/>
-<pinref part="R18" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_E" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QB"/>
-<label x="274.32" y="180.34" size="1.778" layer="95"/>
-<wire x1="287.02" y1="180.34" x2="271.78" y2="180.34" width="0.1524" layer="91"/>
-<pinref part="R19" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_D" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QC"/>
-<label x="274.32" y="177.8" size="1.778" layer="95"/>
-<wire x1="287.02" y1="177.8" x2="271.78" y2="177.8" width="0.1524" layer="91"/>
-<pinref part="R20" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_R" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QD"/>
-<label x="274.32" y="175.26" size="1.778" layer="95"/>
-<wire x1="287.02" y1="175.26" x2="271.78" y2="175.26" width="0.1524" layer="91"/>
-<pinref part="R21" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_P" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QE"/>
-<label x="274.32" y="172.72" size="1.778" layer="95"/>
-<wire x1="287.02" y1="172.72" x2="271.78" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="R22" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_C" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QF"/>
-<label x="274.32" y="170.18" size="1.778" layer="95"/>
-<wire x1="287.02" y1="170.18" x2="271.78" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="R23" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_N" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QG"/>
-<label x="274.32" y="167.64" size="1.778" layer="95"/>
-<wire x1="287.02" y1="167.64" x2="271.78" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="R24" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL7_B" class="0">
-<segment>
-<pinref part="U17" gate="A" pin="QH"/>
-<label x="274.32" y="165.1" size="1.778" layer="95"/>
-<wire x1="287.02" y1="165.1" x2="271.78" y2="165.1" width="0.1524" layer="91"/>
-<pinref part="R25" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_A" class="0">
-<segment>
-<label x="358.14" y="182.88" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QA"/>
-<wire x1="370.84" y1="182.88" x2="355.6" y2="182.88" width="0.1524" layer="91"/>
-<pinref part="R26" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_M" class="0">
-<segment>
-<label x="358.14" y="180.34" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QB"/>
-<wire x1="370.84" y1="180.34" x2="355.6" y2="180.34" width="0.1524" layer="91"/>
-<pinref part="R27" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_K" class="0">
-<segment>
-<label x="358.14" y="177.8" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QC"/>
-<wire x1="370.84" y1="177.8" x2="355.6" y2="177.8" width="0.1524" layer="91"/>
-<pinref part="R28" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_H" class="0">
-<segment>
-<label x="358.14" y="175.26" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QD"/>
-<wire x1="370.84" y1="175.26" x2="355.6" y2="175.26" width="0.1524" layer="91"/>
-<pinref part="R29" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_U" class="0">
-<segment>
-<label x="358.14" y="172.72" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QE"/>
-<wire x1="370.84" y1="172.72" x2="355.6" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="R30" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_S" class="0">
-<segment>
-<label x="358.14" y="170.18" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QF"/>
-<wire x1="370.84" y1="170.18" x2="355.6" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="R31" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_T" class="0">
-<segment>
-<label x="358.14" y="167.64" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QG"/>
-<wire x1="370.84" y1="167.64" x2="355.6" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="R32" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_G" class="0">
-<segment>
-<label x="358.14" y="165.1" size="1.778" layer="95"/>
-<pinref part="U18" gate="A" pin="QH"/>
-<wire x1="370.84" y1="165.1" x2="355.6" y2="165.1" width="0.1524" layer="91"/>
-<pinref part="R33" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_F" class="0">
-<segment>
-<label x="441.96" y="182.88" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QA"/>
-<wire x1="454.66" y1="182.88" x2="439.42" y2="182.88" width="0.1524" layer="91"/>
-<pinref part="R34" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_E" class="0">
-<segment>
-<label x="441.96" y="180.34" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QB"/>
-<wire x1="454.66" y1="180.34" x2="439.42" y2="180.34" width="0.1524" layer="91"/>
-<pinref part="R35" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_D" class="0">
-<segment>
-<label x="441.96" y="177.8" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QC"/>
-<wire x1="454.66" y1="177.8" x2="439.42" y2="177.8" width="0.1524" layer="91"/>
-<pinref part="R36" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_R" class="0">
-<segment>
-<label x="441.96" y="175.26" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QD"/>
-<wire x1="454.66" y1="175.26" x2="439.42" y2="175.26" width="0.1524" layer="91"/>
-<pinref part="R37" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_P" class="0">
-<segment>
-<label x="441.96" y="172.72" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QE"/>
-<wire x1="454.66" y1="172.72" x2="439.42" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="R38" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_C" class="0">
-<segment>
-<label x="441.96" y="170.18" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QF"/>
-<wire x1="454.66" y1="170.18" x2="439.42" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="R39" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_N" class="0">
-<segment>
-<label x="441.96" y="167.64" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QG"/>
-<wire x1="454.66" y1="167.64" x2="439.42" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="R40" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL6_B" class="0">
-<segment>
-<label x="441.96" y="165.1" size="1.778" layer="95"/>
-<pinref part="U19" gate="A" pin="QH"/>
-<wire x1="454.66" y1="165.1" x2="439.42" y2="165.1" width="0.1524" layer="91"/>
-<pinref part="R41" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_A" class="0">
-<segment>
-<label x="190.5" y="127" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QA"/>
-<wire x1="203.2" y1="127" x2="187.96" y2="127" width="0.1524" layer="91"/>
-<pinref part="R42" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_M" class="0">
-<segment>
-<label x="190.5" y="124.46" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QB"/>
-<wire x1="203.2" y1="124.46" x2="187.96" y2="124.46" width="0.1524" layer="91"/>
-<pinref part="R43" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_K" class="0">
-<segment>
-<label x="190.5" y="121.92" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QC"/>
-<wire x1="203.2" y1="121.92" x2="187.96" y2="121.92" width="0.1524" layer="91"/>
-<pinref part="R44" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_H" class="0">
-<segment>
-<label x="190.5" y="119.38" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QD"/>
-<wire x1="203.2" y1="119.38" x2="187.96" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="R45" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_U" class="0">
-<segment>
-<label x="190.5" y="116.84" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QE"/>
-<wire x1="203.2" y1="116.84" x2="187.96" y2="116.84" width="0.1524" layer="91"/>
-<pinref part="R46" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_S" class="0">
-<segment>
-<label x="190.5" y="114.3" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QF"/>
-<wire x1="203.2" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="R47" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_T" class="0">
-<segment>
-<label x="190.5" y="111.76" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QG"/>
-<wire x1="203.2" y1="111.76" x2="187.96" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="R48" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_G" class="0">
-<segment>
-<label x="190.5" y="109.22" size="1.778" layer="95"/>
-<pinref part="U20" gate="A" pin="QH"/>
-<wire x1="203.2" y1="109.22" x2="187.96" y2="109.22" width="0.1524" layer="91"/>
-<pinref part="R49" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_F" class="0">
-<segment>
-<label x="274.32" y="127" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QA"/>
-<wire x1="287.02" y1="127" x2="271.78" y2="127" width="0.1524" layer="91"/>
-<pinref part="R50" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_E" class="0">
-<segment>
-<label x="274.32" y="124.46" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QB"/>
-<wire x1="287.02" y1="124.46" x2="271.78" y2="124.46" width="0.1524" layer="91"/>
-<pinref part="R51" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_D" class="0">
-<segment>
-<label x="274.32" y="121.92" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QC"/>
-<wire x1="287.02" y1="121.92" x2="271.78" y2="121.92" width="0.1524" layer="91"/>
-<pinref part="R52" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_R" class="0">
-<segment>
-<label x="274.32" y="119.38" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QD"/>
-<wire x1="287.02" y1="119.38" x2="271.78" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="R53" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_P" class="0">
-<segment>
-<label x="274.32" y="116.84" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QE"/>
-<wire x1="287.02" y1="116.84" x2="271.78" y2="116.84" width="0.1524" layer="91"/>
-<pinref part="R54" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_C" class="0">
-<segment>
-<label x="274.32" y="114.3" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QF"/>
-<wire x1="287.02" y1="114.3" x2="271.78" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="R55" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_N" class="0">
-<segment>
-<label x="274.32" y="111.76" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QG"/>
-<wire x1="287.02" y1="111.76" x2="271.78" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="R56" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL5_B" class="0">
-<segment>
-<label x="274.32" y="109.22" size="1.778" layer="95"/>
-<pinref part="U21" gate="A" pin="QH"/>
-<wire x1="287.02" y1="109.22" x2="271.78" y2="109.22" width="0.1524" layer="91"/>
-<pinref part="R57" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL4_A" class="0">
+<net name="COL3_A" class="0">
 <segment>
 <label x="358.14" y="127" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QA"/>
@@ -18431,7 +18047,7 @@ DRIVER BOARD</text>
 <pinref part="R58" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_M" class="0">
+<net name="COL3_M" class="0">
 <segment>
 <label x="358.14" y="124.46" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QB"/>
@@ -18439,7 +18055,7 @@ DRIVER BOARD</text>
 <pinref part="R59" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_K" class="0">
+<net name="COL3_K" class="0">
 <segment>
 <label x="358.14" y="121.92" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QC"/>
@@ -18447,7 +18063,7 @@ DRIVER BOARD</text>
 <pinref part="R60" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_H" class="0">
+<net name="COL3_H" class="0">
 <segment>
 <label x="358.14" y="119.38" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QD"/>
@@ -18455,7 +18071,7 @@ DRIVER BOARD</text>
 <pinref part="R61" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_U" class="0">
+<net name="COL3_U" class="0">
 <segment>
 <label x="358.14" y="116.84" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QE"/>
@@ -18463,7 +18079,7 @@ DRIVER BOARD</text>
 <pinref part="R62" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_S" class="0">
+<net name="COL3_S" class="0">
 <segment>
 <label x="358.14" y="114.3" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QF"/>
@@ -18471,7 +18087,7 @@ DRIVER BOARD</text>
 <pinref part="R63" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_T" class="0">
+<net name="COL3_T" class="0">
 <segment>
 <label x="358.14" y="111.76" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QG"/>
@@ -18479,7 +18095,7 @@ DRIVER BOARD</text>
 <pinref part="R64" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_G" class="0">
+<net name="COL3_G" class="0">
 <segment>
 <label x="358.14" y="109.22" size="1.778" layer="95"/>
 <pinref part="U22" gate="A" pin="QH"/>
@@ -18487,7 +18103,7 @@ DRIVER BOARD</text>
 <pinref part="R65" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_F" class="0">
+<net name="COL3_F" class="0">
 <segment>
 <label x="441.96" y="127" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QA"/>
@@ -18495,7 +18111,7 @@ DRIVER BOARD</text>
 <pinref part="R66" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_E" class="0">
+<net name="COL3_E" class="0">
 <segment>
 <label x="441.96" y="124.46" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QB"/>
@@ -18503,7 +18119,7 @@ DRIVER BOARD</text>
 <pinref part="R67" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_D" class="0">
+<net name="COL3_D" class="0">
 <segment>
 <label x="441.96" y="121.92" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QC"/>
@@ -18511,7 +18127,7 @@ DRIVER BOARD</text>
 <pinref part="R68" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_R" class="0">
+<net name="COL3_R" class="0">
 <segment>
 <label x="441.96" y="119.38" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QD"/>
@@ -18519,7 +18135,7 @@ DRIVER BOARD</text>
 <pinref part="R69" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_P" class="0">
+<net name="COL3_P" class="0">
 <segment>
 <label x="441.96" y="116.84" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QE"/>
@@ -18527,7 +18143,7 @@ DRIVER BOARD</text>
 <pinref part="R70" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_C" class="0">
+<net name="COL3_C" class="0">
 <segment>
 <label x="441.96" y="114.3" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QF"/>
@@ -18535,7 +18151,7 @@ DRIVER BOARD</text>
 <pinref part="R71" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_N" class="0">
+<net name="COL3_N" class="0">
 <segment>
 <label x="441.96" y="111.76" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QG"/>
@@ -18543,7 +18159,7 @@ DRIVER BOARD</text>
 <pinref part="R72" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL4_B" class="0">
+<net name="COL3_B" class="0">
 <segment>
 <label x="441.96" y="109.22" size="1.778" layer="95"/>
 <pinref part="U23" gate="A" pin="QH"/>
@@ -18551,516 +18167,388 @@ DRIVER BOARD</text>
 <pinref part="R73" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="COL3_A" class="0">
-<segment>
-<label x="190.5" y="71.12" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QA"/>
-<wire x1="203.2" y1="71.12" x2="187.96" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="R74" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_M" class="0">
-<segment>
-<label x="190.5" y="68.58" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QB"/>
-<wire x1="203.2" y1="68.58" x2="187.96" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="R75" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_K" class="0">
-<segment>
-<label x="190.5" y="66.04" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QC"/>
-<wire x1="203.2" y1="66.04" x2="187.96" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="R76" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_H" class="0">
-<segment>
-<label x="190.5" y="63.5" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QD"/>
-<wire x1="203.2" y1="63.5" x2="187.96" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="R77" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_U" class="0">
-<segment>
-<label x="190.5" y="60.96" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QE"/>
-<wire x1="203.2" y1="60.96" x2="187.96" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="R78" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_S" class="0">
-<segment>
-<label x="190.5" y="58.42" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QF"/>
-<wire x1="203.2" y1="58.42" x2="187.96" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="R79" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_T" class="0">
-<segment>
-<label x="190.5" y="55.88" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QG"/>
-<wire x1="203.2" y1="55.88" x2="187.96" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="R80" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_G" class="0">
-<segment>
-<label x="190.5" y="53.34" size="1.778" layer="95"/>
-<pinref part="U24" gate="A" pin="QH"/>
-<wire x1="203.2" y1="53.34" x2="187.96" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="R81" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_F" class="0">
-<segment>
-<label x="274.32" y="71.12" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QA"/>
-<wire x1="287.02" y1="71.12" x2="271.78" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="R82" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_E" class="0">
-<segment>
-<label x="274.32" y="68.58" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QB"/>
-<wire x1="287.02" y1="68.58" x2="271.78" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="R83" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_D" class="0">
-<segment>
-<label x="274.32" y="66.04" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QC"/>
-<wire x1="287.02" y1="66.04" x2="271.78" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="R84" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_R" class="0">
-<segment>
-<label x="274.32" y="63.5" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QD"/>
-<wire x1="287.02" y1="63.5" x2="271.78" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="R85" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_P" class="0">
-<segment>
-<label x="274.32" y="60.96" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QE"/>
-<wire x1="287.02" y1="60.96" x2="271.78" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="R86" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_C" class="0">
-<segment>
-<label x="274.32" y="58.42" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QF"/>
-<wire x1="287.02" y1="58.42" x2="271.78" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="R87" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_N" class="0">
-<segment>
-<label x="274.32" y="55.88" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QG"/>
-<wire x1="287.02" y1="55.88" x2="271.78" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="R88" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="COL3_B" class="0">
-<segment>
-<label x="274.32" y="53.34" size="1.778" layer="95"/>
-<pinref part="U25" gate="A" pin="QH"/>
-<wire x1="287.02" y1="53.34" x2="271.78" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="R89" gate="G$1" pin="1"/>
-</segment>
-</net>
 <net name="COL2_A" class="0">
 <segment>
-<label x="358.14" y="71.12" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QA"/>
-<wire x1="370.84" y1="71.12" x2="355.6" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="R90" gate="G$1" pin="1"/>
+<label x="190.5" y="127" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QA"/>
+<wire x1="203.2" y1="127" x2="187.96" y2="127" width="0.1524" layer="91"/>
+<pinref part="R42" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_M" class="0">
 <segment>
-<label x="358.14" y="68.58" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QB"/>
-<wire x1="370.84" y1="68.58" x2="355.6" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="R91" gate="G$1" pin="1"/>
+<label x="190.5" y="124.46" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QB"/>
+<wire x1="203.2" y1="124.46" x2="187.96" y2="124.46" width="0.1524" layer="91"/>
+<pinref part="R43" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_K" class="0">
 <segment>
-<label x="358.14" y="66.04" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QC"/>
-<wire x1="370.84" y1="66.04" x2="355.6" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="R92" gate="G$1" pin="1"/>
+<label x="190.5" y="121.92" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QC"/>
+<wire x1="203.2" y1="121.92" x2="187.96" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="R44" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_H" class="0">
 <segment>
-<label x="358.14" y="63.5" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QD"/>
-<wire x1="370.84" y1="63.5" x2="355.6" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="R93" gate="G$1" pin="1"/>
+<label x="190.5" y="119.38" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QD"/>
+<wire x1="203.2" y1="119.38" x2="187.96" y2="119.38" width="0.1524" layer="91"/>
+<pinref part="R45" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_U" class="0">
 <segment>
-<label x="358.14" y="60.96" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QE"/>
-<wire x1="370.84" y1="60.96" x2="355.6" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="R94" gate="G$1" pin="1"/>
+<label x="190.5" y="116.84" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QE"/>
+<wire x1="203.2" y1="116.84" x2="187.96" y2="116.84" width="0.1524" layer="91"/>
+<pinref part="R46" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_S" class="0">
 <segment>
-<label x="358.14" y="58.42" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QF"/>
-<wire x1="370.84" y1="58.42" x2="355.6" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="R95" gate="G$1" pin="1"/>
+<label x="190.5" y="114.3" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QF"/>
+<wire x1="203.2" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
+<pinref part="R47" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_T" class="0">
 <segment>
-<label x="358.14" y="55.88" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QG"/>
-<wire x1="370.84" y1="55.88" x2="355.6" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="R96" gate="G$1" pin="1"/>
+<label x="190.5" y="111.76" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QG"/>
+<wire x1="203.2" y1="111.76" x2="187.96" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="R48" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_G" class="0">
 <segment>
-<label x="358.14" y="53.34" size="1.778" layer="95"/>
-<pinref part="U26" gate="A" pin="QH"/>
-<wire x1="370.84" y1="53.34" x2="355.6" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="R97" gate="G$1" pin="1"/>
+<label x="190.5" y="109.22" size="1.778" layer="95"/>
+<pinref part="U20" gate="A" pin="QH"/>
+<wire x1="203.2" y1="109.22" x2="187.96" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="R49" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_F" class="0">
 <segment>
-<label x="441.96" y="71.12" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QA"/>
-<wire x1="454.66" y1="71.12" x2="439.42" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="R98" gate="G$1" pin="1"/>
+<label x="274.32" y="127" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QA"/>
+<wire x1="287.02" y1="127" x2="271.78" y2="127" width="0.1524" layer="91"/>
+<pinref part="R50" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_E" class="0">
 <segment>
-<label x="441.96" y="68.58" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QB"/>
-<wire x1="454.66" y1="68.58" x2="439.42" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="R99" gate="G$1" pin="1"/>
+<label x="274.32" y="124.46" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QB"/>
+<wire x1="287.02" y1="124.46" x2="271.78" y2="124.46" width="0.1524" layer="91"/>
+<pinref part="R51" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_D" class="0">
 <segment>
-<label x="441.96" y="66.04" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QC"/>
-<wire x1="454.66" y1="66.04" x2="439.42" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="R100" gate="G$1" pin="1"/>
+<label x="274.32" y="121.92" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QC"/>
+<wire x1="287.02" y1="121.92" x2="271.78" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="R52" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_R" class="0">
 <segment>
-<label x="441.96" y="63.5" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QD"/>
-<wire x1="454.66" y1="63.5" x2="439.42" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="R101" gate="G$1" pin="1"/>
+<label x="274.32" y="119.38" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QD"/>
+<wire x1="287.02" y1="119.38" x2="271.78" y2="119.38" width="0.1524" layer="91"/>
+<pinref part="R53" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_P" class="0">
 <segment>
-<label x="441.96" y="60.96" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QE"/>
-<wire x1="454.66" y1="60.96" x2="439.42" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="R102" gate="G$1" pin="1"/>
+<label x="274.32" y="116.84" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QE"/>
+<wire x1="287.02" y1="116.84" x2="271.78" y2="116.84" width="0.1524" layer="91"/>
+<pinref part="R54" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_C" class="0">
 <segment>
-<label x="441.96" y="58.42" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QF"/>
-<wire x1="454.66" y1="58.42" x2="439.42" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="R103" gate="G$1" pin="1"/>
+<label x="274.32" y="114.3" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QF"/>
+<wire x1="287.02" y1="114.3" x2="271.78" y2="114.3" width="0.1524" layer="91"/>
+<pinref part="R55" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_N" class="0">
 <segment>
-<label x="441.96" y="55.88" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QG"/>
-<wire x1="454.66" y1="55.88" x2="439.42" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="R104" gate="G$1" pin="1"/>
+<label x="274.32" y="111.76" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QG"/>
+<wire x1="287.02" y1="111.76" x2="271.78" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="R56" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL2_B" class="0">
 <segment>
-<label x="441.96" y="53.34" size="1.778" layer="95"/>
-<pinref part="U27" gate="A" pin="QH"/>
-<wire x1="454.66" y1="53.34" x2="439.42" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="R105" gate="G$1" pin="1"/>
+<label x="274.32" y="109.22" size="1.778" layer="95"/>
+<pinref part="U21" gate="A" pin="QH"/>
+<wire x1="287.02" y1="109.22" x2="271.78" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="R57" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_A" class="0">
 <segment>
-<label x="190.5" y="15.24" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QA"/>
-<wire x1="203.2" y1="15.24" x2="187.96" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="R106" gate="G$1" pin="1"/>
+<label x="358.14" y="182.88" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QA"/>
+<wire x1="370.84" y1="182.88" x2="355.6" y2="182.88" width="0.1524" layer="91"/>
+<pinref part="R26" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_M" class="0">
 <segment>
-<label x="190.5" y="12.7" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QB"/>
-<wire x1="203.2" y1="12.7" x2="187.96" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="R107" gate="G$1" pin="1"/>
+<label x="358.14" y="180.34" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QB"/>
+<wire x1="370.84" y1="180.34" x2="355.6" y2="180.34" width="0.1524" layer="91"/>
+<pinref part="R27" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_K" class="0">
 <segment>
-<label x="190.5" y="10.16" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QC"/>
-<wire x1="203.2" y1="10.16" x2="187.96" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="R108" gate="G$1" pin="1"/>
+<label x="358.14" y="177.8" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QC"/>
+<wire x1="370.84" y1="177.8" x2="355.6" y2="177.8" width="0.1524" layer="91"/>
+<pinref part="R28" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_H" class="0">
 <segment>
-<label x="190.5" y="7.62" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QD"/>
-<wire x1="203.2" y1="7.62" x2="187.96" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="R109" gate="G$1" pin="1"/>
+<label x="358.14" y="175.26" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QD"/>
+<wire x1="370.84" y1="175.26" x2="355.6" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="R29" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_U" class="0">
 <segment>
-<label x="190.5" y="5.08" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QE"/>
-<wire x1="203.2" y1="5.08" x2="187.96" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R110" gate="G$1" pin="1"/>
+<label x="358.14" y="172.72" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QE"/>
+<wire x1="370.84" y1="172.72" x2="355.6" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="R30" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_S" class="0">
 <segment>
-<label x="190.5" y="2.54" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QF"/>
-<wire x1="203.2" y1="2.54" x2="187.96" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="R111" gate="G$1" pin="1"/>
+<label x="358.14" y="170.18" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QF"/>
+<wire x1="370.84" y1="170.18" x2="355.6" y2="170.18" width="0.1524" layer="91"/>
+<pinref part="R31" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_T" class="0">
 <segment>
-<label x="190.5" y="0" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QG"/>
-<wire x1="203.2" y1="0" x2="187.96" y2="0" width="0.1524" layer="91"/>
-<pinref part="R112" gate="G$1" pin="1"/>
+<label x="358.14" y="167.64" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QG"/>
+<wire x1="370.84" y1="167.64" x2="355.6" y2="167.64" width="0.1524" layer="91"/>
+<pinref part="R32" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_G" class="0">
 <segment>
-<label x="190.5" y="-2.54" size="1.778" layer="95"/>
-<pinref part="U28" gate="A" pin="QH"/>
-<wire x1="203.2" y1="-2.54" x2="187.96" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="R113" gate="G$1" pin="1"/>
+<label x="358.14" y="165.1" size="1.778" layer="95"/>
+<pinref part="U18" gate="A" pin="QH"/>
+<wire x1="370.84" y1="165.1" x2="355.6" y2="165.1" width="0.1524" layer="91"/>
+<pinref part="R33" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_F" class="0">
 <segment>
-<label x="274.32" y="15.24" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QA"/>
-<wire x1="287.02" y1="15.24" x2="271.78" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="R114" gate="G$1" pin="1"/>
+<label x="441.96" y="182.88" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QA"/>
+<wire x1="454.66" y1="182.88" x2="439.42" y2="182.88" width="0.1524" layer="91"/>
+<pinref part="R34" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_E" class="0">
 <segment>
-<label x="274.32" y="12.7" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QB"/>
-<wire x1="287.02" y1="12.7" x2="271.78" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="R115" gate="G$1" pin="1"/>
+<label x="441.96" y="180.34" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QB"/>
+<wire x1="454.66" y1="180.34" x2="439.42" y2="180.34" width="0.1524" layer="91"/>
+<pinref part="R35" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_D" class="0">
 <segment>
-<label x="274.32" y="10.16" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QC"/>
-<wire x1="287.02" y1="10.16" x2="271.78" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="R116" gate="G$1" pin="1"/>
+<label x="441.96" y="177.8" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QC"/>
+<wire x1="454.66" y1="177.8" x2="439.42" y2="177.8" width="0.1524" layer="91"/>
+<pinref part="R36" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_R" class="0">
 <segment>
-<label x="274.32" y="7.62" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QD"/>
-<wire x1="287.02" y1="7.62" x2="271.78" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="R117" gate="G$1" pin="1"/>
+<label x="441.96" y="175.26" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QD"/>
+<wire x1="454.66" y1="175.26" x2="439.42" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="R37" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_P" class="0">
 <segment>
-<label x="274.32" y="5.08" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QE"/>
-<wire x1="287.02" y1="5.08" x2="271.78" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R118" gate="G$1" pin="1"/>
+<label x="441.96" y="172.72" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QE"/>
+<wire x1="454.66" y1="172.72" x2="439.42" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="R38" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_C" class="0">
 <segment>
-<label x="274.32" y="2.54" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QF"/>
-<wire x1="287.02" y1="2.54" x2="271.78" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="R119" gate="G$1" pin="1"/>
+<label x="441.96" y="170.18" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QF"/>
+<wire x1="454.66" y1="170.18" x2="439.42" y2="170.18" width="0.1524" layer="91"/>
+<pinref part="R39" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_N" class="0">
 <segment>
-<label x="274.32" y="0" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QG"/>
-<wire x1="287.02" y1="0" x2="271.78" y2="0" width="0.1524" layer="91"/>
-<pinref part="R120" gate="G$1" pin="1"/>
+<label x="441.96" y="167.64" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QG"/>
+<wire x1="454.66" y1="167.64" x2="439.42" y2="167.64" width="0.1524" layer="91"/>
+<pinref part="R40" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL1_B" class="0">
 <segment>
-<label x="274.32" y="-2.54" size="1.778" layer="95"/>
-<pinref part="U29" gate="A" pin="QH"/>
-<wire x1="287.02" y1="-2.54" x2="271.78" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="R121" gate="G$1" pin="1"/>
+<label x="441.96" y="165.1" size="1.778" layer="95"/>
+<pinref part="U19" gate="A" pin="QH"/>
+<wire x1="454.66" y1="165.1" x2="439.42" y2="165.1" width="0.1524" layer="91"/>
+<pinref part="R41" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_A" class="0">
 <segment>
-<label x="358.14" y="15.24" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QA"/>
-<wire x1="370.84" y1="15.24" x2="355.6" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="R122" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QA"/>
+<label x="190.5" y="182.88" size="1.778" layer="95"/>
+<wire x1="203.2" y1="182.88" x2="187.96" y2="182.88" width="0.1524" layer="91"/>
+<pinref part="R10" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_M" class="0">
 <segment>
-<label x="358.14" y="12.7" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QB"/>
-<wire x1="370.84" y1="12.7" x2="355.6" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="R123" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QB"/>
+<label x="190.5" y="180.34" size="1.778" layer="95"/>
+<wire x1="203.2" y1="180.34" x2="187.96" y2="180.34" width="0.1524" layer="91"/>
+<pinref part="R11" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_K" class="0">
 <segment>
-<label x="358.14" y="10.16" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QC"/>
-<wire x1="370.84" y1="10.16" x2="355.6" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="R124" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QC"/>
+<label x="190.5" y="177.8" size="1.778" layer="95"/>
+<wire x1="203.2" y1="177.8" x2="187.96" y2="177.8" width="0.1524" layer="91"/>
+<pinref part="R12" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_H" class="0">
 <segment>
-<label x="358.14" y="7.62" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QD"/>
-<wire x1="370.84" y1="7.62" x2="355.6" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="R125" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QD"/>
+<label x="190.5" y="175.26" size="1.778" layer="95"/>
+<wire x1="203.2" y1="175.26" x2="187.96" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="R13" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_U" class="0">
 <segment>
-<label x="358.14" y="5.08" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QE"/>
-<wire x1="370.84" y1="5.08" x2="355.6" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R126" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QE"/>
+<label x="190.5" y="172.72" size="1.778" layer="95"/>
+<wire x1="203.2" y1="172.72" x2="187.96" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="R14" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_S" class="0">
 <segment>
-<label x="358.14" y="2.54" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QF"/>
-<wire x1="370.84" y1="2.54" x2="355.6" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="R127" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QF"/>
+<label x="190.5" y="170.18" size="1.778" layer="95"/>
+<wire x1="203.2" y1="170.18" x2="187.96" y2="170.18" width="0.1524" layer="91"/>
+<pinref part="R15" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_T" class="0">
 <segment>
-<label x="358.14" y="0" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QG"/>
-<wire x1="370.84" y1="0" x2="355.6" y2="0" width="0.1524" layer="91"/>
-<pinref part="R128" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QG"/>
+<label x="190.5" y="167.64" size="1.778" layer="95"/>
+<wire x1="203.2" y1="167.64" x2="187.96" y2="167.64" width="0.1524" layer="91"/>
+<pinref part="R16" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_G" class="0">
 <segment>
-<label x="358.14" y="-2.54" size="1.778" layer="95"/>
-<pinref part="U30" gate="A" pin="QH"/>
-<wire x1="370.84" y1="-2.54" x2="355.6" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="R129" gate="G$1" pin="1"/>
+<pinref part="U16" gate="A" pin="QH"/>
+<label x="190.5" y="165.1" size="1.778" layer="95"/>
+<wire x1="203.2" y1="165.1" x2="187.96" y2="165.1" width="0.1524" layer="91"/>
+<pinref part="R17" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_F" class="0">
 <segment>
-<label x="441.96" y="15.24" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QA"/>
-<wire x1="454.66" y1="15.24" x2="439.42" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="R130" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QA"/>
+<label x="274.32" y="182.88" size="1.778" layer="95"/>
+<wire x1="287.02" y1="182.88" x2="271.78" y2="182.88" width="0.1524" layer="91"/>
+<pinref part="R18" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_E" class="0">
 <segment>
-<label x="441.96" y="12.7" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QB"/>
-<wire x1="454.66" y1="12.7" x2="439.42" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="R131" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QB"/>
+<label x="274.32" y="180.34" size="1.778" layer="95"/>
+<wire x1="287.02" y1="180.34" x2="271.78" y2="180.34" width="0.1524" layer="91"/>
+<pinref part="R19" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_D" class="0">
 <segment>
-<label x="441.96" y="10.16" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QC"/>
-<wire x1="454.66" y1="10.16" x2="439.42" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="R132" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QC"/>
+<label x="274.32" y="177.8" size="1.778" layer="95"/>
+<wire x1="287.02" y1="177.8" x2="271.78" y2="177.8" width="0.1524" layer="91"/>
+<pinref part="R20" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_R" class="0">
 <segment>
-<label x="441.96" y="7.62" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QD"/>
-<wire x1="454.66" y1="7.62" x2="439.42" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="R133" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QD"/>
+<label x="274.32" y="175.26" size="1.778" layer="95"/>
+<wire x1="287.02" y1="175.26" x2="271.78" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="R21" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_P" class="0">
 <segment>
-<label x="441.96" y="5.08" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QE"/>
-<wire x1="454.66" y1="5.08" x2="439.42" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R134" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QE"/>
+<label x="274.32" y="172.72" size="1.778" layer="95"/>
+<wire x1="287.02" y1="172.72" x2="271.78" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="R22" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_C" class="0">
 <segment>
-<label x="441.96" y="2.54" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QF"/>
-<wire x1="454.66" y1="2.54" x2="439.42" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="R135" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QF"/>
+<label x="274.32" y="170.18" size="1.778" layer="95"/>
+<wire x1="287.02" y1="170.18" x2="271.78" y2="170.18" width="0.1524" layer="91"/>
+<pinref part="R23" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_N" class="0">
 <segment>
-<label x="441.96" y="0" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QG"/>
-<wire x1="454.66" y1="0" x2="439.42" y2="0" width="0.1524" layer="91"/>
-<pinref part="R136" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QG"/>
+<label x="274.32" y="167.64" size="1.778" layer="95"/>
+<wire x1="287.02" y1="167.64" x2="271.78" y2="167.64" width="0.1524" layer="91"/>
+<pinref part="R24" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="COL0_B" class="0">
 <segment>
-<label x="441.96" y="-2.54" size="1.778" layer="95"/>
-<pinref part="U31" gate="A" pin="QH"/>
-<wire x1="454.66" y1="-2.54" x2="439.42" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="R137" gate="G$1" pin="1"/>
+<pinref part="U17" gate="A" pin="QH"/>
+<label x="274.32" y="165.1" size="1.778" layer="95"/>
+<wire x1="287.02" y1="165.1" x2="271.78" y2="165.1" width="0.1524" layer="91"/>
+<pinref part="R25" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -19297,7 +18785,7 @@ DRIVER BOARD</text>
 <segment>
 <pinref part="U14" gate="A" pin="Y1"/>
 <pinref part="SV4" gate="-34" pin="S"/>
-<wire x1="86.36" y1="45.72" x2="76.2" y2="45.72" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="45.72" x2="76.2" y2="45.72" width="0.1524" layer="91"/>
 <label x="78.74" y="45.72" size="1.778" layer="95"/>
 </segment>
 </net>
@@ -19305,7 +18793,7 @@ DRIVER BOARD</text>
 <segment>
 <pinref part="U14" gate="A" pin="Y2"/>
 <pinref part="SV4" gate="-35" pin="S"/>
-<wire x1="86.36" y1="43.18" x2="76.2" y2="43.18" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="43.18" x2="76.2" y2="43.18" width="0.1524" layer="91"/>
 <label x="78.74" y="43.18" size="1.778" layer="95"/>
 </segment>
 </net>
@@ -19313,7 +18801,7 @@ DRIVER BOARD</text>
 <segment>
 <pinref part="U14" gate="A" pin="Y3"/>
 <pinref part="SV4" gate="-36" pin="S"/>
-<wire x1="86.36" y1="40.64" x2="76.2" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="40.64" x2="76.2" y2="40.64" width="0.1524" layer="91"/>
 <label x="78.74" y="40.64" size="1.778" layer="95"/>
 </segment>
 </net>
@@ -20473,6 +19961,518 @@ DRIVER BOARD</text>
 <pinref part="U2" gate="A" pin="A1"/>
 <pinref part="BUS" gate="-40" pin="S"/>
 <wire x1="-165.1" y1="149.86" x2="-160.02" y2="149.86" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="COL7_A" class="0">
+<segment>
+<label x="358.14" y="15.24" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QA"/>
+<wire x1="370.84" y1="15.24" x2="355.6" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="R122" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_A" class="0">
+<segment>
+<label x="190.5" y="71.12" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QA"/>
+<wire x1="203.2" y1="71.12" x2="187.96" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R74" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_M" class="0">
+<segment>
+<label x="190.5" y="68.58" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QB"/>
+<wire x1="203.2" y1="68.58" x2="187.96" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="R75" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_K" class="0">
+<segment>
+<label x="190.5" y="66.04" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QC"/>
+<wire x1="203.2" y1="66.04" x2="187.96" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="R76" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_H" class="0">
+<segment>
+<label x="190.5" y="63.5" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QD"/>
+<wire x1="203.2" y1="63.5" x2="187.96" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="R77" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_U" class="0">
+<segment>
+<label x="190.5" y="60.96" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QE"/>
+<wire x1="203.2" y1="60.96" x2="187.96" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="R78" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_S" class="0">
+<segment>
+<label x="190.5" y="58.42" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QF"/>
+<wire x1="203.2" y1="58.42" x2="187.96" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="R79" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_T" class="0">
+<segment>
+<label x="190.5" y="55.88" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QG"/>
+<wire x1="203.2" y1="55.88" x2="187.96" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="R80" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_G" class="0">
+<segment>
+<label x="190.5" y="53.34" size="1.778" layer="95"/>
+<pinref part="U24" gate="A" pin="QH"/>
+<wire x1="203.2" y1="53.34" x2="187.96" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R81" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_F" class="0">
+<segment>
+<label x="274.32" y="71.12" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QA"/>
+<wire x1="287.02" y1="71.12" x2="271.78" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R82" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_E" class="0">
+<segment>
+<label x="274.32" y="68.58" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QB"/>
+<wire x1="287.02" y1="68.58" x2="271.78" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="R83" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_D" class="0">
+<segment>
+<label x="274.32" y="66.04" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QC"/>
+<wire x1="287.02" y1="66.04" x2="271.78" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="R84" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_R" class="0">
+<segment>
+<label x="274.32" y="63.5" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QD"/>
+<wire x1="287.02" y1="63.5" x2="271.78" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="R85" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_P" class="0">
+<segment>
+<label x="274.32" y="60.96" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QE"/>
+<wire x1="287.02" y1="60.96" x2="271.78" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="R86" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_C" class="0">
+<segment>
+<label x="274.32" y="58.42" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QF"/>
+<wire x1="287.02" y1="58.42" x2="271.78" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="R87" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_N" class="0">
+<segment>
+<label x="274.32" y="55.88" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QG"/>
+<wire x1="287.02" y1="55.88" x2="271.78" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="R88" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL4_B" class="0">
+<segment>
+<label x="274.32" y="53.34" size="1.778" layer="95"/>
+<pinref part="U25" gate="A" pin="QH"/>
+<wire x1="287.02" y1="53.34" x2="271.78" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R89" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_A" class="0">
+<segment>
+<label x="358.14" y="71.12" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QA"/>
+<wire x1="370.84" y1="71.12" x2="355.6" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R90" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_M" class="0">
+<segment>
+<label x="358.14" y="68.58" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QB"/>
+<wire x1="370.84" y1="68.58" x2="355.6" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="R91" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_K" class="0">
+<segment>
+<label x="358.14" y="66.04" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QC"/>
+<wire x1="370.84" y1="66.04" x2="355.6" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="R92" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_H" class="0">
+<segment>
+<label x="358.14" y="63.5" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QD"/>
+<wire x1="370.84" y1="63.5" x2="355.6" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="R93" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_U" class="0">
+<segment>
+<label x="358.14" y="60.96" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QE"/>
+<wire x1="370.84" y1="60.96" x2="355.6" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="R94" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_S" class="0">
+<segment>
+<label x="358.14" y="58.42" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QF"/>
+<wire x1="370.84" y1="58.42" x2="355.6" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="R95" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_T" class="0">
+<segment>
+<label x="358.14" y="55.88" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QG"/>
+<wire x1="370.84" y1="55.88" x2="355.6" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="R96" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_G" class="0">
+<segment>
+<label x="358.14" y="53.34" size="1.778" layer="95"/>
+<pinref part="U26" gate="A" pin="QH"/>
+<wire x1="370.84" y1="53.34" x2="355.6" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R97" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_F" class="0">
+<segment>
+<label x="441.96" y="71.12" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QA"/>
+<wire x1="454.66" y1="71.12" x2="439.42" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R98" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_E" class="0">
+<segment>
+<label x="441.96" y="68.58" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QB"/>
+<wire x1="454.66" y1="68.58" x2="439.42" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="R99" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_D" class="0">
+<segment>
+<label x="441.96" y="66.04" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QC"/>
+<wire x1="454.66" y1="66.04" x2="439.42" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="R100" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_R" class="0">
+<segment>
+<label x="441.96" y="63.5" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QD"/>
+<wire x1="454.66" y1="63.5" x2="439.42" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="R101" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_P" class="0">
+<segment>
+<label x="441.96" y="60.96" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QE"/>
+<wire x1="454.66" y1="60.96" x2="439.42" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="R102" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_C" class="0">
+<segment>
+<label x="441.96" y="58.42" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QF"/>
+<wire x1="454.66" y1="58.42" x2="439.42" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="R103" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5_N" class="0">
+<segment>
+<label x="441.96" y="55.88" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QG"/>
+<wire x1="454.66" y1="55.88" x2="439.42" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="R104" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL5\_B" class="0">
+<segment>
+<label x="441.96" y="53.34" size="1.778" layer="95"/>
+<pinref part="U27" gate="A" pin="QH"/>
+<wire x1="454.66" y1="53.34" x2="439.42" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R105" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_A" class="0">
+<segment>
+<label x="190.5" y="15.24" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QA"/>
+<wire x1="203.2" y1="15.24" x2="187.96" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="R106" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_M" class="0">
+<segment>
+<label x="190.5" y="12.7" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QB"/>
+<wire x1="203.2" y1="12.7" x2="187.96" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="R107" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_K" class="0">
+<segment>
+<label x="190.5" y="10.16" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QC"/>
+<wire x1="203.2" y1="10.16" x2="187.96" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="R108" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_H" class="0">
+<segment>
+<label x="190.5" y="7.62" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QD"/>
+<wire x1="203.2" y1="7.62" x2="187.96" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="R109" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_U" class="0">
+<segment>
+<label x="190.5" y="5.08" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QE"/>
+<wire x1="203.2" y1="5.08" x2="187.96" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="R110" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_S" class="0">
+<segment>
+<label x="190.5" y="2.54" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QF"/>
+<wire x1="203.2" y1="2.54" x2="187.96" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="R111" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_T" class="0">
+<segment>
+<label x="190.5" y="0" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QG"/>
+<wire x1="203.2" y1="0" x2="187.96" y2="0" width="0.1524" layer="91"/>
+<pinref part="R112" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_G" class="0">
+<segment>
+<label x="190.5" y="-2.54" size="1.778" layer="95"/>
+<pinref part="U28" gate="A" pin="QH"/>
+<wire x1="203.2" y1="-2.54" x2="187.96" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="R113" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_F" class="0">
+<segment>
+<label x="274.32" y="15.24" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QA"/>
+<wire x1="287.02" y1="15.24" x2="271.78" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="R114" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_E" class="0">
+<segment>
+<label x="274.32" y="12.7" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QB"/>
+<wire x1="287.02" y1="12.7" x2="271.78" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="R115" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_D" class="0">
+<segment>
+<label x="274.32" y="10.16" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QC"/>
+<wire x1="287.02" y1="10.16" x2="271.78" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="R116" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_R" class="0">
+<segment>
+<label x="274.32" y="7.62" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QD"/>
+<wire x1="287.02" y1="7.62" x2="271.78" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="R117" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_P" class="0">
+<segment>
+<label x="274.32" y="5.08" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QE"/>
+<wire x1="287.02" y1="5.08" x2="271.78" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="R118" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_C" class="0">
+<segment>
+<label x="274.32" y="2.54" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QF"/>
+<wire x1="287.02" y1="2.54" x2="271.78" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="R119" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_N" class="0">
+<segment>
+<label x="274.32" y="0" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QG"/>
+<wire x1="287.02" y1="0" x2="271.78" y2="0" width="0.1524" layer="91"/>
+<pinref part="R120" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL6_B" class="0">
+<segment>
+<label x="274.32" y="-2.54" size="1.778" layer="95"/>
+<pinref part="U29" gate="A" pin="QH"/>
+<wire x1="287.02" y1="-2.54" x2="271.78" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="R121" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_M" class="0">
+<segment>
+<label x="358.14" y="12.7" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QB"/>
+<wire x1="370.84" y1="12.7" x2="355.6" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="R123" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_K" class="0">
+<segment>
+<label x="358.14" y="10.16" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QC"/>
+<wire x1="370.84" y1="10.16" x2="355.6" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="R124" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_H" class="0">
+<segment>
+<label x="358.14" y="7.62" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QD"/>
+<wire x1="370.84" y1="7.62" x2="355.6" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="R125" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_U" class="0">
+<segment>
+<label x="358.14" y="5.08" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QE"/>
+<wire x1="370.84" y1="5.08" x2="355.6" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="R126" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_S" class="0">
+<segment>
+<label x="358.14" y="2.54" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QF"/>
+<wire x1="370.84" y1="2.54" x2="355.6" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="R127" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_T" class="0">
+<segment>
+<label x="358.14" y="0" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QG"/>
+<wire x1="370.84" y1="0" x2="355.6" y2="0" width="0.1524" layer="91"/>
+<pinref part="R128" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_G" class="0">
+<segment>
+<label x="358.14" y="-2.54" size="1.778" layer="95"/>
+<pinref part="U30" gate="A" pin="QH"/>
+<wire x1="370.84" y1="-2.54" x2="355.6" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="R129" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7\_F" class="0">
+<segment>
+<label x="441.96" y="15.24" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QA"/>
+<wire x1="454.66" y1="15.24" x2="439.42" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="R130" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_E" class="0">
+<segment>
+<label x="441.96" y="12.7" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QB"/>
+<wire x1="454.66" y1="12.7" x2="439.42" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="R131" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_D" class="0">
+<segment>
+<label x="441.96" y="10.16" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QC"/>
+<wire x1="454.66" y1="10.16" x2="439.42" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="R132" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_R" class="0">
+<segment>
+<label x="441.96" y="7.62" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QD"/>
+<wire x1="454.66" y1="7.62" x2="439.42" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="R133" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_P" class="0">
+<segment>
+<label x="441.96" y="5.08" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QE"/>
+<wire x1="454.66" y1="5.08" x2="439.42" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="R134" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_C" class="0">
+<segment>
+<label x="441.96" y="2.54" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QF"/>
+<wire x1="454.66" y1="2.54" x2="439.42" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="R135" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_N" class="0">
+<segment>
+<label x="441.96" y="0" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QG"/>
+<wire x1="454.66" y1="0" x2="439.42" y2="0" width="0.1524" layer="91"/>
+<pinref part="R136" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="COL7_B" class="0">
+<segment>
+<label x="441.96" y="-2.54" size="1.778" layer="95"/>
+<pinref part="U31" gate="A" pin="QH"/>
+<wire x1="454.66" y1="-2.54" x2="439.42" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="R137" gate="G$1" pin="1"/>
 </segment>
 </net>
 </nets>
