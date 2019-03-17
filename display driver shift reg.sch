@@ -14729,61 +14729,66 @@ Source: AVX .. aphvc.pdf</description>
 <text x="403.86" y="-127" size="1.778" layer="97" align="center">SV3</text>
 <text x="469.9" y="-127" size="1.778" layer="97" align="center">SV4</text>
 <text x="391.16" y="-62.23" size="1.778" layer="97" align="center">U15</text>
-<text x="406.4" y="-62.23" size="1.778" layer="97" align="center">U18</text>
-<text x="421.64" y="-62.23" size="1.778" layer="97" align="center">U19</text>
-<text x="436.88" y="-62.23" size="1.778" layer="97" align="center">U20</text>
-<text x="452.12" y="-62.23" size="1.778" layer="97" align="center">U21</text>
-<text x="467.36" y="-62.23" size="1.778" layer="97" align="center">U22</text>
-<text x="482.6" y="-62.23" size="1.778" layer="97" align="center">U24</text>
-<text x="482.6" y="-85.09" size="1.778" layer="97" align="center">U23</text>
-<text x="467.36" y="-85.09" size="1.778" layer="97" align="center">U31</text>
-<text x="452.12" y="-85.09" size="1.778" layer="97" align="center">U30</text>
-<text x="436.88" y="-85.09" size="1.778" layer="97" align="center">U29</text>
-<text x="421.64" y="-85.09" size="1.778" layer="97" align="center">U27</text>
+<text x="406.4" y="-62.23" size="1.778" layer="97" align="center">U20</text>
+<text x="421.64" y="-62.23" size="1.778" layer="97" align="center">U21</text>
+<text x="436.88" y="-62.23" size="1.778" layer="97" align="center">U24</text>
+<text x="452.12" y="-62.23" size="1.778" layer="97" align="center">U28</text>
+<text x="467.36" y="-62.23" size="1.778" layer="97" align="center">U29</text>
+<text x="482.6" y="-62.23" size="1.778" layer="97" align="center">U30</text>
+<text x="482.6" y="-85.09" size="1.778" layer="97" align="center">U31</text>
+<text x="467.36" y="-85.09" size="1.778" layer="97" align="center">U27</text>
+<text x="452.12" y="-85.09" size="1.778" layer="97" align="center">U26</text>
+<text x="436.88" y="-85.09" size="1.778" layer="97" align="center">U25</text>
+<text x="421.64" y="-85.09" size="1.778" layer="97" align="center">U22</text>
 <text x="406.4" y="-85.09" size="1.778" layer="97" align="center">U17</text>
 <text x="391.16" y="-85.09" size="1.778" layer="97" align="center">U16</text>
-<text x="391.16" y="-107.95" size="1.778" layer="97" align="center">U25</text>
-<text x="406.4" y="-107.95" size="1.778" layer="97" align="center">U26</text>
-<text x="421.64" y="-107.95" size="1.778" layer="97" align="center">U28</text>
-<wire x1="452.12" y1="-91.44" x2="454.66" y2="-127" width="0.1524" layer="90"/>
-<wire x1="467.36" y1="-91.44" x2="462.28" y2="-127" width="0.1524" layer="90"/>
-<wire x1="391.16" y1="-114.3" x2="388.62" y2="-127" width="0.1524" layer="90"/>
-<wire x1="406.4" y1="-114.3" x2="396.24" y2="-127" width="0.1524" layer="90"/>
-<wire x1="421.64" y1="-114.3" x2="414.02" y2="-127" width="0.1524" layer="90"/>
-<wire x1="436.88" y1="-91.44" x2="419.1" y2="-127" width="0.1524" layer="90"/>
-<wire x1="421.64" y1="-91.44" x2="408.94" y2="-127" width="0.1524" layer="90"/>
-<wire x1="482.6" y1="-55.88" x2="485.14" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="467.36" y1="-55.88" x2="464.82" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="482.6" y1="-78.74" x2="477.52" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="452.12" y1="-55.88" x2="459.74" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="436.88" y1="-55.88" x2="454.66" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="391.16" y1="-55.88" x2="388.62" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="406.4" y1="-55.88" x2="411.48" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="391.16" y1="-78.74" x2="393.7" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="406.4" y1="-78.74" x2="398.78" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="421.64" y1="-55.88" x2="419.1" y2="-43.18" width="0.1524" layer="90"/>
-<wire x1="388.62" y1="-68.58" x2="388.62" y2="-78.74" width="0.1524" layer="94"/>
-<wire x1="393.7" y1="-91.44" x2="403.86" y2="-91.44" width="0.1524" layer="94"/>
-<wire x1="408.94" y1="-78.74" x2="408.94" y2="-68.58" width="0.1524" layer="94"/>
-<wire x1="408.94" y1="-66.04" x2="419.1" y2="-66.04" width="0.1524" layer="94"/>
-<wire x1="424.18" y1="-66.04" x2="434.34" y2="-66.04" width="0.1524" layer="94"/>
-<wire x1="439.42" y1="-66.04" x2="449.58" y2="-66.04" width="0.1524" layer="94"/>
-<wire x1="454.66" y1="-66.04" x2="464.82" y2="-66.04" width="0.1524" layer="94"/>
-<wire x1="469.9" y1="-68.58" x2="480.06" y2="-78.74" width="0.1524" layer="94"/>
-<wire x1="485.14" y1="-78.74" x2="485.14" y2="-68.58" width="0.1524" layer="94"/>
-<wire x1="485.14" y1="-66.04" x2="492.76" y2="-66.04" width="0.1524" layer="94"/>
-<wire x1="492.76" y1="-66.04" x2="492.76" y2="-121.92" width="0.1524" layer="94"/>
-<wire x1="492.76" y1="-121.92" x2="388.62" y2="-121.92" width="0.1524" layer="94"/>
-<wire x1="388.62" y1="-121.92" x2="388.62" y2="-114.3" width="0.1524" layer="94"/>
-<wire x1="393.7" y1="-111.76" x2="403.86" y2="-111.76" width="0.1524" layer="94"/>
-<wire x1="408.94" y1="-101.6" x2="419.1" y2="-91.44" width="0.1524" layer="94"/>
-<wire x1="424.18" y1="-91.44" x2="424.18" y2="-101.6" width="0.1524" layer="94"/>
-<wire x1="424.18" y1="-104.14" x2="434.34" y2="-91.44" width="0.1524" layer="94"/>
-<wire x1="439.42" y1="-88.9" x2="449.58" y2="-88.9" width="0.1524" layer="94"/>
-<wire x1="454.66" y1="-88.9" x2="464.82" y2="-88.9" width="0.1524" layer="94"/>
-<wire x1="378.46" y1="-66.04" x2="388.62" y2="-66.04" width="0.1524" layer="94"/>
+<text x="391.16" y="-107.95" size="1.778" layer="97" align="center">U18</text>
+<text x="406.4" y="-107.95" size="1.778" layer="97" align="center">U19</text>
+<text x="421.64" y="-107.95" size="1.778" layer="97" align="center">U23</text>
+<wire x1="439.42" y1="-78.74" x2="459.74" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="391.16" y1="-55.88" x2="388.62" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="406.4" y1="-55.88" x2="411.48" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="391.16" y1="-78.74" x2="393.7" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="406.4" y1="-78.74" x2="398.78" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="421.64" y1="-55.88" x2="419.1" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="388.62" y1="-68.58" x2="388.62" y2="-78.74" width="0.1524" layer="88"/>
+<wire x1="378.46" y1="-66.04" x2="388.62" y2="-66.04" width="0.1524" layer="88"/>
 <text x="386.08" y="-139.7" size="1.778" layer="97">LAYOUT OF SHIFT REGISTERS AND RELATION TO HEADERS AS SEEN FROM BOTTOM OF DISPLAY
 DRIVER BOARD</text>
+<wire x1="393.7" y1="-88.9" x2="403.86" y2="-88.9" width="0.1524" layer="88"/>
+<wire x1="393.7" y1="-104.14" x2="403.86" y2="-104.14" width="0.1524" layer="88"/>
+<wire x1="408.94" y1="-101.6" x2="414.02" y2="-101.6" width="0.1524" layer="88"/>
+<wire x1="414.02" y1="-101.6" x2="414.02" y2="-68.58" width="0.1524" layer="88"/>
+<wire x1="414.02" y1="-68.58" x2="408.94" y2="-68.58" width="0.1524" layer="88"/>
+<wire x1="408.94" y1="-66.04" x2="419.1" y2="-66.04" width="0.1524" layer="88"/>
+<wire x1="388.62" y1="-114.3" x2="388.62" y2="-127" width="0.1524" layer="94"/>
+<wire x1="403.86" y1="-114.3" x2="393.7" y2="-127" width="0.1524" layer="94"/>
+<wire x1="419.1" y1="-68.58" x2="419.1" y2="-78.74" width="0.1524" layer="88"/>
+<wire x1="424.18" y1="-91.44" x2="424.18" y2="-101.6" width="0.1524" layer="88"/>
+<wire x1="419.1" y1="-91.44" x2="411.48" y2="-127" width="0.1524" layer="94"/>
+<wire x1="419.1" y1="-114.3" x2="416.56" y2="-127" width="0.1524" layer="94"/>
+<wire x1="439.42" y1="-55.88" x2="454.66" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="424.18" y1="-104.14" x2="429.26" y2="-104.14" width="0.1524" layer="88"/>
+<wire x1="429.26" y1="-104.14" x2="429.26" y2="-66.04" width="0.1524" layer="88"/>
+<wire x1="429.26" y1="-66.04" x2="434.34" y2="-66.04" width="0.1524" layer="88"/>
+<wire x1="434.34" y1="-68.58" x2="434.34" y2="-78.74" width="0.1524" layer="88"/>
+<wire x1="439.42" y1="-91.44" x2="449.58" y2="-91.44" width="0.1524" layer="88"/>
+<wire x1="454.66" y1="-91.44" x2="464.82" y2="-91.44" width="0.1524" layer="88"/>
+<wire x1="452.12" y1="-91.44" x2="454.66" y2="-127" width="0.1524" layer="94"/>
+<wire x1="467.36" y1="-91.44" x2="459.74" y2="-127" width="0.1524" layer="94"/>
+<wire x1="464.82" y1="-78.74" x2="464.82" y2="-73.66" width="0.1524" layer="88"/>
+<wire x1="464.82" y1="-73.66" x2="452.12" y2="-73.66" width="0.1524" layer="88"/>
+<wire x1="452.12" y1="-73.66" x2="452.12" y2="-68.58" width="0.1524" layer="88"/>
+<wire x1="454.66" y1="-68.58" x2="464.82" y2="-68.58" width="0.1524" layer="88"/>
+<wire x1="469.9" y1="-68.58" x2="480.06" y2="-68.58" width="0.1524" layer="88"/>
+<wire x1="482.6" y1="-68.58" x2="482.6" y2="-78.74" width="0.1524" layer="88"/>
+<wire x1="454.66" y1="-55.88" x2="464.82" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="469.9" y1="-55.88" x2="477.52" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="482.6" y1="-55.88" x2="482.6" y2="-43.18" width="0.1524" layer="94"/>
+<wire x1="482.6" y1="-91.44" x2="464.82" y2="-127" width="0.1524" layer="94"/>
+<wire x1="403.86" y1="-91.44" x2="403.86" y2="-96.52" width="0.1524" layer="88"/>
+<wire x1="403.86" y1="-96.52" x2="393.7" y2="-96.52" width="0.1524" layer="88"/>
+<wire x1="393.7" y1="-96.52" x2="393.7" y2="-101.6" width="0.1524" layer="88"/>
 </plain>
 <instances>
 <instance part="U11" gate="A" x="63.5" y="187.96" smashed="yes">
