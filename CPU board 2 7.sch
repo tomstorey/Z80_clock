@@ -15748,21 +15748,21 @@ RED    CPU HALTED</text>
 <instance part="P+12" gate="1" x="33.02" y="-2.54" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="35.56" y="-7.62" size="1.778" layer="96" rot="MR90"/>
 </instance>
-<instance part="BUS" gate="-1" x="78.74" y="-12.7" smashed="yes">
-<attribute name="NAME" x="81.28" y="-13.462" size="1.778" layer="95"/>
-<attribute name="VALUE" x="78.486" y="-15.621" size="1.778" layer="96"/>
-</instance>
-<instance part="BUS" gate="-2" x="78.74" y="-22.86" smashed="yes">
+<instance part="BUS" gate="-1" x="78.74" y="-22.86" smashed="yes">
 <attribute name="NAME" x="81.28" y="-23.622" size="1.778" layer="95"/>
 <attribute name="VALUE" x="78.486" y="-25.781" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-3" x="78.74" y="-15.24" smashed="yes">
-<attribute name="NAME" x="81.28" y="-16.002" size="1.778" layer="95"/>
-<attribute name="VALUE" x="78.486" y="-18.161" size="1.778" layer="96"/>
+<instance part="BUS" gate="-2" x="78.74" y="-12.7" smashed="yes">
+<attribute name="NAME" x="81.28" y="-13.462" size="1.778" layer="95"/>
+<attribute name="VALUE" x="78.486" y="-15.621" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-4" x="78.74" y="-25.4" smashed="yes">
+<instance part="BUS" gate="-3" x="78.74" y="-25.4" smashed="yes">
 <attribute name="NAME" x="81.28" y="-26.162" size="1.778" layer="95"/>
 <attribute name="VALUE" x="78.486" y="-28.321" size="1.778" layer="96"/>
+</instance>
+<instance part="BUS" gate="-4" x="78.74" y="-15.24" smashed="yes">
+<attribute name="NAME" x="81.28" y="-16.002" size="1.778" layer="95"/>
+<attribute name="VALUE" x="78.486" y="-18.161" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-5" x="469.9" y="162.56" smashed="yes">
 <attribute name="NAME" x="472.44" y="161.798" size="1.778" layer="95"/>
@@ -16287,20 +16287,20 @@ RED    CPU HALTED</text>
 <segment>
 <pinref part="GND2" gate="1" pin="GND"/>
 <wire x1="73.66" y1="-35.56" x2="73.66" y2="-33.02" width="0.1524" layer="91"/>
-<pinref part="BUS" gate="-2" pin="S"/>
 <wire x1="73.66" y1="-33.02" x2="73.66" y2="-30.48" width="0.1524" layer="91"/>
 <wire x1="73.66" y1="-30.48" x2="73.66" y2="-25.4" width="0.1524" layer="91"/>
 <wire x1="73.66" y1="-25.4" x2="73.66" y2="-22.86" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="-22.86" x2="76.2" y2="-22.86" width="0.1524" layer="91"/>
-<pinref part="BUS" gate="-4" pin="S"/>
-<wire x1="76.2" y1="-25.4" x2="73.66" y2="-25.4" width="0.1524" layer="91"/>
-<junction x="73.66" y="-25.4"/>
 <pinref part="BUS" gate="-31" pin="S"/>
 <wire x1="76.2" y1="-30.48" x2="73.66" y2="-30.48" width="0.1524" layer="91"/>
 <junction x="73.66" y="-30.48"/>
 <pinref part="BUS" gate="-32" pin="S"/>
 <wire x1="76.2" y1="-33.02" x2="73.66" y2="-33.02" width="0.1524" layer="91"/>
 <junction x="73.66" y="-33.02"/>
+<pinref part="BUS" gate="-1" pin="S"/>
+<wire x1="73.66" y1="-22.86" x2="76.2" y2="-22.86" width="0.1524" layer="91"/>
+<pinref part="BUS" gate="-3" pin="S"/>
+<wire x1="73.66" y1="-25.4" x2="76.2" y2="-25.4" width="0.1524" layer="91"/>
+<junction x="73.66" y="-25.4"/>
 </segment>
 <segment>
 <pinref part="C1" gate="G$1" pin="2"/>
@@ -17622,11 +17622,11 @@ RED    CPU HALTED</text>
 <pinref part="P+14" gate="1" pin="+5V"/>
 <wire x1="73.66" y1="-12.7" x2="73.66" y2="-10.16" width="0.1524" layer="91"/>
 <wire x1="73.66" y1="-15.24" x2="73.66" y2="-12.7" width="0.1524" layer="91"/>
-<pinref part="BUS" gate="-1" pin="S"/>
-<wire x1="76.2" y1="-12.7" x2="73.66" y2="-12.7" width="0.1524" layer="91"/>
+<pinref part="BUS" gate="-2" pin="S"/>
+<wire x1="73.66" y1="-12.7" x2="76.2" y2="-12.7" width="0.1524" layer="91"/>
 <junction x="73.66" y="-12.7"/>
-<pinref part="BUS" gate="-3" pin="S"/>
-<wire x1="76.2" y1="-15.24" x2="73.66" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="BUS" gate="-4" pin="S"/>
+<wire x1="73.66" y1="-15.24" x2="76.2" y2="-15.24" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="J1" gate="G$1" pin="3"/>
