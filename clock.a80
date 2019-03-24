@@ -15,21 +15,21 @@
 ;---------------------------------------------------------------------­
 ;                            MEMORY SIZES                            :
 ;---------------------------------------------------------------------
-ROM_BASE          EQU   0
-ROM_SZ            EQU   24576
-ROM_MAX           EQU   ROM_BASE + ROM_SZ - 1
+ROM_BASE          .EQU  0
+ROM_SZ            .EQU  24576
+ROM_MAX           .EQU  ROM_BASE + ROM_SZ - 1
 
-RAM_BASE          EQU   0x8000
-RAM_SZ            EQU   8192
-RAM_MAX           EQU   RAM_BASE + RAM_SZ - 1
+RAM_BASE          .EQU  0x8000
+RAM_SZ            .EQU  8192
+RAM_MAX           .EQU  RAM_BASE + RAM_SZ - 1
       
-TZ_ROM_BASE       EQU   0xC000
-TZ_ROM_SZ         EQU   8192
-TZ_ROM_MAX        EQU   TZ_ROM_BASE + TZ_ROM_SZ - 1
+TZ_ROM_BASE       .EQU  0xC000
+TZ_ROM_SZ         .EQU  8192
+TZ_ROM_MAX        .EQU  TZ_ROM_BASE + TZ_ROM_SZ - 1
       
-CHAR_ROM_BASE     EQU   0xE000
-CHAR_ROM_SZ       EQU   8192
-CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
+CHAR_ROM_BASE     .EQU  0xE000
+CHAR_ROM_SZ       .EQU  8192
+CHAR_ROM_MAX      .EQU  CHAR_ROM_BASE + CHAR_ROM_SZ - 1
 
 ;---- Begin allocation of variables in RAM
 #data RAM, RAM_BASE, RAM_SZ
@@ -37,8 +37,14 @@ CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
 ;---------------------------------------------------------------------­
 ;                 MAIN LOOP STATE MACHINE VARIABLES                  :
 ;---------------------------------------------------------------------
-SM_MAIN:          DB    0           ; Variable to hold state
-SM_MAIN_RESET     EQU   0x01        ; Reset state
+SM_MAIN:          .DB   0           ; Variable to hold state
+SM_MAIN_RESET     .EQU  0x01        ; Reset state
+
+;---------------------------------------------------------------------­
+;                 DISPLAY DRIVER STATE MACHINE VARS                  :
+;---------------------------------------------------------------------
+DISP_DATA         .EQU  0x20
+DISP_CTRL         .EQU  0x21
 
 ;---- Begin application code
 #code ROM, ROM_BASE, ROM_SZ
@@ -46,55 +52,54 @@ SM_MAIN_RESET     EQU   0x01        ; Reset state
 ;---------------------------------------------------------------------­
 ;                            RST VECTORS                             :
 ;---------------------------------------------------------------------
-
-      ORG 0
+      .ORG 0
 RST0:
       JP    RESET
       HALT
 
-;       ORG 0x08
-; RST1:
-;       RET
+      ORG 0x08
+RST1:
+      HALT
 
-;       ORG 0x10
-; RST2:
-;       RET
+      ORG 0x10
+RST2:
+      HALT
 
-;       ORG 0x18
-; RST3:
-;       RET
+      ORG 0x18
+RST3:
+      HALT
 
-;       ORG 0x20
-; RST4:
-;       RET
+      ORG 0x20
+RST4:
+      HALT
 
-;       ORG 0x28
-; RST5:
-;       RET
+      ORG 0x28
+RST5:
+      HALT
 
-;       ORG 0x30
-; RST6:
-;       RET
+      ORG 0x30
+RST6:
+      HALT
 
-;       ORG 0x38
-; RST7:
-;       RET
+      .ORG 0x38
+RST7:
+      HALT
 
 ;---------------------------------------------------------------------­
 ;                         INTERRUPT VECTORS                          :
 ;---------------------------------------------------------------------
-      ORG 0x0066
+      .ORG 0x0066
 NMI_VECTOR:
       RET
 
-      ORG 0x0100
+      .ORG 0x0100
 INT_VECTOR_TABLE:
-      DW    RESET
+      .DW   RESET
 
 ;---------------------------------------------------------------------­
 ;                            RESET VECTOR                            :
 ;---------------------------------------------------------------------
-      ORG 0x0200
+      .ORG 0x0200
 RESET:
       IM    2                       ; Z80 family vectored interrupts
       
@@ -275,11 +280,11 @@ INDEX_REG_TEST_ERR:
       HALT
 
 ;---------------------------------------------------------------------
-;     MAIN APPLICATION LOOP
-;
-; DESCRIPTION
-;     Implemented here is a state machine responsible for scheduling
-;     all I/O operations and other tasks.
+;     MAIN APPLICATION LOOP                                          :
+;                                                                    :
+; DESCRIPTION                                                        :
+;     Implemented here is a state machine responsible for scheduling :
+;     all I/O operations and other tasks.                            :
 ;---------------------------------------------------------------------
 MAIN:
       LD    SP, RAM_MAX + 1         ; Stack starts at top of RAM
@@ -287,7 +292,19 @@ MAIN:
       LD    A, 0x01                 ; INT vector table in page 1
       LD    I, A
       
-      
       HALT
+
+
+DISP:
+      LD    A, 0
+      OUT   (DISP_DATA), A
+      LD    B, 3
+      
+DISP_LOOP:
+      LD    A, B
+      OUT   (DISP_CTRL), A
+      DJNZ  DISP_LOOP
+      
+      JR    DISP
 
 #end

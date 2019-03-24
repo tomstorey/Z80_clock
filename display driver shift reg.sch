@@ -15639,9 +15639,9 @@ DRIVER BOARD</text>
 <attribute name="NAME" x="93.98" y="39.878" size="1.778" layer="95"/>
 <attribute name="VALUE" x="91.186" y="37.719" size="1.778" layer="96"/>
 </instance>
-<instance part="SV4" gate="-37" x="-106.68" y="-15.24" smashed="yes">
-<attribute name="NAME" x="-104.14" y="-16.002" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-106.934" y="-18.161" size="1.778" layer="96"/>
+<instance part="SV4" gate="-37" x="-106.68" y="-27.94" smashed="yes">
+<attribute name="NAME" x="-104.14" y="-28.702" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-106.934" y="-30.861" size="1.778" layer="96"/>
 </instance>
 <instance part="SV4" gate="-38" x="-106.68" y="-17.78" smashed="yes">
 <attribute name="NAME" x="-104.14" y="-18.542" size="1.778" layer="95"/>
@@ -15651,9 +15651,9 @@ DRIVER BOARD</text>
 <attribute name="NAME" x="-104.14" y="-26.162" size="1.778" layer="95"/>
 <attribute name="VALUE" x="-106.934" y="-28.321" size="1.778" layer="96"/>
 </instance>
-<instance part="SV4" gate="-40" x="-106.68" y="-27.94" smashed="yes">
-<attribute name="NAME" x="-104.14" y="-28.702" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-106.934" y="-30.861" size="1.778" layer="96"/>
+<instance part="SV4" gate="-40" x="-106.68" y="-15.24" smashed="yes">
+<attribute name="NAME" x="-104.14" y="-16.002" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-106.934" y="-18.161" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-1" x="-154.94" y="-25.4" smashed="yes" rot="MR0">
 <attribute name="NAME" x="-157.48" y="-26.162" size="1.778" layer="95" rot="MR0"/>
@@ -16545,14 +16545,14 @@ DRIVER BOARD</text>
 <junction x="-149.86" y="-17.78"/>
 </segment>
 <segment>
-<pinref part="SV4" gate="-38" pin="S"/>
 <pinref part="P+8" gate="1" pin="+5V"/>
-<wire x1="-109.22" y1="-17.78" x2="-111.76" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="-111.76" y1="-17.78" x2="-111.76" y2="-15.24" width="0.1524" layer="91"/>
-<pinref part="SV4" gate="-37" pin="S"/>
 <wire x1="-111.76" y1="-15.24" x2="-111.76" y2="-10.16" width="0.1524" layer="91"/>
+<pinref part="SV4" gate="-40" pin="S"/>
 <wire x1="-109.22" y1="-15.24" x2="-111.76" y2="-15.24" width="0.1524" layer="91"/>
 <junction x="-111.76" y="-15.24"/>
+<pinref part="SV4" gate="-38" pin="S"/>
+<wire x1="-109.22" y1="-17.78" x2="-111.76" y2="-17.78" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U1" gate="A" pin="DIR"/>
@@ -17078,12 +17078,12 @@ DRIVER BOARD</text>
 <junction x="48.26" y="-35.56"/>
 </segment>
 <segment>
-<pinref part="SV4" gate="-39" pin="S"/>
 <pinref part="GND14" gate="1" pin="GND"/>
-<wire x1="-109.22" y1="-25.4" x2="-111.76" y2="-25.4" width="0.1524" layer="91"/>
 <wire x1="-111.76" y1="-25.4" x2="-111.76" y2="-27.94" width="0.1524" layer="91"/>
-<pinref part="SV4" gate="-40" pin="S"/>
 <wire x1="-111.76" y1="-27.94" x2="-111.76" y2="-33.02" width="0.1524" layer="91"/>
+<pinref part="SV4" gate="-39" pin="S"/>
+<wire x1="-109.22" y1="-25.4" x2="-111.76" y2="-25.4" width="0.1524" layer="91"/>
+<pinref part="SV4" gate="-37" pin="S"/>
 <wire x1="-109.22" y1="-27.94" x2="-111.76" y2="-27.94" width="0.1524" layer="91"/>
 <junction x="-111.76" y="-27.94"/>
 </segment>

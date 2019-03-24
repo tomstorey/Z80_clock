@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-03-13 19:55:52
+              	; date: 2019-03-17 18:53:35
               	; --------------------------------------
 
 
@@ -22,21 +22,21 @@
               	;---------------------------------------------------------------------­
               	;                            MEMORY SIZES                            :
               	;---------------------------------------------------------------------
-0000:         	ROM_BASE          EQU   0
-6000:         	ROM_SZ            EQU   24576
-5FFF:         	ROM_MAX           EQU   ROM_BASE + ROM_SZ - 1
+0000:         	ROM_BASE          .EQU  0
+6000:         	ROM_SZ            .EQU  24576
+5FFF:         	ROM_MAX           .EQU  ROM_BASE + ROM_SZ - 1
               	
-8000:         	RAM_BASE          EQU   0x8000
-2000:         	RAM_SZ            EQU   8192
-9FFF:         	RAM_MAX           EQU   RAM_BASE + RAM_SZ - 1
+8000:         	RAM_BASE          .EQU  0x8000
+2000:         	RAM_SZ            .EQU  8192
+9FFF:         	RAM_MAX           .EQU  RAM_BASE + RAM_SZ - 1
               	      
-C000:         	TZ_ROM_BASE       EQU   0xC000
-2000:         	TZ_ROM_SZ         EQU   8192
-DFFF:         	TZ_ROM_MAX        EQU   TZ_ROM_BASE + TZ_ROM_SZ - 1
+C000:         	TZ_ROM_BASE       .EQU  0xC000
+2000:         	TZ_ROM_SZ         .EQU  8192
+DFFF:         	TZ_ROM_MAX        .EQU  TZ_ROM_BASE + TZ_ROM_SZ - 1
               	      
-E000:         	CHAR_ROM_BASE     EQU   0xE000
-2000:         	CHAR_ROM_SZ       EQU   8192
-FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
+E000:         	CHAR_ROM_BASE     .EQU  0xE000
+2000:         	CHAR_ROM_SZ       .EQU  8192
+FFFF:         	CHAR_ROM_MAX      .EQU  CHAR_ROM_BASE + CHAR_ROM_SZ - 1
               	
               	;---- Begin allocation of variables in RAM
 8000:         	#data RAM, RAM_BASE, RAM_SZ
@@ -44,8 +44,14 @@ FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
               	;---------------------------------------------------------------------­
               	;                 MAIN LOOP STATE MACHINE VARIABLES                  :
               	;---------------------------------------------------------------------
-8000: 00      	SM_MAIN:          DB    0           ; Variable to hold state
-0001:         	SM_MAIN_RESET     EQU   0x01        ; Reset state
+8000: 00      	SM_MAIN:          .DB   0           ; Variable to hold state
+0001:         	SM_MAIN_RESET     .EQU  0x01        ; Reset state
+              	
+              	;---------------------------------------------------------------------­
+              	;                 DISPLAY DRIVER STATE MACHINE VARS                  :
+              	;---------------------------------------------------------------------
+0020:         	DISP_DATA         .EQU  0x20
+0021:         	DISP_CTRL         .EQU  0x21
               	
               	;---- Begin application code
 0000:         	#code ROM, ROM_BASE, ROM_SZ
@@ -53,57 +59,62 @@ FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
               	;---------------------------------------------------------------------­
               	;                            RST VECTORS                             :
               	;---------------------------------------------------------------------
-              	
-              	      ORG 0
+              	      .ORG 0
 0000:         	RST0:
 0000: C30002  	      JP    RESET
 0003: 76      	      HALT
               	
-              	;       ORG 0x08
-              	; RST1:
-              	;       RET
+0004: FFFFFFFF	      ORG 0x08
+0008:         	RST1:
+0008: 76      	      HALT
               	
-              	;       ORG 0x10
-              	; RST2:
-              	;       RET
+0009: FFFFFFFF	      ORG 0x10
+000D: FFFFFF  	
+0010:         	RST2:
+0010: 76      	      HALT
               	
-              	;       ORG 0x18
-              	; RST3:
-              	;       RET
+0011: FFFFFFFF	      ORG 0x18
+0015: FFFFFF  	
+0018:         	RST3:
+0018: 76      	      HALT
               	
-              	;       ORG 0x20
-              	; RST4:
-              	;       RET
+0019: FFFFFFFF	      ORG 0x20
+001D: FFFFFF  	
+0020:         	RST4:
+0020: 76      	      HALT
               	
-              	;       ORG 0x28
-              	; RST5:
-              	;       RET
+0021: FFFFFFFF	      ORG 0x28
+0025: FFFFFF  	
+0028:         	RST5:
+0028: 76      	      HALT
               	
-              	;       ORG 0x30
-              	; RST6:
-              	;       RET
+0029: FFFFFFFF	      ORG 0x30
+002D: FFFFFF  	
+0030:         	RST6:
+0030: 76      	      HALT
               	
-              	;       ORG 0x38
-              	; RST7:
-              	;       RET
+0031: FFFFFFFF	      .ORG 0x38
+0035: FFFFFF  	
+0038:         	RST7:
+0038: 76      	      HALT
               	
               	;---------------------------------------------------------------------­
               	;                         INTERRUPT VECTORS                          :
               	;---------------------------------------------------------------------
-0004: FFFFFFFF	      ORG 0x0066
-0008: FF...   	
+0039: FFFFFFFF	      .ORG 0x0066
+003D: FF...   	
 0066:         	NMI_VECTOR:
 0066: C9      	      RET
               	
-0067: FFFFFFFF	      ORG 0x0100
+0067: FFFFFFFF	      .ORG 0x0100
 006B: FF...   	
 0100:         	INT_VECTOR_TABLE:
-0100: 0002    	      DW    RESET
+0100: 0002    	      .DW   RESET
               	
               	;---------------------------------------------------------------------­
               	;                            RESET VECTOR                            :
               	;---------------------------------------------------------------------
-0102: FFFFFFFF	      ORG 0x0200
+0102: FFFFFFFF	      .ORG 0x0200
 0106: FF...   	
 0200:         	RESET:
 0200: ED5E    	      IM    2                       ; Z80 family vectored interrupts
@@ -285,11 +296,11 @@ FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
 02AD: 76      	      HALT
               	
               	;---------------------------------------------------------------------
-              	;     MAIN APPLICATION LOOP
-              	;
-              	; DESCRIPTION
-              	;     Implemented here is a state machine responsible for scheduling
-              	;     all I/O operations and other tasks.
+              	;     MAIN APPLICATION LOOP                                          :
+              	;                                                                    :
+              	; DESCRIPTION                                                        :
+              	;     Implemented here is a state machine responsible for scheduling :
+              	;     all I/O operations and other tasks.                            :
               	;---------------------------------------------------------------------
 02AE:         	MAIN:
 02AE: 3100A0  	      LD    SP, RAM_MAX + 1         ; Stack starts at top of RAM
@@ -297,8 +308,20 @@ FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
 02B1: 3E01    	      LD    A, 0x01                 ; INT vector table in page 1
 02B3: ED47    	      LD    I, A
               	      
-              	      
 02B5: 76      	      HALT
+              	
+              	
+02B6:         	DISP:
+02B6: 3E00    	      LD    A, 0
+02B8: D320    	      OUT   (DISP_DATA), A
+02BA: 0603    	      LD    B, 3
+              	      
+02BC:         	DISP_LOOP:
+02BC: 78      	      LD    A, B
+02BD: D321    	      OUT   (DISP_CTRL), A
+02BF: 10FB    	      DJNZ  DISP_LOOP
+              	      
+02C1: 18F3    	      JR    DISP
               	
               	#end
 
@@ -310,42 +333,53 @@ FFFF:         	CHAR_ROM_MAX      EQU   CHAR_ROM_BASE + CHAR_ROM_SZ - 1
 
 ; +++ global symbols +++
 
-C8                 = $022B =   555  ROM     clock.a80:141
-C9                 = $0246 =   582  ROM     clock.a80:164
+C8                 = $022B =   555  ROM     clock.a80:146
+C9                 = $0246 =   582  ROM     clock.a80:169
 CHAR_ROM_BASE      = $E000 = 57344          clock.a80:30
 CHAR_ROM_MAX       = $FFFF = 65535          clock.a80:32 (unused)
 CHAR_ROM_SZ        = $2000 =  8192          clock.a80:31
-INDEX_REG_TEST     = $028A =   650  ROM     clock.a80:252
-INDEX_REG_TEST_ERR = $02AD =   685  ROM     clock.a80:274
-INT_VECTOR_TABLE   = $0100 =   256  ROM     clock.a80:91 (unused)
-MAIN               = $02AE =   686  ROM     clock.a80:284
-MEM_TEST           = $024C =   588  ROM     clock.a80:184
-MEM_TEST_0         = $0275 =   629  ROM     clock.a80:216
-MEM_TEST_01        = $0271 =   625  ROM     clock.a80:212
-MEM_TEST_55        = $0269 =   617  ROM     clock.a80:204
-MEM_TEST_DONE      = $0287 =   647  ROM     clock.a80:237 (unused)
-MEM_TEST_ERR       = $0289 =   649  ROM     clock.a80:240
-MEM_TEST_FF        = $026D =   621  ROM     clock.a80:208
-MEM_TEST_LOOP      = $0279 =   633  ROM     clock.a80:221
-MEM_TEST_NEXT      = $024E =   590  ROM     clock.a80:187
-NEXT_INDEX_REG     = $02A4 =   676  ROM     clock.a80:265
-NMI_VECTOR         = $0066 =   102  ROM     clock.a80:87 (unused)
-PROC_TEST          = $0202 =   514  ROM     clock.a80:114 (unused)
-PROC_TEST_ERR      = $024B =   587  ROM     clock.a80:169
+DISP               = $02B6 =   694  ROM     clock.a80:298
+DISP_CTRL          = $0021 =    33  RAM     clock.a80:47
+DISP_DATA          = $0020 =    32  RAM     clock.a80:46
+DISP_LOOP          = $02BC =   700  ROM     clock.a80:303
+INDEX_REG_TEST     = $028A =   650  ROM     clock.a80:257
+INDEX_REG_TEST_ERR = $02AD =   685  ROM     clock.a80:279
+INT_VECTOR_TABLE   = $0100 =   256  ROM     clock.a80:96 (unused)
+MAIN               = $02AE =   686  ROM     clock.a80:289
+MEM_TEST           = $024C =   588  ROM     clock.a80:189
+MEM_TEST_0         = $0275 =   629  ROM     clock.a80:221
+MEM_TEST_01        = $0271 =   625  ROM     clock.a80:217
+MEM_TEST_55        = $0269 =   617  ROM     clock.a80:209
+MEM_TEST_DONE      = $0287 =   647  ROM     clock.a80:242 (unused)
+MEM_TEST_ERR       = $0289 =   649  ROM     clock.a80:245
+MEM_TEST_FF        = $026D =   621  ROM     clock.a80:213
+MEM_TEST_LOOP      = $0279 =   633  ROM     clock.a80:226
+MEM_TEST_NEXT      = $024E =   590  ROM     clock.a80:192
+NEXT_INDEX_REG     = $02A4 =   676  ROM     clock.a80:270
+NMI_VECTOR         = $0066 =   102  ROM     clock.a80:92 (unused)
+PROC_TEST          = $0202 =   514  ROM     clock.a80:119 (unused)
+PROC_TEST_ERR      = $024B =   587  ROM     clock.a80:174
 RAM                = $8000 = 32768  RAM     clock.a80:34 (unused)
 RAM_BASE           = $8000 = 32768          clock.a80:22
 RAM_MAX            = $9FFF = 40959          clock.a80:24
 RAM_SZ             = $2000 =  8192          clock.a80:23
 RAM_end            = $A000 = 40960  RAM     clock.a80:34 (unused)
 RAM_size           = $2000 =  8192  RAM     clock.a80:34 (unused)
-RESET              = $0200 =   512  ROM     clock.a80:98
-ROM                = $0000 =     0  ROM     clock.a80:43 (unused)
+RESET              = $0200 =   512  ROM     clock.a80:103
+ROM                = $0000 =     0  ROM     clock.a80:49 (unused)
 ROM_BASE           = $0000 =     0          clock.a80:18
 ROM_MAX            = $5FFF = 24575          clock.a80:20 (unused)
 ROM_SZ             = $6000 = 24576          clock.a80:19
-ROM_end            = $6000 = 24576  ROM     clock.a80:43 (unused)
-ROM_size           = $6000 = 24576  ROM     clock.a80:43 (unused)
-RST0               = $0000 =     0  ROM     clock.a80:51 (unused)
+ROM_end            = $6000 = 24576  ROM     clock.a80:49 (unused)
+ROM_size           = $6000 = 24576  ROM     clock.a80:49 (unused)
+RST0               = $0000 =     0  ROM     clock.a80:56 (unused)
+RST1               = $0008 =     8  ROM     clock.a80:61 (unused)
+RST2               = $0010 =    16  ROM     clock.a80:65 (unused)
+RST3               = $0018 =    24  ROM     clock.a80:69 (unused)
+RST4               = $0020 =    32  ROM     clock.a80:73 (unused)
+RST5               = $0028 =    40  ROM     clock.a80:77 (unused)
+RST6               = $0030 =    48  ROM     clock.a80:81 (unused)
+RST7               = $0038 =    56  ROM     clock.a80:85 (unused)
 SM_MAIN            = $8000 = 32768  RAM     clock.a80:40 (unused)
 SM_MAIN_RESET      = $0001 =     1  RAM     clock.a80:41 (unused)
 TZ_ROM_BASE        = $C000 = 49152          clock.a80:26
@@ -354,5 +388,5 @@ TZ_ROM_SZ          = $2000 =  8192          clock.a80:27
 _reqcolon_         = $0001 =     1          :1 (unused)
 
 
-total time: 0.0061 sec.
+total time: 0.0099 sec.
 no errors
