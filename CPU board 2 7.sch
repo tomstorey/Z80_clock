@@ -15768,9 +15768,9 @@ RED    CPU HALTED</text>
 <attribute name="NAME" x="472.44" y="161.798" size="1.778" layer="95"/>
 <attribute name="VALUE" x="469.646" y="159.639" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-6" x="469.9" y="165.1" smashed="yes">
-<attribute name="NAME" x="472.44" y="164.338" size="1.778" layer="95"/>
-<attribute name="VALUE" x="469.646" y="162.179" size="1.778" layer="96"/>
+<instance part="BUS" gate="-6" x="17.78" y="78.74" smashed="yes" rot="R180">
+<attribute name="NAME" x="15.24" y="79.502" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="18.034" y="81.661" size="1.778" layer="96" rot="R180"/>
 </instance>
 <instance part="BUS" gate="-7" x="469.9" y="170.18" smashed="yes">
 <attribute name="NAME" x="472.44" y="169.418" size="1.778" layer="95"/>
@@ -16045,7 +16045,7 @@ RED    CPU HALTED</text>
 <wire x1="111.76" y1="187.96" x2="109.22" y2="190.5" width="0.762" layer="92"/>
 <wire x1="109.22" y1="190.5" x2="73.66" y2="190.5" width="0.762" layer="92"/>
 <wire x1="73.66" y1="190.5" x2="71.12" y2="187.96" width="0.762" layer="92"/>
-<wire x1="71.12" y1="187.96" x2="71.12" y2="86.36" width="0.762" layer="92"/>
+<wire x1="71.12" y1="187.96" x2="71.12" y2="81.28" width="0.762" layer="92"/>
 <wire x1="111.76" y1="187.96" x2="114.3" y2="190.5" width="0.762" layer="92"/>
 <wire x1="114.3" y1="190.5" x2="187.96" y2="190.5" width="0.762" layer="92"/>
 <wire x1="187.96" y1="190.5" x2="190.5" y2="187.96" width="0.762" layer="92"/>
@@ -17391,6 +17391,12 @@ RED    CPU HALTED</text>
 <label x="424.18" y="165.1" size="1.778" layer="95"/>
 <pinref part="U3" gate="A" pin="B7"/>
 </segment>
+<segment>
+<wire x1="71.12" y1="81.28" x2="68.58" y2="78.74" width="0.1524" layer="91"/>
+<pinref part="BUS" gate="-6" pin="S"/>
+<wire x1="68.58" y1="78.74" x2="20.32" y2="78.74" width="0.1524" layer="91"/>
+<label x="22.86" y="78.74" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="!BUSRQ!" class="0">
 <segment>
@@ -17962,13 +17968,6 @@ RED    CPU HALTED</text>
 <pinref part="U3" gate="A" pin="A8"/>
 <pinref part="BUS" gate="-5" pin="S"/>
 <wire x1="467.36" y1="162.56" x2="462.28" y2="162.56" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$34" class="0">
-<segment>
-<pinref part="U3" gate="A" pin="A7"/>
-<pinref part="BUS" gate="-6" pin="S"/>
-<wire x1="467.36" y1="165.1" x2="462.28" y2="165.1" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$35" class="0">
