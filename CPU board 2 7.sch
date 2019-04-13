@@ -15396,7 +15396,7 @@ Extended by Federico Battaglin &lt;author&gt;&amp;lt;federico.rd@fdpinternationa
 <sheets>
 <sheet>
 <plain>
-<text x="86.36" y="12.7" size="1.778" layer="97">C6/R4 = 128MS</text>
+<text x="86.36" y="12.7" size="1.778" layer="97">C17 / R4 = 128MS</text>
 <text x="317.5" y="182.88" size="1.778" layer="97" align="bottom-center">APP ROM</text>
 <text x="342.9" y="182.88" size="1.778" layer="97" align="bottom-center">RAM</text>
 <text x="368.3" y="182.88" size="1.778" layer="97" align="bottom-center">TZ ROM</text>
