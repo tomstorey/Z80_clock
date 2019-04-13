@@ -15407,7 +15407,6 @@ Extended by Federico Battaglin &lt;author&gt;&amp;lt;federico.rd@fdpinternationa
 <text x="393.7" y="180.34" size="1.778" layer="97" align="bottom-center">E000-FFFF</text>
 <text x="431.8" y="50.8" size="1.778" layer="97" align="bottom-center">SLOW ROM</text>
 <text x="119.38" y="71.12" size="1.778" layer="97" align="bottom-center">POWER ON RESET</text>
-<text x="60.96" y="-109.22" size="2.54" layer="97">* CHECK CLEANLINESS OF CLOCK SIGNAL AFTER LOADING</text>
 <text x="444.5" y="119.38" size="1.778" layer="97">HALT INDICATOR
 
 GREEN  CPU RUNNING
@@ -16440,8 +16439,12 @@ RED    CPU HALTED</text>
 <segment>
 <pinref part="U3" gate="A" pin="B6"/>
 <wire x1="439.42" y1="167.64" x2="436.88" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="436.88" y1="167.64" x2="436.88" y2="157.48" width="0.1524" layer="91"/>
+<wire x1="436.88" y1="167.64" x2="436.88" y2="165.1" width="0.1524" layer="91"/>
 <pinref part="GND16" gate="1" pin="GND"/>
+<pinref part="U3" gate="A" pin="B7"/>
+<wire x1="436.88" y1="165.1" x2="436.88" y2="157.48" width="0.1524" layer="91"/>
+<wire x1="439.42" y1="165.1" x2="436.88" y2="165.1" width="0.1524" layer="91"/>
+<junction x="436.88" y="165.1"/>
 </segment>
 <segment>
 <pinref part="U1" gate="A" pin="G"/>
@@ -17439,12 +17442,6 @@ RED    CPU HALTED</text>
 <pinref part="U4" gate="G$1" pin="!RESET!"/>
 <wire x1="134.62" y1="50.8" x2="139.7" y2="50.8" width="0.1524" layer="91"/>
 <label x="139.7" y="50.8" size="1.27" layer="95" xref="yes"/>
-</segment>
-<segment>
-<wire x1="439.42" y1="165.1" x2="421.64" y2="165.1" width="0.1524" layer="91"/>
-<wire x1="421.64" y1="165.1" x2="419.1" y2="167.64" width="0.1524" layer="91"/>
-<label x="424.18" y="165.1" size="1.778" layer="95"/>
-<pinref part="U3" gate="A" pin="B7"/>
 </segment>
 <segment>
 <wire x1="71.12" y1="81.28" x2="68.58" y2="78.74" width="0.1524" layer="91"/>
