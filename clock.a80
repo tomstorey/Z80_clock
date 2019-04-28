@@ -520,57 +520,34 @@ BEEPER_ENABLE:
 ;     Used to generate beeps.                                        :
 ;---------------------------------------------------------------------
 #data RAM
-BEEP_CTL:               .DB   0
 
 #code ROM
-#local
 CTC_CH0_INT::
       EX    AF, AF'                 ; Swap to shadow registers
       EXX
 
-      LD    HL, BEEP_CTL
-      BIT   0, (HL)                 ; Is BEEP_CTL bit 0 set or clear?
-      JR    NZ, CLEAR_BIT
-
-;---- Bit is CLEAR
-      SET   0, (HL)                 ; Set test bit
-
-      LD    HL, OUTPUT_REG_VAL      ; OR beeper bit into OUTPUT_REG
-      LD    A, (HL)                 ; and write new OUTPUT_REG value
-      OR    BEEPER_MASK
+      LD    HL, OUTPUT_REG_VAL
+      LD    A, BEEPER_MASK          ; Toggle beeper bit
+      XOR   (HL)
       LD    (HL), A
-      OUT   (OUTPUT_REG), A
+      OUT   (OUTPUT_REG), A         ; Write it out
 
-      JR    FINISH
+      AND   BEEPER_MASK             ; Is beeper bit set or clear?
+      JR    NZ, CTC_CH0_INT_EXIT
 
-;---- Bit is SET
-CLEAR_BIT:
-      RES   0, (HL)                 ; Clear test bit
+      LD    HL, BEEP_LEN            ; Beeper bit is clear, decrement
+      DEC   (HL)                    ; BEEP_LEN, and if zero disable
+      JR    NZ, CTC_CH0_INT_EXIT    ; interrupt.
 
-      LD    A, BEEPER_MASK          ; Invert BEEPER_MASK so we can
-      CPL                           ; mask out this bit
-      LD    B, A                    ; Store this inverse mask in B
-
-      LD    HL, OUTPUT_REG_VAL      ; AND out beeper bit and write new
-      LD    A, (HL)                 ; OUTPUT_REG value
-      AND   B
-      LD    (HL), A
-      OUT   (OUTPUT_REG), A
-
-      LD    HL, BEEP_LEN            ; Decrement BEEP_LEN, when it
-      DEC   (HL)                    ; reaches zero, disable interrupt
-      JR    NZ, FINISH
-
-      LD    A, CTC_CH_CTRL          ; Disable CTC Ch0 interrupt
+      LD    A, CTC_CH_CTRL
       OUT   (CTC_CH0), A
 
-FINISH:
+CTC_CH0_INT_EXIT:
       EXX                           ; Swap registers back
       EX    AF, AF'
       EI                            ; Re-enable interrupts
 
       RETI
-#endlocal
 
 
 ;---------------------------------------------------------------------

@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-04-28 12:42:38
+              	; date: 2019-04-28 13:53:20
               	; --------------------------------------
 
 
@@ -233,9 +233,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 006C: FF...   	
 0100:         	INT_VECTOR_TABLE:
 0100: 3703    	      .DW   CTC_CH0_INT             ; CTC Ch0 vector
-0102: 6A03    	      .DW   CTC_CH1_INT             ; CTC Ch1 vector
-0104: 6D03    	      .DW   CTC_CH2_INT             ; CTC Ch2 vector
-0106: 9303    	      .DW   CTC_CH3_INT             ; CTC Ch3 vector
+0102: 5503    	      .DW   CTC_CH1_INT             ; CTC Ch1 vector
+0104: 5803    	      .DW   CTC_CH2_INT             ; CTC Ch2 vector
+0106: 7E03    	      .DW   CTC_CH3_INT             ; CTC Ch3 vector
               	
 0108: 00000000	      .DS   248, 0                  ; Fill rest of table with 0's
 010C: 00...   	
@@ -538,57 +538,34 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;     Used to generate beeps.                                        :
               	;---------------------------------------------------------------------
               	#data RAM
-8005: 00      	BEEP_CTL:               .DB   0
               	
               	#code ROM
-              	#local
 0337:         	CTC_CH0_INT::
 0337: 08      	      EX    AF, AF'                 ; Swap to shadow registers
 0338: D9      	      EXX
               	
-0339: 210580  	      LD    HL, BEEP_CTL
-033C: CB46    	      BIT   0, (HL)                 ; Is BEEP_CTL bit 0 set or clear?
-033E: 200D    	      JR    NZ, CLEAR_BIT
+0339: 210080  	      LD    HL, OUTPUT_REG_VAL
+033C: 3E80    	      LD    A, BEEPER_MASK          ; Toggle beeper bit
+033E: AE      	      XOR   (HL)
+033F: 77      	      LD    (HL), A
+0340: D30C    	      OUT   (OUTPUT_REG), A         ; Write it out
               	
-              	;---- Bit is CLEAR
-0340: CBC6    	      SET   0, (HL)                 ; Set test bit
+0342: E680    	      AND   BEEPER_MASK             ; Is beeper bit set or clear?
+0344: 200A    	      JR    NZ, CTC_CH0_INT_EXIT
               	
-0342: 210080  	      LD    HL, OUTPUT_REG_VAL      ; OR beeper bit into OUTPUT_REG
-0345: 7E      	      LD    A, (HL)                 ; and write new OUTPUT_REG value
-0346: F680    	      OR    BEEPER_MASK
-0348: 77      	      LD    (HL), A
-0349: D30C    	      OUT   (OUTPUT_REG), A
+0346: 210480  	      LD    HL, BEEP_LEN            ; Beeper bit is clear, decrement
+0349: 35      	      DEC   (HL)                    ; BEEP_LEN, and if zero disable
+034A: 2004    	      JR    NZ, CTC_CH0_INT_EXIT    ; interrupt.
               	
-034B: 1818    	      JR    FINISH
+034C: 3E01    	      LD    A, CTC_CH_CTRL
+034E: D300    	      OUT   (CTC_CH0), A
               	
-              	;---- Bit is SET
-034D:         	CLEAR_BIT:
-034D: CB86    	      RES   0, (HL)                 ; Clear test bit
+0350:         	CTC_CH0_INT_EXIT:
+0350: D9      	      EXX                           ; Swap registers back
+0351: 08      	      EX    AF, AF'
+0352: FB      	      EI                            ; Re-enable interrupts
               	
-034F: 3E80    	      LD    A, BEEPER_MASK          ; Invert BEEPER_MASK so we can
-0351: 2F      	      CPL                           ; mask out this bit
-0352: 47      	      LD    B, A                    ; Store this inverse mask in B
-              	
-0353: 210080  	      LD    HL, OUTPUT_REG_VAL      ; AND out beeper bit and write new
-0356: 7E      	      LD    A, (HL)                 ; OUTPUT_REG value
-0357: A0      	      AND   B
-0358: 77      	      LD    (HL), A
-0359: D30C    	      OUT   (OUTPUT_REG), A
-              	
-035B: 210480  	      LD    HL, BEEP_LEN            ; Decrement BEEP_LEN, when it
-035E: 35      	      DEC   (HL)                    ; reaches zero, disable interrupt
-035F: 2004    	      JR    NZ, FINISH
-              	
-0361: 3E01    	      LD    A, CTC_CH_CTRL          ; Disable CTC Ch0 interrupt
-0363: D300    	      OUT   (CTC_CH0), A
-              	
-0365:         	FINISH:
-0365: D9      	      EXX                           ; Swap registers back
-0366: 08      	      EX    AF, AF'
-0367: FB      	      EI                            ; Re-enable interrupts
-              	
-0368: ED4D    	      RETI
-              	#endlocal
+0353: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -599,9 +576,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-036A:         	CTC_CH1_INT:
-036A: FB      	      EI
-036B: ED4D    	      RETI
+0355:         	CTC_CH1_INT:
+0355: FB      	      EI
+0356: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -615,44 +592,44 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;     by current process.                                            :
               	;---------------------------------------------------------------------
               	#data RAM
-8006: 00      	BTN_DEBOUNCE:           .DB   0
+8005: 00      	BTN_DEBOUNCE:           .DB   0
               	
               	#code ROM
-036D:         	CTC_CH2_INT:
-036D: 08      	      EX    AF, AF'                 ; Swap to shadow registers
-036E: D9      	      EXX
+0358:         	CTC_CH2_INT:
+0358: 08      	      EX    AF, AF'                 ; Swap to shadow registers
+0359: D9      	      EXX
               	
-036F: DB08    	      IN    A, (BTN_REG)            ; Read in button state
-0371: 2F      	      CPL                           ; Buttons pull down, make positive
-0372: 47      	      LD    B, A                    ; Save for later
+035A: DB08    	      IN    A, (BTN_REG)            ; Read in button state
+035C: 2F      	      CPL                           ; Buttons pull down, make positive
+035D: 47      	      LD    B, A                    ; Save for later
               	
-0373: 3A0180  	      LD    A, (BTN_MASK)           ; Mask out invalid buttons
-0376: A0      	      AND   B
-0377: 47      	      LD    B, A                    ; B is now valid buttons only
+035E: 3A0180  	      LD    A, (BTN_MASK)           ; Mask out invalid buttons
+0361: A0      	      AND   B
+0362: 47      	      LD    B, A                    ; B is now valid buttons only
               	
-0378: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
-037B: A6      	      AND   (HL)
-037C: 4F      	      LD    C, A                    ; C is mask
+0363: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
+0366: A6      	      AND   (HL)
+0367: 4F      	      LD    C, A                    ; C is mask
               	
-037D: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
-037E: 47      	      LD    B, A                    ; B is now unserviced buttons only
-037F: B1      	      OR    C                       ; Make mask to clear old ACKs
-0380: 57      	      LD    D, A                    ; D is mask
+0368: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
+0369: 47      	      LD    B, A                    ; B is now unserviced buttons only
+036A: B1      	      OR    C                       ; Make mask to clear old ACKs
+036B: 57      	      LD    D, A                    ; D is mask
               	
-0381: A6      	      AND   (HL)                    ; Clear ACKs from released btns
-0382: 320380  	      LD    (BTN_ACK), A
+036C: A6      	      AND   (HL)                    ; Clear ACKs from released btns
+036D: 320380  	      LD    (BTN_ACK), A
               	
-0385: 210680  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
-0388: 7E      	      LD    A, (HL)
-0389: A0      	      AND   B
-038A: 320280  	      LD    (BTN_STATE), A
-038D: 70      	      LD    (HL), B
+0370: 210580  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
+0373: 7E      	      LD    A, (HL)
+0374: A0      	      AND   B
+0375: 320280  	      LD    (BTN_STATE), A
+0378: 70      	      LD    (HL), B
               	
-038E: D9      	      EXX                           ; Swap registers back
-038F: 08      	      EX    AF, AF'
-0390: FB      	      EI                            ; Re-enable interrupts
+0379: D9      	      EXX                           ; Swap registers back
+037A: 08      	      EX    AF, AF'
+037B: FB      	      EI                            ; Re-enable interrupts
               	
-0391: ED4D    	      RETI
+037C: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -663,9 +640,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-0393:         	CTC_CH3_INT:
-0393: FB      	      EI
-0394: ED4D    	      RETI
+037E:         	CTC_CH3_INT:
+037E: FB      	      EI
+037F: ED4D    	      RETI
               	
               	#end
 
@@ -680,10 +657,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 BEEPER_BIT          = $0007 =     7          clock.a80:128
 BEEPER_ENABLE       = $032E =   814  ROM     clock.a80:507
 BEEPER_MASK         = $0080 =   128          clock.a80:129
-BEEP_CTL            = $8005 = 32773  RAM     clock.a80:523
 BEEP_LEN            = $8004 = 32772  RAM     clock.a80:160
 BTN_ACK             = $8003 = 32771  RAM     clock.a80:153
-BTN_DEBOUNCE        = $8006 = 32774  RAM     clock.a80:600
+BTN_DEBOUNCE        = $8005 = 32773  RAM     clock.a80:577
 BTN_DN_BIT          = $0001 =     1          clock.a80:118
 BTN_DN_MASK         = $0001 =     1          clock.a80:122 (unused)
 BTN_ENT_BIT         = $0002 =     2          clock.a80:119
@@ -700,17 +676,18 @@ CHAR_ROM_SZ         = $2000 =  8192          clock.a80:52 (unused)
 CTC_CH0             = $0000 =     0          clock.a80:85
 CTC_CH0_DIV         = $0010 =    16          clock.a80:57
 CTC_CH0_FCY         = $B8D8 =375000          clock.a80:58
-CTC_CH0_INT         = $0337 =   823  ROM     clock.a80:527
+CTC_CH0_INT         = $0337 =   823  ROM     clock.a80:525
+CTC_CH0_INT_EXIT    = $0350 =   848  ROM     clock.a80:545
 CTC_CH0_PS          = $0000 =     0          clock.a80:59
 CTC_CH1             = $0001 =     1          clock.a80:86 (unused)
-CTC_CH1_INT         = $036A =   874  ROM     clock.a80:584
+CTC_CH1_INT         = $0355 =   853  ROM     clock.a80:561
 CTC_CH2             = $0002 =     2          clock.a80:87
 CTC_CH2_DIV         = $0100 =   256          clock.a80:61
 CTC_CH2_FCY         = $5B8D = 23437          clock.a80:62
-CTC_CH2_INT         = $036D =   877  ROM     clock.a80:603
+CTC_CH2_INT         = $0358 =   856  ROM     clock.a80:580
 CTC_CH2_PS          = $0020 =    32          clock.a80:63
 CTC_CH3             = $0003 =     3          clock.a80:88 (unused)
-CTC_CH3_INT         = $0393 =   915  ROM     clock.a80:648
+CTC_CH3_INT         = $037E =   894  ROM     clock.a80:625
 CTC_CH_CTRL         = $0001 =     1          clock.a80:74
 CTC_CH_CTR_MODE     = $0040 =    64          clock.a80:66 (unused)
 CTC_CH_EXT_TRG      = $0008 =     8          clock.a80:70 (unused)
@@ -792,11 +769,6 @@ WD_POKE             = $0004 =     4          clock.a80:90 (unused)
 WRITE_PATTERN       = $0250 =   592  ROM     clock.a80:290
 _reqcolon_          = $0001 =     1          :1 (unused)
 
-; +++ local symbols +++
 
-CLEAR_BIT = $034D =   845  ROM     clock.a80:547
-FINISH    = $0365 =   869  ROM     clock.a80:567
-
-
-total time: 0.0080 sec.
+total time: 0.0083 sec.
 no errors
