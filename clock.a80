@@ -505,9 +505,6 @@ MAIN:
 ;     button presses.                                                :
 ;---------------------------------------------------------------------
 BEEPER_ENABLE:
-      LD    A, 0xFF
-      LD    (BEEP_LEN), A
-
       LD    A, CTC_CH_INTEN | CTC_CH0_PS | CTC_CH_TCONST | CTC_CH_CTRL
       OUT   (CTC_CH0), A
       LD    A, TC_4000HZ
@@ -531,50 +528,41 @@ CTC_CH0_INT::
       EX    AF, AF'                 ; Swap to shadow registers
       EXX
 
-      LD    A, (BEEP_CTL)
-      BIT   0, A                    ; Is BEEP_CTL bit 0 set or clear?
-      JR    NZ, SET_LOW
+      LD    HL, BEEP_CTL
+      BIT   0, (HL)                 ; Is BEEP_CTL bit 0 set or clear?
+      JR    NZ, CLEAR_BIT
 
-;---- Bit is low, so set OUTPUT_REG bit high
-      SET   0, A
-      LD    (BEEP_CTL), A
+;---- Bit is CLEAR
+      SET   0, (HL)                 ; Set test bit
 
-      LD    A, (OUTPUT_REG_VAL)
-      OR    A, BEEPER_MASK
-      LD    (OUTPUT_REG_VAL), A
-
+      LD    HL, OUTPUT_REG_VAL      ; OR beeper bit into OUTPUT_REG
+      LD    A, (HL)                 ; and write new OUTPUT_REG value
+      OR    BEEPER_MASK
+      LD    (HL), A
       OUT   (OUTPUT_REG), A
 
       JR    FINISH
 
-;---- Bit is high, set low, decrement and disable interrupt if needed
-SET_LOW:
-      RES   0, A
-      LD    (BEEP_CTL), A
+;---- Bit is SET
+CLEAR_BIT:
+      RES   0, (HL)                 ; Clear test bit
 
-      LD    A, BEEPER_MASK          ; Invert BEEPER_MASK
-      CPL
-      LD    B, A
+      LD    A, BEEPER_MASK          ; Invert BEEPER_MASK so we can
+      CPL                           ; mask out this bit
+      LD    B, A                    ; Store this inverse mask in B
 
-      LD    A, (OUTPUT_REG_VAL)     ; AND inverted mask to clear bit
+      LD    HL, OUTPUT_REG_VAL      ; AND out beeper bit and write new
+      LD    A, (HL)                 ; OUTPUT_REG value
       AND   B
-      LD    (OUTPUT_REG_VAL), A
-
+      LD    (HL), A
       OUT   (OUTPUT_REG), A
 
-;---- If BEEP_LEN has reached zero, disable interrupts for Ch0
-      LD    A, (BEEP_LEN)
-      OR    A
-      JR    NZ, DEC_BEEP_LEN
+      LD    HL, BEEP_LEN            ; Decrement BEEP_LEN, when it
+      DEC   (HL)                    ; reaches zero, disable interrupt
+      JR    NZ, FINISH
 
       LD    A, CTC_CH_CTRL          ; Disable CTC Ch0 interrupt
       OUT   (CTC_CH0), A
-
-      JR    FINISH
-
-DEC_BEEP_LEN:
-      DEC   A
-      LD    (BEEP_LEN), A
 
 FINISH:
       EXX                           ; Swap registers back
