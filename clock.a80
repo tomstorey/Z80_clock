@@ -595,10 +595,9 @@ CTC_CH2_ISR:
       XOR   B                       ; Remove svcd btns, leave unsvcd
       LD    B, A                    ; B is now unserviced buttons only
       OR    C                       ; Make mask to clear old ACKs
-      LD    D, A                    ; D is mask
 
       AND   (HL)                    ; Clear ACKs from released btns
-      LD    (BTN_ACK), A
+      LD    (HL), A
 
       LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
       LD    A, (HL)

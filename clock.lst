@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-04-28 22:15:14
+              	; date: 2019-04-30 21:01:32
               	; --------------------------------------
 
 
@@ -235,7 +235,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0100: 3703    	      .DW   CTC_CH0_ISR             ; CTC Ch0 vector
 0102: 5503    	      .DW   CTC_CH1_ISR             ; CTC Ch1 vector
 0104: 5803    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
-0106: 7E03    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
+0106: 7A03    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
               	
 0108: 00000000	      .DS   248, 0                  ; Fill rest of table with 0's
 010C: 00...   	
@@ -535,7 +535,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;     CTC CHANNEL 0 ISR - BEEPER                                     :
               	;                                                                    :
               	; DESCRIPTION                                                        :
-              	;     Used to generate beeps.                                        :
+              	;     Used to generate beeps e.g. when buttons are pressed.          :
               	;---------------------------------------------------------------------
               	#data RAM
               	
@@ -601,35 +601,33 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	
 035A: DB08    	      IN    A, (BTN_REG)            ; Read in button state
 035C: 2F      	      CPL                           ; Buttons pull down, make positive
-035D: 47      	      LD    B, A                    ; Save for later
               	
-035E: 3A0180  	      LD    A, (BTN_MASK)           ; Mask out invalid buttons
-0361: A0      	      AND   B
-0362: 47      	      LD    B, A                    ; B is now valid buttons only
+035D: 210180  	      LD    HL, BTN_MASK            ; Mask out invalid buttons
+0360: A6      	      AND   (HL)
+0361: 47      	      LD    B, A                    ; B is valid buttons only
               	
-0363: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
-0366: A6      	      AND   (HL)
-0367: 4F      	      LD    C, A                    ; C is mask
+0362: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
+0365: A6      	      AND   (HL)
+0366: 4F      	      LD    C, A                    ; C is mask
               	
-0368: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
-0369: 47      	      LD    B, A                    ; B is now unserviced buttons only
-036A: B1      	      OR    C                       ; Make mask to clear old ACKs
-036B: 57      	      LD    D, A                    ; D is mask
+0367: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
+0368: 47      	      LD    B, A                    ; B is now unserviced buttons only
+0369: B1      	      OR    C                       ; Make mask to clear old ACKs
               	
-036C: A6      	      AND   (HL)                    ; Clear ACKs from released btns
-036D: 320380  	      LD    (BTN_ACK), A
+036A: A6      	      AND   (HL)                    ; Clear ACKs from released btns
+036B: 77      	      LD    (HL), A
               	
-0370: 210580  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
-0373: 7E      	      LD    A, (HL)
-0374: A0      	      AND   B
-0375: 320280  	      LD    (BTN_STATE), A
-0378: 70      	      LD    (HL), B
+036C: 210580  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
+036F: 7E      	      LD    A, (HL)
+0370: A0      	      AND   B
+0371: 320280  	      LD    (BTN_STATE), A
+0374: 70      	      LD    (HL), B
               	
-0379: D9      	      EXX                           ; Swap registers back
-037A: 08      	      EX    AF, AF'
-037B: FB      	      EI                            ; Re-enable interrupts
+0375: D9      	      EXX                           ; Swap registers back
+0376: 08      	      EX    AF, AF'
+0377: FB      	      EI                            ; Re-enable interrupts
               	
-037C: ED4D    	      RETI
+0378: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -640,9 +638,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-037E:         	CTC_CH3_ISR:
-037E: FB      	      EI
-037F: ED4D    	      RETI
+037A:         	CTC_CH3_ISR:
+037A: FB      	      EI
+037B: ED4D    	      RETI
               	
               	#end
 
@@ -687,7 +685,7 @@ CTC_CH2_FCY         = $5B8D = 23437          clock.a80:62
 CTC_CH2_ISR         = $0358 =   856  ROM     clock.a80:580
 CTC_CH2_PS          = $0020 =    32          clock.a80:63
 CTC_CH3             = $0003 =     3          clock.a80:88 (unused)
-CTC_CH3_ISR         = $037E =   894  ROM     clock.a80:625
+CTC_CH3_ISR         = $037A =   890  ROM     clock.a80:623
 CTC_CH_CTRL         = $0001 =     1          clock.a80:74
 CTC_CH_CTR_MODE     = $0040 =    64          clock.a80:66 (unused)
 CTC_CH_EXT_TRG      = $0008 =     8          clock.a80:70 (unused)
@@ -770,5 +768,5 @@ WRITE_PATTERN       = $0250 =   592  ROM     clock.a80:290
 _reqcolon_          = $0001 =     1          :1 (unused)
 
 
-total time: 0.0075 sec.
+total time: 0.0114 sec.
 no errors
