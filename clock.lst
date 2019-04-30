@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-04-28 13:53:20
+              	; date: 2019-04-28 22:15:14
               	; --------------------------------------
 
 
@@ -232,10 +232,10 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0068: FFFFFFFF	      .ORG 0x0100
 006C: FF...   	
 0100:         	INT_VECTOR_TABLE:
-0100: 3703    	      .DW   CTC_CH0_INT             ; CTC Ch0 vector
-0102: 5503    	      .DW   CTC_CH1_INT             ; CTC Ch1 vector
-0104: 5803    	      .DW   CTC_CH2_INT             ; CTC Ch2 vector
-0106: 7E03    	      .DW   CTC_CH3_INT             ; CTC Ch3 vector
+0100: 3703    	      .DW   CTC_CH0_ISR             ; CTC Ch0 vector
+0102: 5503    	      .DW   CTC_CH1_ISR             ; CTC Ch1 vector
+0104: 5803    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
+0106: 7E03    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
               	
 0108: 00000000	      .DS   248, 0                  ; Fill rest of table with 0's
 010C: 00...   	
@@ -540,7 +540,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-0337:         	CTC_CH0_INT::
+0337:         	CTC_CH0_ISR:
 0337: 08      	      EX    AF, AF'                 ; Swap to shadow registers
 0338: D9      	      EXX
               	
@@ -551,16 +551,16 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0340: D30C    	      OUT   (OUTPUT_REG), A         ; Write it out
               	
 0342: E680    	      AND   BEEPER_MASK             ; Is beeper bit set or clear?
-0344: 200A    	      JR    NZ, CTC_CH0_INT_EXIT
+0344: 200A    	      JR    NZ, CTC_CH0_ISR_EXIT
               	
 0346: 210480  	      LD    HL, BEEP_LEN            ; Beeper bit is clear, decrement
 0349: 35      	      DEC   (HL)                    ; BEEP_LEN, and if zero disable
-034A: 2004    	      JR    NZ, CTC_CH0_INT_EXIT    ; interrupt.
+034A: 2004    	      JR    NZ, CTC_CH0_ISR_EXIT    ; interrupt.
               	
 034C: 3E01    	      LD    A, CTC_CH_CTRL
 034E: D300    	      OUT   (CTC_CH0), A
               	
-0350:         	CTC_CH0_INT_EXIT:
+0350:         	CTC_CH0_ISR_EXIT:
 0350: D9      	      EXX                           ; Swap registers back
 0351: 08      	      EX    AF, AF'
 0352: FB      	      EI                            ; Re-enable interrupts
@@ -576,7 +576,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-0355:         	CTC_CH1_INT:
+0355:         	CTC_CH1_ISR:
 0355: FB      	      EI
 0356: ED4D    	      RETI
               	
@@ -595,7 +595,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 8005: 00      	BTN_DEBOUNCE:           .DB   0
               	
               	#code ROM
-0358:         	CTC_CH2_INT:
+0358:         	CTC_CH2_ISR:
 0358: 08      	      EX    AF, AF'                 ; Swap to shadow registers
 0359: D9      	      EXX
               	
@@ -640,7 +640,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-037E:         	CTC_CH3_INT:
+037E:         	CTC_CH3_ISR:
 037E: FB      	      EI
 037F: ED4D    	      RETI
               	
@@ -676,18 +676,18 @@ CHAR_ROM_SZ         = $2000 =  8192          clock.a80:52 (unused)
 CTC_CH0             = $0000 =     0          clock.a80:85
 CTC_CH0_DIV         = $0010 =    16          clock.a80:57
 CTC_CH0_FCY         = $B8D8 =375000          clock.a80:58
-CTC_CH0_INT         = $0337 =   823  ROM     clock.a80:525
-CTC_CH0_INT_EXIT    = $0350 =   848  ROM     clock.a80:545
+CTC_CH0_ISR         = $0337 =   823  ROM     clock.a80:525
+CTC_CH0_ISR_EXIT    = $0350 =   848  ROM     clock.a80:545
 CTC_CH0_PS          = $0000 =     0          clock.a80:59
 CTC_CH1             = $0001 =     1          clock.a80:86 (unused)
-CTC_CH1_INT         = $0355 =   853  ROM     clock.a80:561
+CTC_CH1_ISR         = $0355 =   853  ROM     clock.a80:561
 CTC_CH2             = $0002 =     2          clock.a80:87
 CTC_CH2_DIV         = $0100 =   256          clock.a80:61
 CTC_CH2_FCY         = $5B8D = 23437          clock.a80:62
-CTC_CH2_INT         = $0358 =   856  ROM     clock.a80:580
+CTC_CH2_ISR         = $0358 =   856  ROM     clock.a80:580
 CTC_CH2_PS          = $0020 =    32          clock.a80:63
 CTC_CH3             = $0003 =     3          clock.a80:88 (unused)
-CTC_CH3_INT         = $037E =   894  ROM     clock.a80:625
+CTC_CH3_ISR         = $037E =   894  ROM     clock.a80:625
 CTC_CH_CTRL         = $0001 =     1          clock.a80:74
 CTC_CH_CTR_MODE     = $0040 =    64          clock.a80:66 (unused)
 CTC_CH_EXT_TRG      = $0008 =     8          clock.a80:70 (unused)
@@ -770,5 +770,5 @@ WRITE_PATTERN       = $0250 =   592  ROM     clock.a80:290
 _reqcolon_          = $0001 =     1          :1 (unused)
 
 
-total time: 0.0083 sec.
+total time: 0.0075 sec.
 no errors

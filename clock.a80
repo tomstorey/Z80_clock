@@ -216,10 +216,10 @@ NMI_VECTOR:
 
       .ORG 0x0100
 INT_VECTOR_TABLE:
-      .DW   CTC_CH0_INT             ; CTC Ch0 vector
-      .DW   CTC_CH1_INT             ; CTC Ch1 vector
-      .DW   CTC_CH2_INT             ; CTC Ch2 vector
-      .DW   CTC_CH3_INT             ; CTC Ch3 vector
+      .DW   CTC_CH0_ISR             ; CTC Ch0 vector
+      .DW   CTC_CH1_ISR             ; CTC Ch1 vector
+      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
+      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
 
       .DS   248, 0                  ; Fill rest of table with 0's
 
@@ -522,7 +522,7 @@ BEEPER_ENABLE:
 #data RAM
 
 #code ROM
-CTC_CH0_INT::
+CTC_CH0_ISR:
       EX    AF, AF'                 ; Swap to shadow registers
       EXX
 
@@ -533,16 +533,16 @@ CTC_CH0_INT::
       OUT   (OUTPUT_REG), A         ; Write it out
 
       AND   BEEPER_MASK             ; Is beeper bit set or clear?
-      JR    NZ, CTC_CH0_INT_EXIT
+      JR    NZ, CTC_CH0_ISR_EXIT
 
       LD    HL, BEEP_LEN            ; Beeper bit is clear, decrement
       DEC   (HL)                    ; BEEP_LEN, and if zero disable
-      JR    NZ, CTC_CH0_INT_EXIT    ; interrupt.
+      JR    NZ, CTC_CH0_ISR_EXIT    ; interrupt.
 
       LD    A, CTC_CH_CTRL
       OUT   (CTC_CH0), A
 
-CTC_CH0_INT_EXIT:
+CTC_CH0_ISR_EXIT:
       EXX                           ; Swap registers back
       EX    AF, AF'
       EI                            ; Re-enable interrupts
@@ -558,7 +558,7 @@ CTC_CH0_INT_EXIT:
 #data RAM
 
 #code ROM
-CTC_CH1_INT:
+CTC_CH1_ISR:
       EI
       RETI
 
@@ -577,7 +577,7 @@ CTC_CH1_INT:
 BTN_DEBOUNCE:           .DB   0
 
 #code ROM
-CTC_CH2_INT:
+CTC_CH2_ISR:
       EX    AF, AF'                 ; Swap to shadow registers
       EXX
 
@@ -622,7 +622,7 @@ CTC_CH2_INT:
 #data RAM
 
 #code ROM
-CTC_CH3_INT:
+CTC_CH3_ISR:
       EI
       RETI
 
