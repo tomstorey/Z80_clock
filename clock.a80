@@ -517,7 +517,7 @@ BEEPER_ENABLE:
 ;     CTC CHANNEL 0 ISR - BEEPER                                     :
 ;                                                                    :
 ; DESCRIPTION                                                        :
-;     Used to generate beeps.                                        :
+;     Used to generate beeps e.g. when buttons are pressed.          :
 ;---------------------------------------------------------------------
 #data RAM
 
@@ -583,11 +583,10 @@ CTC_CH2_ISR:
 
       IN    A, (BTN_REG)            ; Read in button state
       CPL                           ; Buttons pull down, make positive
-      LD    B, A                    ; Save for later
 
-      LD    A, (BTN_MASK)           ; Mask out invalid buttons
-      AND   B
-      LD    B, A                    ; B is now valid buttons only
+      LD    HL, BTN_MASK            ; Mask out invalid buttons
+      AND   (HL)
+      LD    B, A                    ; B is valid buttons only
 
       LD    HL, BTN_ACK             ; Make mask to hide serviced btns
       AND   (HL)
