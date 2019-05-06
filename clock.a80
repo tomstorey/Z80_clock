@@ -58,6 +58,10 @@ CTC_CH0_DIV       .EQU  16
 CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 CTC_CH0_PS        .EQU  (CTC_CH0_DIV & 0x100) >> 3
 
+CTC_CH1_DIV       .EQU  256
+CTC_CH1_FCY       .EQU  FSYS / CTC_CH1_DIV
+CTC_CH1_PS        .EQU  (CTC_CH1_DIV & 0x100) >> 3
+
 CTC_CH2_DIV       .EQU  256
 CTC_CH2_FCY       .EQU  FSYS / CTC_CH2_DIV
 CTC_CH2_PS        .EQU  (CTC_CH2_DIV & 0x100) >> 3
@@ -76,9 +80,10 @@ CTC_CH_CTRL       .EQU  0x01  ; Word is control word
 
 ;---- CTC time constants
 ;     Some calculated values which can be loaded in to CTC channels.
-TC_4000HZ         .EQU  CTC_CH0_FCY / 4000 / 2
-TC_4100HZ         .EQU  CTC_CH0_FCY / 4100 / 2
-TC_DLY_10MS       .EQU  CTC_CH2_FCY / 100
+TC_CH0_4000HZ     .EQU  CTC_CH0_FCY / 4000 / 2
+TC_CH0_4100HZ     .EQU  CTC_CH0_FCY / 4100 / 2
+TC_CH1_DLY_1MS    .EQU  CTC_CH1_FCY / 1000
+TC_CH2_DLY_10MS   .EQU  CTC_CH2_FCY / 100
 
 
 ;---- Peripheral addresses
@@ -112,6 +117,9 @@ RTC_FLAGS         .EQU  0x1D        ; Status flags
 RTC_CTRL          .EQU  0x1E        ; Control
 RTC_UNUSED        .EQU  0x1F
 
+DISP_DATA         .EQU  0x20        ; Display data register
+DISP_CTRL         .EQU  0x21        ; Display control register
+
 
 ;---- Button values and masks
 BTN_UP_BIT        .EQU  0
@@ -130,6 +138,9 @@ BEEPER_MASK       .EQU  1 << BEEPER_BIT
 
 ;---- State machine values
 SM_MAIN_RESET     .EQU  0x01        ; Reset state
+
+;---- Display buffer values
+DISP_BUF_SZ       .EQU  9
 
 
 ;---------------------------------------------------------------------­
@@ -158,6 +169,16 @@ BTN_ACK:                .DB   0
 ;               two interrupts for writing high and low to the beeper
 ;               pin of OUTPUT_REG.
 BEEP_LEN:               .DB   0
+
+;---- Display buffers
+;     3x 9 byte buffers used to hold the ASCII equivalent text to be
+;     displayed plus the dot points for each row of the display. The
+;     values are translated to memory addresses to read from the
+;     character ROM.
+;     NOTE: THESE BUFFERS MUST BE ALLOCATED CONTIGUOUSLY !!!
+DISP_ROW0:              .DS   DISP_BUF_SZ, 0
+DISP_ROW1:              .DS   DISP_BUF_SZ, 0
+DISP_ROW2:              .DS   DISP_BUF_SZ, 0
 
 
 ;---------------------------------------------------------------------­
@@ -454,12 +475,16 @@ INIT:
 
 ;---- Configure CTC Ch0 to ...
 
-;---- Configure CTC Ch1 to ...
+;---- Configure CTC Ch1 for 1ms period to update displays
+      LD    A, CTC_CH_INTEN | CTC_CH1_PS | CTC_CH_TCONST | CTC_CH_CTRL
+      OUT   (CTC_CH1), A
+      LD    A, TC_CH1_DLY_1MS
+      OUT   (CTC_CH1), A
 
 ;---- Configure CTC Ch2 for 10ms period for reading button presses
       LD    A, CTC_CH_INTEN | CTC_CH2_PS | CTC_CH_TCONST | CTC_CH_CTRL
       OUT   (CTC_CH2), A
-      LD    A, TC_DLY_10MS
+      LD    A, TC_CH2_DLY_10MS
       OUT   (CTC_CH2), A
 
 ;---- Configure CTC Ch3 to ...
@@ -507,7 +532,7 @@ MAIN:
 BEEPER_ENABLE:
       LD    A, CTC_CH_INTEN | CTC_CH0_PS | CTC_CH_TCONST | CTC_CH_CTRL
       OUT   (CTC_CH0), A
-      LD    A, TC_4000HZ
+      LD    A, TC_CH0_4000HZ
       OUT   (CTC_CH0), A
 
       RET
@@ -551,17 +576,77 @@ CTC_CH0_ISR_EXIT:
 
 
 ;---------------------------------------------------------------------
-;     CTC CHANNEL 1 ISR - ...                                        :
+;     CTC CHANNEL 1 ISR - DISPLAY UPDATE                             :
 ;                                                                    :
 ; DESCRIPTION                                                        :
+;     The display is made up of 3 rows of 8x 16 segment displays.    :
+;     Each iteration of this ISR cycles to the next display row
+;     after shifting out the data corresponding to the currently
+;     selected row.
 ;---------------------------------------------------------------------
 #data RAM
+DISP_CONTROL:           .DB   0
 
 #code ROM
-CTC_CH1_ISR:
-      EI
-      RETI
+#local
+CTC_CH1_ISR::
+      EX    AF, AF'                 ; Swap to shadow registers
+      EXX
 
+;---- Pre-check: make sure the row counter in the display control
+;                byte always remains in the range 1-3. At boot, memory
+;                is initialised to all zeroes, and at the end of the
+;                ISR the counter can overflow from 3 to 0. This check
+;                will take care of both situations.
+      LD    HL, DISP_CONTROL
+      LD    A, (HL)
+      LD    B, A
+
+      AND   0x03
+      JR    NZ, DO_ROW
+
+      LD    A, B
+      INC   A                       ; If count == 0, inc to 1
+      LD    (HL), A                 ; Store back in to memory
+
+      AND   0x03                    ; Prep A with new row count
+
+DO_ROW:
+      DEC   A                       ; Index row count to zero
+      LD    B, A                    ; B is num of times to add offset
+      LD    HL, DISP_ROW0           ; Setup default buffer pointer
+      LD    DE, DISP_BUF_SZ
+
+      CP    0                       ; Add offset?
+      JR    Z, NO_OFFSET
+
+ADD_OFFSET:
+      ADD   HL, DE                  ; Add DE to HL B times
+      DJNZ  ADD_OFFSET
+
+NO_OFFSET:
+      NOP
+
+CTC_CH1_ISR_EXIT:
+      LD    HL, DISP_CONTROL        ; Load display control byte
+      LD    A, (HL)
+      LD    C, A                    ; Keep a copy
+
+      INC   A                       ; Increment row counter
+      AND   0x03                    ; Mask out upper bits
+      LD    B, A
+
+      LD    A, C                    ; Make new control byte preserving
+      AND   0xFC                    ; upper 6 bits.
+      OR    B
+      LD    (HL), A                 ; Store back to memory
+
+      EXX                           ; Swap registers back
+      EX    AF, AF'
+      EI
+
+      RETI
+#endlocal
 
 ;---------------------------------------------------------------------
 ;     CTC CHANNEL 2 ISR - READ BUTTONS                               :
