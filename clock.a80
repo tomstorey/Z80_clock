@@ -633,8 +633,8 @@ DO_ROW:
 ;     to be shifted are for column 7.
 ;
 ;     Each character is stored as two contiguous bytes in CHAR_ROM so
-;     the OTDR instruction can be used to do a two byte read/write
-;     operation from ROM to the display driver.
+;     the OTIR instruction can be used to do a two byte transfer op
+;     from ROM to the display driver data register.
 ;
 ;     After text data is shifted, one final byte to control the DPs is
 ;     shifted.
@@ -656,7 +656,7 @@ DO_ROW_NEXT:
       PUSH  BC                      ; Save B
 
       LD    B, 2                    ; Inner loop counter
-      OTDR                          ; Transfer two bytes
+      OTIR                          ; Transfer two bytes
 
       POP   BC                      ; Restore B
       POP   HL                      ; Restore buffer pointer

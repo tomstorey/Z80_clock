@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-05-07 22:16:13
+              	; date: 2019-05-07 22:24:38
               	; --------------------------------------
 
 
@@ -654,8 +654,8 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;     to be shifted are for column 7.
               	;
               	;     Each character is stored as two contiguous bytes in CHAR_ROM so
-              	;     the OTDR instruction can be used to do a two byte read/write
-              	;     operation from ROM to the display driver.
+              	;     the OTIR instruction can be used to do a two byte transfer op
+              	;     from ROM to the display driver data register.
               	;
               	;     After text data is shifted, one final byte to control the DPs is
               	;     shifted.
@@ -677,14 +677,14 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 038D: C5      	      PUSH  BC                      ; Save B
               	
 038E: 0602    	      LD    B, 2                    ; Inner loop counter
-0390: EDBB    	      OTDR                          ; Transfer two bytes
+0390: EDB3    	      OTIR                          ; Transfer two bytes
               	
 0392: C1      	      POP   BC                      ; Restore B
 0393: E1      	      POP   HL                      ; Restore buffer pointer
               	
 0394: 10EA    	      DJNZ  DO_ROW_NEXT             ; Next column
               	
-              	
+              	      ; TODO: Shift dot points
               	
 0396:         	CTC_CH1_ISR_EXIT:
 0396: 212080  	      LD    HL, DISP_CONTROL        ; Load display control byte
@@ -916,5 +916,5 @@ DO_ROW           = $037C =   892  ROM     clock.a80:630
 DO_ROW_NEXT      = $0380 =   896  ROM     clock.a80:644
 
 
-total time: 0.0080 sec.
+total time: 0.0083 sec.
 no errors
