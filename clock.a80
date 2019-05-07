@@ -140,7 +140,7 @@ BEEPER_MASK       .EQU  1 << BEEPER_BIT
 SM_MAIN_RESET     .EQU  0x01        ; Reset state
 
 ;---- Display buffer values
-DISP_BUF_SZ       .EQU  9
+DISP_BUF_SZ       .EQU  8
 
 
 ;---------------------------------------------------------------------­
@@ -171,14 +171,17 @@ BTN_ACK:                .DB   0
 BEEP_LEN:               .DB   0
 
 ;---- Display buffers
-;     3x 9 byte buffers used to hold the ASCII equivalent text to be
-;     displayed plus the dot points for each row of the display. The
-;     values are translated to memory addresses to read from the
-;     character ROM.
-;     NOTE: THESE BUFFERS MUST BE ALLOCATED CONTIGUOUSLY !!!
+;     * 3x 8 byte buffers used to hold the ASCII equivalent text to be
+;       displayed for each row of the display. The values are
+;       translated to memory addresses to read from the character ROM.
+;       NOTE: THESE BUFFERS MUST BE ALLOCATED CONTIGUOUSLY !!!
+;     * 3x bytes which hold the dot point data for each row.
 DISP_ROW0:              .DS   DISP_BUF_SZ, 0
 DISP_ROW1:              .DS   DISP_BUF_SZ, 0
 DISP_ROW2:              .DS   DISP_BUF_SZ, 0
+DISP_ROW0_DP:           .DB   0
+DISP_ROW1_DP:           .DB   0
+DISP_ROW2_DP:           .DB   0
 
 
 ;---------------------------------------------------------------------­
@@ -603,7 +606,7 @@ CTC_CH1_ISR::
       LD    B, A
 
       AND   0x03
-      JR    NZ, DO_ROW
+      JR    NZ, BUF_OFFSET
 
       LD    A, B
       INC   A                       ; If count == 0, inc to 1
@@ -611,21 +614,56 @@ CTC_CH1_ISR::
 
       AND   0x03                    ; Prep A with new row count
 
-DO_ROW:
+BUF_OFFSET:
       DEC   A                       ; Index row count to zero
       LD    B, A                    ; B is num of times to add offset
-      LD    HL, DISP_ROW0           ; Setup default buffer pointer
-      LD    DE, DISP_BUF_SZ
+      LD    HL, DISP_ROW0 + 7       ; Set pointer at end of first buf
+      LD    DE, DISP_BUF_SZ         ; Offset value to be added
 
       CP    0                       ; Add offset?
-      JR    Z, NO_OFFSET
+      JR    Z, DO_ROW
 
 ADD_OFFSET:
-      ADD   HL, DE                  ; Add DE to HL B times
+      ADD   HL, DE                  ; Yes - add DE to HL B times
       DJNZ  ADD_OFFSET
 
-NO_OFFSET:
-      NOP
+DO_ROW:
+;---- Start shifting character data. Columns are numbered 0..7 from
+;     left to right (reading direction), and by design the first bytes
+;     to be shifted are for column 7.
+;
+;     Each character is stored as two contiguous bytes in CHAR_ROM so
+;     the OTDR instruction can be used to do a two byte read/write
+;     operation from ROM to the display driver.
+;
+;     After text data is shifted, one final byte to control the DPs is
+;     shifted.
+      LD    C, DISP_DATA            ; Display peripheral I/O address
+      LD    B, DISP_BUF_SZ          ; Outer loop counter
+
+DO_ROW_NEXT:
+      LD    D, 0
+      LD    E, (HL)                 ; Load char value from buffer
+
+      DEC   HL                      ; Dec buffer pointer and save
+      PUSH  HL
+
+      LD    HL, CHAR_ROM_BASE       ; Set pointer to start of CHAR_ROM
+      SLA   E                       ; Double DE
+      RL    D
+      ADD   HL, DE                  ; HL + DE = char position in ROM
+
+      PUSH  BC                      ; Save B
+
+      LD    B, 2                    ; Inner loop counter
+      OTDR                          ; Transfer two bytes
+
+      POP   BC                      ; Restore B
+      POP   HL                      ; Restore buffer pointer
+
+      DJNZ  DO_ROW_NEXT             ; Next column
+
+      ; TODO: Shift dot points
 
 CTC_CH1_ISR_EXIT:
       LD    HL, DISP_CONTROL        ; Load display control byte

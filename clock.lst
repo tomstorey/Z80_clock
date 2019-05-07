@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-05-06 22:41:11
+              	; date: 2019-05-07 22:16:13
               	; --------------------------------------
 
 
@@ -147,7 +147,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0001:         	SM_MAIN_RESET     .EQU  0x01        ; Reset state
               	
               	;---- Display buffer values
-0009:         	DISP_BUF_SZ       .EQU  9
+0008:         	DISP_BUF_SZ       .EQU  8
               	
               	
               	;---------------------------------------------------------------------­
@@ -178,17 +178,20 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 8004: 00      	BEEP_LEN:               .DB   0
               	
               	;---- Display buffers
-              	;     3x 9 byte buffers used to hold the ASCII equivalent text to be
-              	;     displayed plus the dot points for each row of the display. The
-              	;     values are translated to memory addresses to read from the
-              	;     character ROM.
-              	;     NOTE: THESE BUFFERS MUST BE ALLOCATED CONTIGUOUSLY !!!
+              	;     * 3x 8 byte buffers used to hold the ASCII equivalent text to be
+              	;       displayed for each row of the display. The values are
+              	;       translated to memory addresses to read from the character ROM.
+              	;       NOTE: THESE BUFFERS MUST BE ALLOCATED CONTIGUOUSLY !!!
+              	;     * 3x bytes which hold the dot point data for each row.
 8005: 00000000	DISP_ROW0:              .DS   DISP_BUF_SZ, 0
-8009: 00...   	
-800E: 00000000	DISP_ROW1:              .DS   DISP_BUF_SZ, 0
-8012: 00...   	
-8017: 00000000	DISP_ROW2:              .DS   DISP_BUF_SZ, 0
-801B: 00...   	
+8009: 00000000	
+800D: 00000000	DISP_ROW1:              .DS   DISP_BUF_SZ, 0
+8011: 00000000	
+8015: 00000000	DISP_ROW2:              .DS   DISP_BUF_SZ, 0
+8019: 00000000	
+801D: 00      	DISP_ROW0_DP:           .DB   0
+801E: 00      	DISP_ROW1_DP:           .DB   0
+801F: 00      	DISP_ROW2_DP:           .DB   0
               	
               	
               	;---------------------------------------------------------------------­
@@ -258,8 +261,8 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0100:         	INT_VECTOR_TABLE:
 0100: 3F03    	      .DW   CTC_CH0_ISR             ; CTC Ch0 vector
 0102: 5D03    	      .DW   CTC_CH1_ISR             ; CTC Ch1 vector
-0104: 9003    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
-0106: B203    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
+0104: A903    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
+0106: CB03    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
               	
 0108: 00000000	      .DS   248, 0                  ; Fill rest of table with 0's
 010C: 00...   	
@@ -624,7 +627,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0363: 47      	      LD    B, A
               	
 0364: E603    	      AND   0x03
-0366: 2005    	      JR    NZ, DO_ROW
+0366: 2005    	      JR    NZ, BUF_OFFSET
               	
 0368: 78      	      LD    A, B
 0369: 3C      	      INC   A                       ; If count == 0, inc to 1
@@ -632,41 +635,76 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	
 036B: E603    	      AND   0x03                    ; Prep A with new row count
               	
-036D:         	DO_ROW:
+036D:         	BUF_OFFSET:
 036D: 3D      	      DEC   A                       ; Index row count to zero
 036E: 47      	      LD    B, A                    ; B is num of times to add offset
-036F: 210580  	      LD    HL, DISP_ROW0           ; Setup default buffer pointer
-0372: 110900  	      LD    DE, DISP_BUF_SZ
+036F: 210C80  	      LD    HL, DISP_ROW0 + 7       ; Set pointer at end of first buf
+0372: 110800  	      LD    DE, DISP_BUF_SZ         ; Offset value to be added
               	
 0375: FE00    	      CP    0                       ; Add offset?
-0377: 2803    	      JR    Z, NO_OFFSET
+0377: 2803    	      JR    Z, DO_ROW
               	
 0379:         	ADD_OFFSET:
-0379: 19      	      ADD   HL, DE                  ; Add DE to HL B times
+0379: 19      	      ADD   HL, DE                  ; Yes - add DE to HL B times
 037A: 10FD    	      DJNZ  ADD_OFFSET
               	
-037C:         	NO_OFFSET:
-037C: 00      	      NOP
+037C:         	DO_ROW:
+              	;---- Start shifting character data. Columns are numbered 0..7 from
+              	;     left to right (reading direction), and by design the first bytes
+              	;     to be shifted are for column 7.
+              	;
+              	;     Each character is stored as two contiguous bytes in CHAR_ROM so
+              	;     the OTDR instruction can be used to do a two byte read/write
+              	;     operation from ROM to the display driver.
+              	;
+              	;     After text data is shifted, one final byte to control the DPs is
+              	;     shifted.
+037C: 0E20    	      LD    C, DISP_DATA            ; Display peripheral I/O address
+037E: 0608    	      LD    B, DISP_BUF_SZ          ; Outer loop counter
               	
-037D:         	CTC_CH1_ISR_EXIT:
-037D: 212080  	      LD    HL, DISP_CONTROL        ; Load display control byte
-0380: 7E      	      LD    A, (HL)
-0381: 4F      	      LD    C, A                    ; Keep a copy
+0380:         	DO_ROW_NEXT:
+0380: 1600    	      LD    D, 0
+0382: 5E      	      LD    E, (HL)                 ; Load char value from buffer
               	
-0382: 3C      	      INC   A                       ; Increment row counter
-0383: E603    	      AND   0x03                    ; Mask out upper bits
-0385: 47      	      LD    B, A
+0383: 2B      	      DEC   HL                      ; Dec buffer pointer and save
+0384: E5      	      PUSH  HL
               	
-0386: 79      	      LD    A, C                    ; Make new control byte preserving
-0387: E6FC    	      AND   0xFC                    ; upper 6 bits.
-0389: B0      	      OR    B
-038A: 77      	      LD    (HL), A                 ; Store back to memory
+0385: 2100E0  	      LD    HL, CHAR_ROM_BASE       ; Set pointer to start of CHAR_ROM
+0388: CB23    	      SLA   E                       ; Double DE
+038A: CB12    	      RL    D
+038C: 19      	      ADD   HL, DE                  ; HL + DE = char position in ROM
               	
-038B: D9      	      EXX                           ; Swap registers back
-038C: 08      	      EX    AF, AF'
-038D: FB      	      EI
+038D: C5      	      PUSH  BC                      ; Save B
               	
-038E: ED4D    	      RETI
+038E: 0602    	      LD    B, 2                    ; Inner loop counter
+0390: EDBB    	      OTDR                          ; Transfer two bytes
+              	
+0392: C1      	      POP   BC                      ; Restore B
+0393: E1      	      POP   HL                      ; Restore buffer pointer
+              	
+0394: 10EA    	      DJNZ  DO_ROW_NEXT             ; Next column
+              	
+              	
+              	
+0396:         	CTC_CH1_ISR_EXIT:
+0396: 212080  	      LD    HL, DISP_CONTROL        ; Load display control byte
+0399: 7E      	      LD    A, (HL)
+039A: 4F      	      LD    C, A                    ; Keep a copy
+              	
+039B: 3C      	      INC   A                       ; Increment row counter
+039C: E603    	      AND   0x03                    ; Mask out upper bits
+039E: 47      	      LD    B, A
+              	
+039F: 79      	      LD    A, C                    ; Make new control byte preserving
+03A0: E6FC    	      AND   0xFC                    ; upper 6 bits.
+03A2: B0      	      OR    B
+03A3: 77      	      LD    (HL), A                 ; Store back to memory
+              	
+03A4: D9      	      EXX                           ; Swap registers back
+03A5: 08      	      EX    AF, AF'
+03A6: FB      	      EI
+              	
+03A7: ED4D    	      RETI
               	#endlocal
               	
               	;---------------------------------------------------------------------
@@ -683,39 +721,39 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 8021: 00      	BTN_DEBOUNCE:           .DB   0
               	
               	#code ROM
-0390:         	CTC_CH2_ISR:
-0390: 08      	      EX    AF, AF'                 ; Swap to shadow registers
-0391: D9      	      EXX
+03A9:         	CTC_CH2_ISR:
+03A9: 08      	      EX    AF, AF'                 ; Swap to shadow registers
+03AA: D9      	      EXX
               	
-0392: DB08    	      IN    A, (BTN_REG)            ; Read in button state
-0394: 2F      	      CPL                           ; Buttons pull down, make positive
+03AB: DB08    	      IN    A, (BTN_REG)            ; Read in button state
+03AD: 2F      	      CPL                           ; Buttons pull down, make positive
               	
-0395: 210180  	      LD    HL, BTN_MASK            ; Mask out invalid buttons
-0398: A6      	      AND   (HL)
-0399: 47      	      LD    B, A                    ; B is valid buttons only
+03AE: 210180  	      LD    HL, BTN_MASK            ; Mask out invalid buttons
+03B1: A6      	      AND   (HL)
+03B2: 47      	      LD    B, A                    ; B is valid buttons only
               	
-039A: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
-039D: A6      	      AND   (HL)
-039E: 4F      	      LD    C, A                    ; C is mask
+03B3: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
+03B6: A6      	      AND   (HL)
+03B7: 4F      	      LD    C, A                    ; C is mask
               	
-039F: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
-03A0: 47      	      LD    B, A                    ; B is now unserviced buttons only
-03A1: B1      	      OR    C                       ; Make mask to clear old ACKs
+03B8: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
+03B9: 47      	      LD    B, A                    ; B is now unserviced buttons only
+03BA: B1      	      OR    C                       ; Make mask to clear old ACKs
               	
-03A2: A6      	      AND   (HL)                    ; Clear ACKs from released btns
-03A3: 77      	      LD    (HL), A
+03BB: A6      	      AND   (HL)                    ; Clear ACKs from released btns
+03BC: 77      	      LD    (HL), A
               	
-03A4: 212180  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
-03A7: 7E      	      LD    A, (HL)
-03A8: A0      	      AND   B
-03A9: 320280  	      LD    (BTN_STATE), A
-03AC: 70      	      LD    (HL), B
+03BD: 212180  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
+03C0: 7E      	      LD    A, (HL)
+03C1: A0      	      AND   B
+03C2: 320280  	      LD    (BTN_STATE), A
+03C5: 70      	      LD    (HL), B
               	
-03AD: D9      	      EXX                           ; Swap registers back
-03AE: 08      	      EX    AF, AF'
-03AF: FB      	      EI                            ; Re-enable interrupts
+03C6: D9      	      EXX                           ; Swap registers back
+03C7: 08      	      EX    AF, AF'
+03C8: FB      	      EI                            ; Re-enable interrupts
               	
-03B0: ED4D    	      RETI
+03C9: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -726,9 +764,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-03B2:         	CTC_CH3_ISR:
-03B2: FB      	      EI
-03B3: ED4D    	      RETI
+03CB:         	CTC_CH3_ISR:
+03CB: FB      	      EI
+03CC: ED4D    	      RETI
               	
               	#end
 
@@ -741,11 +779,11 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 ; +++ global symbols +++
 
 BEEPER_BIT          = $0007 =     7          clock.a80:136
-BEEPER_ENABLE       = $0336 =   822  ROM     clock.a80:532
+BEEPER_ENABLE       = $0336 =   822  ROM     clock.a80:535
 BEEPER_MASK         = $0080 =   128          clock.a80:137
 BEEP_LEN            = $8004 = 32772  RAM     clock.a80:171
 BTN_ACK             = $8003 = 32771  RAM     clock.a80:164
-BTN_DEBOUNCE        = $8021 = 32801  RAM     clock.a80:662
+BTN_DEBOUNCE        = $8021 = 32801  RAM     clock.a80:700
 BTN_DN_BIT          = $0001 =     1          clock.a80:126
 BTN_DN_MASK         = $0001 =     1          clock.a80:130 (unused)
 BTN_ENT_BIT         = $0002 =     2          clock.a80:127
@@ -757,26 +795,26 @@ BTN_REG             = $0008 =     8          clock.a80:97
 BTN_STATE           = $8002 = 32770  RAM     clock.a80:163
 BTN_UP_BIT          = $0000 =     0          clock.a80:125
 BTN_UP_MASK         = $0002 =     2          clock.a80:129 (unused)
-CHAR_ROM_BASE       = $E000 = 57344          clock.a80:51 (unused)
+CHAR_ROM_BASE       = $E000 = 57344          clock.a80:51
 CHAR_ROM_SZ         = $2000 =  8192          clock.a80:52 (unused)
 CTC_CH0             = $0000 =     0          clock.a80:90
 CTC_CH0_DIV         = $0010 =    16          clock.a80:57
 CTC_CH0_FCY         = $B8D8 =375000          clock.a80:58
-CTC_CH0_ISR         = $033F =   831  ROM     clock.a80:550
-CTC_CH0_ISR_EXIT    = $0358 =   856  ROM     clock.a80:570
+CTC_CH0_ISR         = $033F =   831  ROM     clock.a80:553
+CTC_CH0_ISR_EXIT    = $0358 =   856  ROM     clock.a80:573
 CTC_CH0_PS          = $0000 =     0          clock.a80:59
 CTC_CH1             = $0001 =     1          clock.a80:91
 CTC_CH1_DIV         = $0100 =   256          clock.a80:61
 CTC_CH1_FCY         = $5B8D = 23437          clock.a80:62
-CTC_CH1_ISR         = $035D =   861  ROM     clock.a80:592
+CTC_CH1_ISR         = $035D =   861  ROM     clock.a80:595
 CTC_CH1_PS          = $0020 =    32          clock.a80:63
 CTC_CH2             = $0002 =     2          clock.a80:92
 CTC_CH2_DIV         = $0100 =   256          clock.a80:65
 CTC_CH2_FCY         = $5B8D = 23437          clock.a80:66
-CTC_CH2_ISR         = $0390 =   912  ROM     clock.a80:665
+CTC_CH2_ISR         = $03A9 =   937  ROM     clock.a80:703
 CTC_CH2_PS          = $0020 =    32          clock.a80:67
 CTC_CH3             = $0003 =     3          clock.a80:93 (unused)
-CTC_CH3_ISR         = $03B2 =   946  ROM     clock.a80:708
+CTC_CH3_ISR         = $03CB =   971  ROM     clock.a80:746
 CTC_CH_CTRL         = $0001 =     1          clock.a80:78
 CTC_CH_CTR_MODE     = $0040 =    64          clock.a80:70 (unused)
 CTC_CH_EXT_TRG      = $0008 =     8          clock.a80:74 (unused)
@@ -785,56 +823,59 @@ CTC_CH_PS256        = $0020 =    32          clock.a80:71 (unused)
 CTC_CH_RISE         = $0010 =    16          clock.a80:72 (unused)
 CTC_CH_SOFT_RST     = $0002 =     2          clock.a80:77 (unused)
 CTC_CH_TCONST       = $0004 =     4          clock.a80:76
-DISP_BUF_SZ         = $0009 =     9          clock.a80:143
-DISP_CONTROL        = $8020 = 32800  RAM     clock.a80:588
+DISP_BUF_SZ         = $0008 =     8          clock.a80:143
+DISP_CONTROL        = $8020 = 32800  RAM     clock.a80:591
 DISP_CTRL           = $0021 =    33          clock.a80:121 (unused)
-DISP_DATA           = $0020 =    32          clock.a80:120 (unused)
+DISP_DATA           = $0020 =    32          clock.a80:120
 DISP_ROW0           = $8005 = 32773  RAM     clock.a80:179
-DISP_ROW1           = $800E = 32782  RAM     clock.a80:180 (unused)
-DISP_ROW2           = $8017 = 32791  RAM     clock.a80:181 (unused)
+DISP_ROW0_DP        = $801D = 32797  RAM     clock.a80:182 (unused)
+DISP_ROW1           = $800D = 32781  RAM     clock.a80:180 (unused)
+DISP_ROW1_DP        = $801E = 32798  RAM     clock.a80:183 (unused)
+DISP_ROW2           = $8015 = 32789  RAM     clock.a80:181 (unused)
+DISP_ROW2_DP        = $801F = 32799  RAM     clock.a80:184 (unused)
 FCTC                = $8000 =4096000          clock.a80:24 (unused)
 FSYS                = $8D80 =6000000          clock.a80:23
-INDEX_REG_TEST      = $0272 =   626  ROM     clock.a80:351
-INDEX_REG_TEST_ERR  = $029C =   668  ROM     clock.a80:384
-INDEX_REG_TEST_FF   = $027F =   639  ROM     clock.a80:362
-INDEX_REG_TEST_LOOP = $0283 =   643  ROM     clock.a80:365
-INDEX_REG_TEST_NEXT = $0274 =   628  ROM     clock.a80:354
-INIT                = $0300 =   768  ROM     clock.a80:473
-INT_VECTOR_TABLE    = $0100 =   256  ROM     clock.a80:239 (unused)
-MAIN                = $0322 =   802  ROM     clock.a80:505
-MEM_TEST            = $029D =   669  ROM     clock.a80:400
-MEM_TEST_0          = $02C6 =   710  ROM     clock.a80:432
-MEM_TEST_01         = $02C2 =   706  ROM     clock.a80:428
-MEM_TEST_55         = $02BA =   698  ROM     clock.a80:420
-MEM_TEST_DONE       = $02D8 =   728  ROM     clock.a80:453 (unused)
-MEM_TEST_ERR        = $02DB =   731  ROM     clock.a80:456
-MEM_TEST_FF         = $02BE =   702  ROM     clock.a80:424
-MEM_TEST_LOOP       = $02CA =   714  ROM     clock.a80:437
-MEM_TEST_NEXT       = $029F =   671  ROM     clock.a80:403
-NMI_VECTOR          = $0066 =   102  ROM     clock.a80:234 (unused)
+INDEX_REG_TEST      = $0272 =   626  ROM     clock.a80:354
+INDEX_REG_TEST_ERR  = $029C =   668  ROM     clock.a80:387
+INDEX_REG_TEST_FF   = $027F =   639  ROM     clock.a80:365
+INDEX_REG_TEST_LOOP = $0283 =   643  ROM     clock.a80:368
+INDEX_REG_TEST_NEXT = $0274 =   628  ROM     clock.a80:357
+INIT                = $0300 =   768  ROM     clock.a80:476
+INT_VECTOR_TABLE    = $0100 =   256  ROM     clock.a80:242 (unused)
+MAIN                = $0322 =   802  ROM     clock.a80:508
+MEM_TEST            = $029D =   669  ROM     clock.a80:403
+MEM_TEST_0          = $02C6 =   710  ROM     clock.a80:435
+MEM_TEST_01         = $02C2 =   706  ROM     clock.a80:431
+MEM_TEST_55         = $02BA =   698  ROM     clock.a80:423
+MEM_TEST_DONE       = $02D8 =   728  ROM     clock.a80:456 (unused)
+MEM_TEST_ERR        = $02DB =   731  ROM     clock.a80:459
+MEM_TEST_FF         = $02BE =   702  ROM     clock.a80:427
+MEM_TEST_LOOP       = $02CA =   714  ROM     clock.a80:440
+MEM_TEST_NEXT       = $029F =   671  ROM     clock.a80:406
+NMI_VECTOR          = $0066 =   102  ROM     clock.a80:237 (unused)
 OUTPUT_REG          = $000C =    12          clock.a80:101
 OUTPUT_REG_VAL      = $8000 = 32768  RAM     clock.a80:153
-PROC_TEST           = $0200 =   512  ROM     clock.a80:258
-PROC_TEST_DONE      = $026C =   620  ROM     clock.a80:335
-PROC_TEST_ERR       = $0271 =   625  ROM     clock.a80:340
+PROC_TEST           = $0200 =   512  ROM     clock.a80:261
+PROC_TEST_DONE      = $026C =   620  ROM     clock.a80:338
+PROC_TEST_ERR       = $0271 =   625  ROM     clock.a80:343
 RAM                 = $8000 = 32768  RAM     clock.a80:148 (unused)
 RAM_BASE            = $8000 = 32768          clock.a80:45
 RAM_SZ              = $2000 =  8192          clock.a80:46
 RAM_end             = $A000 = 40960  RAM     clock.a80:148
 RAM_size            = $2000 =  8192  RAM     clock.a80:148 (unused)
-ROM                 = $0000 =     0  ROM     clock.a80:186 (unused)
+ROM                 = $0000 =     0  ROM     clock.a80:189 (unused)
 ROM_BASE            = $0000 =     0          clock.a80:42
 ROM_SZ              = $6000 = 24576          clock.a80:43
-ROM_end             = $6000 = 24576  ROM     clock.a80:186 (unused)
-ROM_size            = $6000 = 24576  ROM     clock.a80:186 (unused)
-RST0                = $0000 =     0  ROM     clock.a80:191 (unused)
-RST1                = $0008 =     8  ROM     clock.a80:196 (unused)
-RST2                = $0010 =    16  ROM     clock.a80:201 (unused)
-RST3                = $0018 =    24  ROM     clock.a80:206 (unused)
-RST4                = $0020 =    32  ROM     clock.a80:211 (unused)
-RST5                = $0028 =    40  ROM     clock.a80:216 (unused)
-RST6                = $0030 =    48  ROM     clock.a80:221 (unused)
-RST7                = $0038 =    56  ROM     clock.a80:226 (unused)
+ROM_end             = $6000 = 24576  ROM     clock.a80:189 (unused)
+ROM_size            = $6000 = 24576  ROM     clock.a80:189 (unused)
+RST0                = $0000 =     0  ROM     clock.a80:194 (unused)
+RST1                = $0008 =     8  ROM     clock.a80:199 (unused)
+RST2                = $0010 =    16  ROM     clock.a80:204 (unused)
+RST3                = $0018 =    24  ROM     clock.a80:209 (unused)
+RST4                = $0020 =    32  ROM     clock.a80:214 (unused)
+RST5                = $0028 =    40  ROM     clock.a80:219 (unused)
+RST6                = $0030 =    48  ROM     clock.a80:224 (unused)
+RST7                = $0038 =    56  ROM     clock.a80:229 (unused)
 RTC_CTRL            = $001E =    30          clock.a80:117 (unused)
 RTC_DAY             = $0016 =    22          clock.a80:109 (unused)
 RTC_DAY_ALM         = $0017 =    23          clock.a80:110 (unused)
@@ -863,16 +904,17 @@ TZ_ROM_BASE         = $C000 = 49152          clock.a80:48 (unused)
 TZ_ROM_SZ           = $2000 =  8192          clock.a80:49 (unused)
 VECTOR_INT_PG       = $0001 =     1          clock.a80:33
 WD_POKE             = $0004 =     4          clock.a80:95 (unused)
-WRITE_PATTERN       = $0250 =   592  ROM     clock.a80:311
+WRITE_PATTERN       = $0250 =   592  ROM     clock.a80:314
 _reqcolon_          = $0001 =     1          :1 (unused)
 
 ; +++ local symbols +++
 
-ADD_OFFSET       = $0379 =   889  ROM     clock.a80:623
-CTC_CH1_ISR_EXIT = $037D =   893  ROM     clock.a80:630 (unused)
-DO_ROW           = $036D =   877  ROM     clock.a80:614
-NO_OFFSET        = $037C =   892  ROM     clock.a80:627
+ADD_OFFSET       = $0379 =   889  ROM     clock.a80:626
+BUF_OFFSET       = $036D =   877  ROM     clock.a80:617
+CTC_CH1_ISR_EXIT = $0396 =   918  ROM     clock.a80:668 (unused)
+DO_ROW           = $037C =   892  ROM     clock.a80:630
+DO_ROW_NEXT      = $0380 =   896  ROM     clock.a80:644
 
 
-total time: 0.0078 sec.
+total time: 0.0080 sec.
 no errors
