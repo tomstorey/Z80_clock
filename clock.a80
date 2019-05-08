@@ -661,13 +661,15 @@ DO_ROW_NEXT:
       DJNZ  DO_ROW_NEXT             ; Next column
 
       LD    A, (HL)                 ; HL now points to DP byte
-      OUT   (C), A                  ; Shift it out
-      
+      OUT   (C), A                  ; Shift it ou
+
+;---- Writing the control byte causes the shifted data to be
+;     latched and the next row of the display to be selected.
       LD    C, DISP_CTRL            ; Load display control byte and
       LD    A, (DISP_CONTROL)       ; write to control register.
       OUT   (C), A
 
-CTC_CH1_ISR_EXIT:
+;---- Finish up by incrementing the row counter in the control byte
       LD    HL, DISP_CONTROL        ; Load display control byte
       LD    A, (HL)
       LD    C, A                    ; Keep a copy
