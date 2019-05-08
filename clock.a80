@@ -143,7 +143,7 @@ SM_MAIN_RESET     .EQU  0x01        ; Reset state
 DISP_BUF_SZ       .EQU  8
 
 
-;---------------------------------------------------------------------­
+;---------------------------------------------------------------------
 ;                          GLOBAL VARIABLES                          :
 ;---------------------------------------------------------------------
 #data RAM, RAM_BASE, RAM_SZ
@@ -184,7 +184,7 @@ DISP_ROW1_DP:           .DB   0
 DISP_ROW2_DP:           .DB   0
 
 
-;---------------------------------------------------------------------­
+;---------------------------------------------------------------------
 ;                          APPLICATION CODE                          :
 ;---------------------------------------------------------------------
 #code ROM, ROM_BASE, ROM_SZ
@@ -230,7 +230,7 @@ RST7:
       HALT
 
 
-;---------------------------------------------------------------------­
+;---------------------------------------------------------------------
 ;                         INTERRUPT VECTORS                          :
 ;---------------------------------------------------------------------
       .ORG 0x0066
@@ -603,15 +603,12 @@ CTC_CH1_ISR::
 ;                will take care of both situations.
       LD    HL, DISP_CONTROL
       LD    A, (HL)
-      LD    B, A
 
       AND   0x03
       JR    NZ, BUF_OFFSET
 
-      LD    A, B
-      INC   A                       ; If count == 0, inc to 1
-      LD    (HL), A                 ; Store back in to memory
-
+      INC   (HL)                    ; If count == 0, inc to 1
+      LD    A, (HL)                 ; Read back from memory
       AND   0x03                    ; Prep A with new row count
 
 BUF_OFFSET:
@@ -672,11 +669,11 @@ CTC_CH1_ISR_EXIT:
 
       INC   A                       ; Increment row counter
       AND   0x03                    ; Mask out upper bits
-      LD    B, A
+      LD    B, A                    ; B is new row counter
 
-      LD    A, C                    ; Make new control byte preserving
-      AND   0xFC                    ; upper 6 bits.
-      OR    B
+      LD    A, C                    ; Make a new control byte
+      AND   0xFC                    ; Remove row counter bits
+      OR    B                       ; OR in new row counter bits
       LD    (HL), A                 ; Store back to memory
 
       EXX                           ; Swap registers back
