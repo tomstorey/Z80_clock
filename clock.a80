@@ -583,9 +583,9 @@ CTC_CH0_ISR_EXIT:
 ;                                                                    :
 ; DESCRIPTION                                                        :
 ;     The display is made up of 3 rows of 8x 16 segment displays.    :
-;     Each iteration of this ISR cycles to the next display row
-;     after shifting out the data corresponding to the currently
-;     selected row.
+;     Each iteration of this ISR cycles to the next display row      :
+;     after shifting out the data corresponding to the currently     :
+;     selected row.                                                  :
 ;---------------------------------------------------------------------
 #data RAM
 DISP_CONTROL:           .DB   0
@@ -630,8 +630,8 @@ DO_ROW:
 ;     to be shifted are for column 7.
 ;
 ;     Each character is stored as two contiguous bytes in CHAR_ROM so
-;     the OTIR instruction can be used to do a two byte transfer op
-;     from ROM to the display driver data register.
+;     the OTIR instruction can be used to do a two byte transfer from
+;     ROM to the display driver data register.
 ;
 ;     After text data is shifted, one final byte to control the DPs is
 ;     shifted.
@@ -660,7 +660,12 @@ DO_ROW_NEXT:
 
       DJNZ  DO_ROW_NEXT             ; Next column
 
-      ; TODO: Shift dot points
+      LD    A, (HL)                 ; HL now points to DP byte
+      OUT   (C), A                  ; Shift it out
+      
+      LD    C, DISP_CTRL            ; Load display control byte and
+      LD    A, (DISP_CONTROL)       ; write to control register.
+      OUT   (C), A
 
 CTC_CH1_ISR_EXIT:
       LD    HL, DISP_CONTROL        ; Load display control byte
