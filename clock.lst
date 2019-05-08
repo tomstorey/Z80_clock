@@ -1,7 +1,7 @@
               	; --------------------------------------
               	; zasm: assemble "clock.a80"
               	; opts: --reqcolon
-              	; date: 2019-05-07 22:24:38
+              	; date: 2019-05-08 21:50:32
               	; --------------------------------------
 
 
@@ -150,7 +150,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0008:         	DISP_BUF_SZ       .EQU  8
               	
               	
-              	;---------------------------------------------------------------------­
+              	;---------------------------------------------------------------------
               	;                          GLOBAL VARIABLES                          :
               	;---------------------------------------------------------------------
 8000:         	#data RAM, RAM_BASE, RAM_SZ
@@ -194,7 +194,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 801F: 00      	DISP_ROW2_DP:           .DB   0
               	
               	
-              	;---------------------------------------------------------------------­
+              	;---------------------------------------------------------------------
               	;                          APPLICATION CODE                          :
               	;---------------------------------------------------------------------
 0000:         	#code ROM, ROM_BASE, ROM_SZ
@@ -247,7 +247,7 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0038: 76      	      HALT
               	
               	
-              	;---------------------------------------------------------------------­
+              	;---------------------------------------------------------------------
               	;                         INTERRUPT VECTORS                          :
               	;---------------------------------------------------------------------
 0039: FFFFFFFF	      .ORG 0x0066
@@ -261,8 +261,8 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 0100:         	INT_VECTOR_TABLE:
 0100: 3F03    	      .DW   CTC_CH0_ISR             ; CTC Ch0 vector
 0102: 5D03    	      .DW   CTC_CH1_ISR             ; CTC Ch1 vector
-0104: A903    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
-0106: CB03    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
+0104: B103    	      .DW   CTC_CH2_ISR             ; CTC Ch2 vector
+0106: D303    	      .DW   CTC_CH3_ISR             ; CTC Ch3 vector
               	
 0108: 00000000	      .DS   248, 0                  ; Fill rest of table with 0's
 010C: 00...   	
@@ -604,9 +604,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;                                                                    :
               	; DESCRIPTION                                                        :
               	;     The display is made up of 3 rows of 8x 16 segment displays.    :
-              	;     Each iteration of this ISR cycles to the next display row
-              	;     after shifting out the data corresponding to the currently
-              	;     selected row.
+              	;     Each iteration of this ISR cycles to the next display row      :
+              	;     after shifting out the data corresponding to the currently     :
+              	;     selected row.                                                  :
               	;---------------------------------------------------------------------
               	#data RAM
 8020: 00      	DISP_CONTROL:           .DB   0
@@ -624,87 +624,91 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	;                will take care of both situations.
 035F: 212080  	      LD    HL, DISP_CONTROL
 0362: 7E      	      LD    A, (HL)
-0363: 47      	      LD    B, A
               	
-0364: E603    	      AND   0x03
-0366: 2005    	      JR    NZ, BUF_OFFSET
+0363: E603    	      AND   0x03
+0365: 2004    	      JR    NZ, BUF_OFFSET
               	
-0368: 78      	      LD    A, B
-0369: 3C      	      INC   A                       ; If count == 0, inc to 1
-036A: 77      	      LD    (HL), A                 ; Store back in to memory
+0367: 34      	      INC   (HL)                    ; If count == 0, inc to 1
+0368: 7E      	      LD    A, (HL)                 ; Read back from memory
+0369: E603    	      AND   0x03                    ; Prep A with new row count
               	
-036B: E603    	      AND   0x03                    ; Prep A with new row count
+036B:         	BUF_OFFSET:
+036B: 3D      	      DEC   A                       ; Index row count to zero
+036C: 47      	      LD    B, A                    ; B is num of times to add offset
+036D: 210C80  	      LD    HL, DISP_ROW0 + 7       ; Set pointer at end of first buf
+0370: 110800  	      LD    DE, DISP_BUF_SZ         ; Offset value to be added
               	
-036D:         	BUF_OFFSET:
-036D: 3D      	      DEC   A                       ; Index row count to zero
-036E: 47      	      LD    B, A                    ; B is num of times to add offset
-036F: 210C80  	      LD    HL, DISP_ROW0 + 7       ; Set pointer at end of first buf
-0372: 110800  	      LD    DE, DISP_BUF_SZ         ; Offset value to be added
+0373: FE00    	      CP    0                       ; Add offset?
+0375: 2803    	      JR    Z, DO_ROW
               	
-0375: FE00    	      CP    0                       ; Add offset?
-0377: 2803    	      JR    Z, DO_ROW
+0377:         	ADD_OFFSET:
+0377: 19      	      ADD   HL, DE                  ; Yes - add DE to HL B times
+0378: 10FD    	      DJNZ  ADD_OFFSET
               	
-0379:         	ADD_OFFSET:
-0379: 19      	      ADD   HL, DE                  ; Yes - add DE to HL B times
-037A: 10FD    	      DJNZ  ADD_OFFSET
-              	
-037C:         	DO_ROW:
+037A:         	DO_ROW:
               	;---- Start shifting character data. Columns are numbered 0..7 from
               	;     left to right (reading direction), and by design the first bytes
               	;     to be shifted are for column 7.
               	;
               	;     Each character is stored as two contiguous bytes in CHAR_ROM so
-              	;     the OTIR instruction can be used to do a two byte transfer op
-              	;     from ROM to the display driver data register.
+              	;     the OTIR instruction can be used to do a two byte transfer from
+              	;     ROM to the display driver data register.
               	;
               	;     After text data is shifted, one final byte to control the DPs is
               	;     shifted.
-037C: 0E20    	      LD    C, DISP_DATA            ; Display peripheral I/O address
-037E: 0608    	      LD    B, DISP_BUF_SZ          ; Outer loop counter
+037A: 0E20    	      LD    C, DISP_DATA            ; Display peripheral I/O address
+037C: 0608    	      LD    B, DISP_BUF_SZ          ; Outer loop counter
               	
-0380:         	DO_ROW_NEXT:
-0380: 1600    	      LD    D, 0
-0382: 5E      	      LD    E, (HL)                 ; Load char value from buffer
+037E:         	DO_ROW_NEXT:
+037E: 1600    	      LD    D, 0
+0380: 5E      	      LD    E, (HL)                 ; Load char value from buffer
               	
-0383: 2B      	      DEC   HL                      ; Dec buffer pointer and save
-0384: E5      	      PUSH  HL
+0381: 2B      	      DEC   HL                      ; Dec buffer pointer and save
+0382: E5      	      PUSH  HL
               	
-0385: 2100E0  	      LD    HL, CHAR_ROM_BASE       ; Set pointer to start of CHAR_ROM
-0388: CB23    	      SLA   E                       ; Double DE
-038A: CB12    	      RL    D
-038C: 19      	      ADD   HL, DE                  ; HL + DE = char position in ROM
+0383: 2100E0  	      LD    HL, CHAR_ROM_BASE       ; Set pointer to start of CHAR_ROM
+0386: CB23    	      SLA   E                       ; Double DE
+0388: CB12    	      RL    D
+038A: 19      	      ADD   HL, DE                  ; HL + DE = char position in ROM
               	
-038D: C5      	      PUSH  BC                      ; Save B
+038B: C5      	      PUSH  BC                      ; Save B
               	
-038E: 0602    	      LD    B, 2                    ; Inner loop counter
-0390: EDB3    	      OTIR                          ; Transfer two bytes
+038C: 0602    	      LD    B, 2                    ; Inner loop counter
+038E: EDB3    	      OTIR                          ; Transfer two bytes
               	
-0392: C1      	      POP   BC                      ; Restore B
-0393: E1      	      POP   HL                      ; Restore buffer pointer
+0390: C1      	      POP   BC                      ; Restore B
+0391: E1      	      POP   HL                      ; Restore buffer pointer
               	
-0394: 10EA    	      DJNZ  DO_ROW_NEXT             ; Next column
+0392: 10EA    	      DJNZ  DO_ROW_NEXT             ; Next column
               	
-              	      ; TODO: Shift dot points
+0394: 7E      	      LD    A, (HL)                 ; HL now points to DP byte
+0395: ED79    	      OUT   (C), A                  ; Shift it out
               	
-0396:         	CTC_CH1_ISR_EXIT:
-0396: 212080  	      LD    HL, DISP_CONTROL        ; Load display control byte
-0399: 7E      	      LD    A, (HL)
-039A: 4F      	      LD    C, A                    ; Keep a copy
+              	;---- Writing the control byte causes the shifted data to be latched
+              	;     and the next row of the display to be selected per control byte.
+0397: 0E21    	      LD    C, DISP_CTRL            ; Load display control byte and
+0399: 3A2080  	      LD    A, (DISP_CONTROL)       ; write to control register.
+039C: ED79    	      OUT   (C), A
               	
-039B: 3C      	      INC   A                       ; Increment row counter
-039C: E603    	      AND   0x03                    ; Mask out upper bits
-039E: 47      	      LD    B, A
+              	;---- Finish up by incrementing the row counter in the control byte.
+039E: 212080  	      LD    HL, DISP_CONTROL        ; Load display control byte
+03A1: 7E      	      LD    A, (HL)
+03A2: 4F      	      LD    C, A                    ; Keep a copy
               	
-039F: 79      	      LD    A, C                    ; Make new control byte preserving
-03A0: E6FC    	      AND   0xFC                    ; upper 6 bits.
-03A2: B0      	      OR    B
-03A3: 77      	      LD    (HL), A                 ; Store back to memory
+03A3: 3C      	      INC   A                       ; Increment row counter
+03A4: E603    	      AND   0x03                    ; Mask out upper bits
+03A6: 47      	      LD    B, A                    ; B is new row counter
               	
-03A4: D9      	      EXX                           ; Swap registers back
-03A5: 08      	      EX    AF, AF'
-03A6: FB      	      EI
+03A7: 79      	      LD    A, C                    ; Make a new control byte
+03A8: E6FC    	      AND   0xFC                    ; Remove row counter bits
+03AA: B0      	      OR    B                       ; OR in new row counter bits
+03AB: 77      	      LD    (HL), A                 ; Store back to memory
               	
-03A7: ED4D    	      RETI
+03AC: D9      	      EXX                           ; Swap registers back
+03AD: 08      	      EX    AF, AF'
+03AE: FB      	      EI
+              	
+03AF: ED4D    	      RETI
               	#endlocal
               	
               	;---------------------------------------------------------------------
@@ -721,39 +725,39 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
 8021: 00      	BTN_DEBOUNCE:           .DB   0
               	
               	#code ROM
-03A9:         	CTC_CH2_ISR:
-03A9: 08      	      EX    AF, AF'                 ; Swap to shadow registers
-03AA: D9      	      EXX
+03B1:         	CTC_CH2_ISR:
+03B1: 08      	      EX    AF, AF'                 ; Swap to shadow registers
+03B2: D9      	      EXX
               	
-03AB: DB08    	      IN    A, (BTN_REG)            ; Read in button state
-03AD: 2F      	      CPL                           ; Buttons pull down, make positive
+03B3: DB08    	      IN    A, (BTN_REG)            ; Read in button state
+03B5: 2F      	      CPL                           ; Buttons pull down, make positive
               	
-03AE: 210180  	      LD    HL, BTN_MASK            ; Mask out invalid buttons
-03B1: A6      	      AND   (HL)
-03B2: 47      	      LD    B, A                    ; B is valid buttons only
+03B6: 210180  	      LD    HL, BTN_MASK            ; Mask out invalid buttons
+03B9: A6      	      AND   (HL)
+03BA: 47      	      LD    B, A                    ; B is valid buttons only
               	
-03B3: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
-03B6: A6      	      AND   (HL)
-03B7: 4F      	      LD    C, A                    ; C is mask
+03BB: 210380  	      LD    HL, BTN_ACK             ; Make mask to hide serviced btns
+03BE: A6      	      AND   (HL)
+03BF: 4F      	      LD    C, A                    ; C is mask
               	
-03B8: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
-03B9: 47      	      LD    B, A                    ; B is now unserviced buttons only
-03BA: B1      	      OR    C                       ; Make mask to clear old ACKs
+03C0: A8      	      XOR   B                       ; Remove svcd btns, leave unsvcd
+03C1: 47      	      LD    B, A                    ; B is now unserviced buttons only
+03C2: B1      	      OR    C                       ; Make mask to clear old ACKs
               	
-03BB: A6      	      AND   (HL)                    ; Clear ACKs from released btns
-03BC: 77      	      LD    (HL), A
+03C3: A6      	      AND   (HL)                    ; Clear ACKs from released btns
+03C4: 77      	      LD    (HL), A
               	
-03BD: 212180  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
-03C0: 7E      	      LD    A, (HL)
-03C1: A0      	      AND   B
-03C2: 320280  	      LD    (BTN_STATE), A
-03C5: 70      	      LD    (HL), B
+03C5: 212180  	      LD    HL, BTN_DEBOUNCE        ; De-bounce button presses
+03C8: 7E      	      LD    A, (HL)
+03C9: A0      	      AND   B
+03CA: 320280  	      LD    (BTN_STATE), A
+03CD: 70      	      LD    (HL), B
               	
-03C6: D9      	      EXX                           ; Swap registers back
-03C7: 08      	      EX    AF, AF'
-03C8: FB      	      EI                            ; Re-enable interrupts
+03CE: D9      	      EXX                           ; Swap registers back
+03CF: 08      	      EX    AF, AF'
+03D0: FB      	      EI                            ; Re-enable interrupts
               	
-03C9: ED4D    	      RETI
+03D1: ED4D    	      RETI
               	
               	
               	;---------------------------------------------------------------------
@@ -764,9 +768,9 @@ B8D8:         	CTC_CH0_FCY       .EQU  FSYS / CTC_CH0_DIV
               	#data RAM
               	
               	#code ROM
-03CB:         	CTC_CH3_ISR:
-03CB: FB      	      EI
-03CC: ED4D    	      RETI
+03D3:         	CTC_CH3_ISR:
+03D3: FB      	      EI
+03D4: ED4D    	      RETI
               	
               	#end
 
@@ -783,7 +787,7 @@ BEEPER_ENABLE       = $0336 =   822  ROM     clock.a80:535
 BEEPER_MASK         = $0080 =   128          clock.a80:137
 BEEP_LEN            = $8004 = 32772  RAM     clock.a80:171
 BTN_ACK             = $8003 = 32771  RAM     clock.a80:164
-BTN_DEBOUNCE        = $8021 = 32801  RAM     clock.a80:700
+BTN_DEBOUNCE        = $8021 = 32801  RAM     clock.a80:704
 BTN_DN_BIT          = $0001 =     1          clock.a80:126
 BTN_DN_MASK         = $0001 =     1          clock.a80:130 (unused)
 BTN_ENT_BIT         = $0002 =     2          clock.a80:127
@@ -811,10 +815,10 @@ CTC_CH1_PS          = $0020 =    32          clock.a80:63
 CTC_CH2             = $0002 =     2          clock.a80:92
 CTC_CH2_DIV         = $0100 =   256          clock.a80:65
 CTC_CH2_FCY         = $5B8D = 23437          clock.a80:66
-CTC_CH2_ISR         = $03A9 =   937  ROM     clock.a80:703
+CTC_CH2_ISR         = $03B1 =   945  ROM     clock.a80:707
 CTC_CH2_PS          = $0020 =    32          clock.a80:67
 CTC_CH3             = $0003 =     3          clock.a80:93 (unused)
-CTC_CH3_ISR         = $03CB =   971  ROM     clock.a80:746
+CTC_CH3_ISR         = $03D3 =   979  ROM     clock.a80:750
 CTC_CH_CTRL         = $0001 =     1          clock.a80:78
 CTC_CH_CTR_MODE     = $0040 =    64          clock.a80:70 (unused)
 CTC_CH_EXT_TRG      = $0008 =     8          clock.a80:74 (unused)
@@ -825,7 +829,7 @@ CTC_CH_SOFT_RST     = $0002 =     2          clock.a80:77 (unused)
 CTC_CH_TCONST       = $0004 =     4          clock.a80:76
 DISP_BUF_SZ         = $0008 =     8          clock.a80:143
 DISP_CONTROL        = $8020 = 32800  RAM     clock.a80:591
-DISP_CTRL           = $0021 =    33          clock.a80:121 (unused)
+DISP_CTRL           = $0021 =    33          clock.a80:121
 DISP_DATA           = $0020 =    32          clock.a80:120
 DISP_ROW0           = $8005 = 32773  RAM     clock.a80:179
 DISP_ROW0_DP        = $801D = 32797  RAM     clock.a80:182 (unused)
@@ -909,12 +913,11 @@ _reqcolon_          = $0001 =     1          :1 (unused)
 
 ; +++ local symbols +++
 
-ADD_OFFSET       = $0379 =   889  ROM     clock.a80:626
-BUF_OFFSET       = $036D =   877  ROM     clock.a80:617
-CTC_CH1_ISR_EXIT = $0396 =   918  ROM     clock.a80:668 (unused)
-DO_ROW           = $037C =   892  ROM     clock.a80:630
-DO_ROW_NEXT      = $0380 =   896  ROM     clock.a80:644
+ADD_OFFSET  = $0377 =   887  ROM     clock.a80:623
+BUF_OFFSET  = $036B =   875  ROM     clock.a80:614
+DO_ROW      = $037A =   890  ROM     clock.a80:627
+DO_ROW_NEXT = $037E =   894  ROM     clock.a80:641
 
 
-total time: 0.0083 sec.
+total time: 0.0105 sec.
 no errors
