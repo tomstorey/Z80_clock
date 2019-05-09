@@ -126,8 +126,8 @@ BTN_UP_BIT        .EQU  0
 BTN_DN_BIT        .EQU  1
 BTN_ENT_BIT       .EQU  2
 BTN_ESC_BIT       .EQU  3
-BTN_UP_MASK       .EQU  1 << BTN_DN_BIT
-BTN_DN_MASK       .EQU  1 << BTN_UP_BIT
+BTN_UP_MASK       .EQU  1 << BTN UP_BIT
+BTN_DN_MASK       .EQU  1 << BTN_DN_BIT
 BTN_ENT_MASK      .EQU  1 << BTN_ENT_BIT
 BTN_ESC_MASK      .EQU  1 << BTN_ESC_BIT
 
