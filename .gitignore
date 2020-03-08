@@ -1,10 +1,13 @@
 *.*
-!*.sch
+!*.s
 !*.brd
-!*.a80
-!*.lst
 !*.hex
+!*.inc
 !*.lbr
+!*.lst
 !*.pdf
+!*.sch
 !.gitignore
-!build.sh
+!build
+!run
+

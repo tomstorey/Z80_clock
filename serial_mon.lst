@@ -1,0 +1,682 @@
+              	; --------------------------------------
+              	; zasm: assemble "uart_mon.s"
+              	; date: 2020-03-08 12:02:52
+              	; --------------------------------------
+
+
+              	#target ROM
+              	
+              	#include "platform.inc"
+              	;---- Oscillator frequencies (in Hz)
+              	;     * FSYS is the primary system oscillator which drives the CPU.
+              	;     * FCTC is a secondary oscillator external to the CTC which can
+              	;       be prescaled and is fed in to the TRG1 input.
+              	;     * FUART is the frequency fed into the SIO clock inputs for baud
+              	;       rate generation.
+8D80:         	FSYS                    .equ  6000000
+8000:         	FCTC                    .equ  4096000
+8000:         	FUART                   .equ  7372800
+              	
+              	;---- Memory sizes (in bytes)
+              	;     Define the start (base) and size of ROMs and RAM.
+              	#if defined(uart_loading)
+              	ROM_BASE                .equ  0x6000
+              	ROM_SZ                  .equ  6144
+              	
+              	RAM_BASE                .equ  0x7800
+              	RAM_SZ                  .equ  1792
+              	#else
+0000:         	ROM_BASE                .equ  0
+6000:         	ROM_SZ                  .equ  24576
+              	
+6000:         	RAM_BASE                .equ  0x6000
+2000:         	RAM_SZ                  .equ  8192
+              	#endif
+              	
+C000:         	TZ_ROM_BASE             .equ  0xC000
+2000:         	TZ_ROM_SZ               .equ  8192
+              	
+E000:         	CHAR_ROM_BASE           .equ  0xE000
+2000:         	CHAR_ROM_SZ             .equ  8192
+              	
+              	;---- Vector interrupt page number
+              	;     Forms the most significant byte of the interrupt vector address
+              	;     for Mode 2 interrupts.
+0001:         	VECTOR_INT_PG           .equ  (ROM_BASE+0x100)>>8
+              	
+              	; END platform.inc
+              	#include "sio.inc"
+00FC:         	SIO_BASE                .equ  0xFC
+00FC:         	SIO_A_DATA              .equ  SIO_BASE
+00FD:         	SIO_B_DATA              .equ  SIO_BASE + 1
+00FE:         	SIO_A_CTL               .equ  SIO_BASE + 2
+00FF:         	SIO_B_CTL               .equ  SIO_BASE + 3
+              	
+0000:         	SIO_RR0_RX_AVAIL        .equ  0
+0001:         	SIO_RR0_INT_PEND        .equ  0x1
+0002:         	SIO_RR0_TX_EMPTY        .equ  0x2
+0003:         	SIO_RR0_DCD             .equ  0x3
+0004:         	SIO_RR0_SYNC_HUNT       .equ  0x4
+0005:         	SIO_RR0_CTS             .equ  0x5
+0006:         	SIO_RR0_TX_URUN         .equ  0x6
+0007:         	SIO_RR0_BREAK           .equ  0x7
+              	
+0001:         	SIO_WR0_REG1            .equ  0x1
+0002:         	SIO_WR0_REG2            .equ  0x2
+0003:         	SIO_WR0_REG3            .equ  0x3
+0004:         	SIO_WR0_REG4            .equ  0x4
+0005:         	SIO_WR0_REG5            .equ  0x5
+0006:         	SIO_WR0_REG6            .equ  0x6
+0007:         	SIO_WR0_REG7            .equ  0x7
+0008:         	SIO_WR0_CMD_ABT         .equ  0x1 << 3
+0010:         	SIO_WR0_CMD_RST_EXT     .equ  0x2 << 3
+0018:         	SIO_WR0_CMD_CH_RST      .equ  0x3 << 3
+0020:         	SIO_WR0_CMD_EN_INT_RX   .equ  0x4 << 3
+0028:         	SIO_WR0_CMD_RST_TXINT   .equ  0x5 << 3
+0030:         	SIO_WR0_CMD_ERR_RST     .equ  0x6 << 3
+0038:         	SIO_WR0_CMD_RTN_INT     .equ  0x7 << 3
+0040:         	SIO_WR0_CRC_RST_RX      .equ  0x1 << 6
+0080:         	SIO_WR0_CRC_RST_TX      .equ  0x2 << 6
+00C0:         	SIO_WR0_CRC_RST_EOM     .equ  0x3 << 6
+              	
+0001:         	SIO_WR1_EXT_INT         .equ  0x1
+0002:         	SIO_WR1_TX_INT          .equ  0x2
+0004:         	SIO_WR1_STAT_VECT       .equ  0x4
+0008:         	SIO_WR1_RX_INT_1ST      .equ  0x1 << 3
+0010:         	SIO_WR1_RX_INT_ALL_PAV  .equ  0x2 << 3
+0018:         	SIO_WR1_RX_INT_ALL      .equ  0x3 << 3
+0020:         	SIO_WR1_WT_RDY_RX       .equ  0x20
+0040:         	SIO_WR1_RDY_FUNC        .equ  0x40
+0080:         	SIO_WR1_WT_RDY          .equ  0x80
+              	
+0001:         	SIO_WR3_RX_EN           .equ  0x1
+0002:         	SIO_WR3_SYNC_INH        .equ  0x2
+0004:         	SIO_WR3_ADDR_SRCH       .equ  0x4
+0008:         	SIO_WR3_RX_CRC_EN       .equ  0x8
+0010:         	SIO_WR3_HUNT_PH         .equ  0x10
+0020:         	SIO_WR3_AUTO_EN         .equ  0x20
+0040:         	SIO_WR3_RX_7            .equ  0x1 << 6
+0080:         	SIO_WR3_RX_6            .equ  0x2 << 6
+00C0:         	SIO_WR3_RX_8            .equ  0x3 << 6
+              	
+0001:         	SIO_WR4_PAR_EN          .equ  0x1
+0002:         	SIO_WR4_PAR_EVN         .equ  0x2
+0004:         	SIO_WR4_STOP_1          .equ  0x1 << 2
+0008:         	SIO_WR4_STOP_1_5        .equ  0x2 << 2
+000C:         	SIO_WR4_STOP_2          .equ  0x3 << 2
+0010:         	SIO_WR4_SYNC_16         .equ  0x1 << 4
+0020:         	SIO_WR4_SDLC            .equ  0x2 << 4
+0030:         	SIO_WR4_EXT_SYNC        .equ  0x3 << 4
+0040:         	SIO_WR4_1_16_CLK        .equ  0x1 << 6
+0080:         	SIO_WR4_1_32_CLK        .equ  0x2 << 6
+00C0:         	SIO_WR4_1_64_CLK        .equ  0x3 << 6
+              	
+0001:         	SIO_WR5_TX_CRC          .equ  0x1
+0002:         	SIO_WR5_RTS             .equ  0x2
+0004:         	SIO_WR5_CRC16           .equ  0x4
+0008:         	SIO_WR5_TX_EN           .equ  0x8
+0010:         	SIO_WR5_SND_BRK         .equ  0x10
+0020:         	SIO_WR5_TX_7            .equ  0x1 << 5
+0040:         	SIO_WR5_TX_6            .equ  0x2 << 5
+0060:         	SIO_WR5_TX_8            .equ  0x3 << 5
+0080:         	SIO_WR5_DTR             .equ  0x80
+              	
+              	; END sio.inc
+              	
+00DE:         	DEBUG_PORT              .equ  0xDE
+              	
+0000:         	SIO_A_WR1               .equ  0
+00C1:         	SIO_A_WR3               .equ  0 | SIO_WR3_RX_8 | SIO_WR3_RX_EN
+00C4:         	SIO_A_WR4               .equ  0 | SIO_WR4_1_64_CLK | SIO_WR4_STOP_1
+00E8:         	SIO_A_WR5               .equ  0 | SIO_WR5_DTR | SIO_WR5_TX_8 | SIO_WR5_TX_EN
+              	
+0001:         	VECTOR_INT_PG           .equ  0x01
+01F0:         	SIO_INT_VECT_BASE       .equ  VECTOR_INT_PG << 8 | (SIO_BASE << 2 & 0xFF)
+              	
+              	
+              	assert_rts .macro
+              	      push  AF
+              	      ld    A, SIO_WR0_REG5
+              	      out   (SIO_A_CTL), A
+              	      ld    A, SIO_A_WR5 | SIO_WR5_RTS
+              	      out   (SIO_A_CTL), A
+              	      pop   AF
+              	      .endm
+              	
+              	clear_rts .macro
+              	      push  AF
+              	      ld    A, SIO_WR0_REG5
+              	      out   (SIO_A_CTL), A
+              	      ld    A, SIO_A_WR5
+              	      out   (SIO_A_CTL), A
+              	      pop   AF
+              	      .endm
+              	
+              	break .macro val
+              	      ld    A, &val
+              	      out   (DEBUG_PORT), A
+              	      halt
+              	      .endm
+              	
+              	
+              	
+7F00:         	#data RAM, 0x7F00, 256
+              	
+0000:         	#code ROM, 0, 8192
+              	;---- Restart vectors
+              	      .org 0
+0000: C30002  	      jp    main
+              	
+0003: FFFFFFFF	      .org 0x66
+0007: FF...   	
+0066:         	nmi_vector:
+0066: ED45    	      retn
+              	
+0068: FFFFFFFF	      .org 0x0100
+006C: FF...   	
+0100:         	int_vector_table:
+0100: FFFFFFFF	      .ds   256
+0104: FF...   	
+              	
+              	      .align 0x100
+              	#data RAM
+              	
+              	#code ROM
+0200:         	main:
+0200: ED5E    	      im    2
+0202: 3E01    	      ld    A, VECTOR_INT_PG
+0204: ED47    	      ld    I, A
+0206: F3      	      di                            ; Interrupts not used in monitor
+              	
+0207: 310080  	      ld    SP, RAM_BASE+RAM_SZ     ; Stack starts at top of RAM
+              	
+              	;---- Configure SIO Channel A
+              	      ; Channel A reset
+020A: 0EFE    	      ld    C, SIO_A_CTL
+020C: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST
+020E: ED79    	      out   (C), A
+              	
+              	      ; Channel B WR1 - Status affects vector bit
+0210: 0EFF    	      ld    C, SIO_B_CTL
+0212: 3E01    	      ld    A, SIO_WR0_REG1
+0214: 0604    	      ld    B, SIO_WR1_STAT_VECT
+0216: ED79    	      out   (C), A
+0218: ED41    	      out   (C), B
+              	
+              	      ; Channel B WR2 - Interrupt vector
+021A: 3E02    	      ld    A, SIO_WR0_REG2
+021C: 06F0    	      ld    B, SIO_INT_VECT_BASE & 0xFF
+021E: ED79    	      out   (C), A
+0220: ED41    	      out   (C), B
+              	
+              	      ; Channel A WR4 - parity, async mode, clock rate
+0222: 0EFE    	      ld    C, SIO_A_CTL
+0224: 3E14    	      ld    A, SIO_WR0_REG4 | SIO_WR0_CMD_RST_EXT
+0226: 06C4    	      ld    B, SIO_A_WR4
+0228: ED79    	      out   (C), A
+022A: ED41    	      out   (C), B
+              	
+              	      ; Channel A WR5 - TX enable, 8 bit, set DTR/, clear RTS/
+022C: 3E05    	      ld    A, SIO_WR0_REG5
+022E: 06E8    	      ld    B, SIO_A_WR5
+0230: ED79    	      out   (C), A
+0232: ED41    	      out   (C), B
+              	
+              	      ; Channel A WR3 - RX enable, 8 bit
+0234: 3E03    	      ld    A, SIO_WR0_REG3
+0236: 06C1    	      ld    B, SIO_A_WR3
+0238: ED79    	      out   (C), A
+023A: ED41    	      out   (C), B
+              	
+              	      ; Channel A WR1
+023C: 3E11    	      ld    A, SIO_WR0_REG1 | SIO_WR0_CMD_RST_EXT
+023E: 0600    	      ld    B, SIO_A_WR1
+0240: ED79    	      out   (C), A
+0242: ED41    	      out   (C), B
+              	
+              	;----
+0244: 3E00    	      ld    A, 0                    ; Zeroise RAM
+0246: 01FE00  	      ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
+0249: 21007F  	      ld    HL, RAM
+              	
+024C: CD1D04  	      call  memset
+              	
+024F:         	main_loop:
+024F: CD0003  	      call  rx_task
+              	
+0252: 18FB    	      jr    main_loop
+              	
+              	
+              	#data RAM
+7F00: 00      	rx_flags:               .db 0       ; Flags for RX task
+0000:         	RX_CMD:                 .equ  0     ; Command currently executing
+              	
+7F01: 00      	rx_command:             .db 0       ; Command number that is executing
+7F02: 00      	rx_ctr:                 .db 0       ; Number of bytes RX'd to buffer
+7F03: 0000    	rx_BC:                  .dw 0       ; Working copy of BC
+7F05: 0000    	rx_HL:                  .dw 0       ; Working copy of HL
+              	
+7F07: 00000000	      .align 16
+7F0B: 00...   	
+7F10: 00000000	rx_buf:                 .ds 16      ; RX buffer
+7F14: 00...   	
+              	
+              	#code ROM
+0254: FFFFFFFF	      .align 0x100
+0258: FF...   	
+0300:         	rx_task:
+              	#local
+0300: DBFE    	      in    A, (SIO_A_CTL)          ; Any chars waiting?
+0302: CB47    	      bit   SIO_RR0_RX_AVAIL, A
+0304: C8      	      ret   Z                       ; No if Z, return
+              	
+0305: DBFC    	      in    A, (SIO_A_DATA)         ; Get waiting byte
+0307: 47      	      ld    B, A                    ; Keep a copy for later
+              	
+              	      ; Check for errors
+0308: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
+030A: D3FE    	      out   (SIO_A_CTL), A
+030C: DBFE    	      in    A, (SIO_A_CTL)          ; Read RR1
+030E: E670    	      and   A, 0x70                 ; Error bits are mask 01110000
+0310: 2804    	      jr    Z, continue             ; Errors if NZ, otherwise continue
+              	
+0312: 78      	      ld    A, B
+0313: D3DE    	      out   (DEBUG_PORT), A         ; Output error conds and halt
+0315: 76      	      halt
+              	
+0316:         	continue:
+0316: 3E38    	      ld    A, SIO_WR0_CMD_RTN_INT  ; Return from interrupt
+0318: D3FE    	      out   (SIO_A_CTL), A
+              	
+031A: 78      	      ld    A, B
+031B: 21007F  	      ld    HL, rx_flags            ; Currently executing a command?
+031E: CB46    	      bit   RX_CMD, (HL)
+0320: 2803    	      jr    Z, new_command          ; No if Z, start new command
+              	
+0322: 3A017F  	      ld    A, (rx_command)         ; Load command number into A
+              	
+0325:         	new_command:
+0325: FE03    	      cp    A, 0x03                 ; Load into memory command
+0327: 281B    	      jr    Z, write_cmd
+0329: FE04    	      cp    A, 0x04                 ; Execute
+032B: 285C    	      jr    Z, exec_cmd
+              	
+              	      ; Invalid command, reset state
+032D:         	end_command:
+032D: AF      	      xor   A, A
+032E: 32017F  	      ld    (rx_command), A
+0331: 21007F  	      ld    HL, rx_flags
+0334: CB86    	      res   RX_CMD, (HL)
+              	
+0336: 18C8    	      jr    rx_task
+              	
+0338:         	start_command:
+0338: 32017F  	      ld    (rx_command), A         ; Set command number
+033B: CBC6    	      set   RX_CMD, (HL)            ; Set command executing flag
+033D: AF      	      xor   A, A
+033E: 32027F  	      ld    (rx_ctr), A             ; Zeroise buffer counter
+              	
+0341: C30003  	      jp    rx_task
+              	
+              	
+0344:         	write_cmd:
+0344: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
+0346: 28F0    	      jr    Z, start_command        ; No if Z, start
+              	
+0348: 3A027F  	      ld    A, (rx_ctr)             ; Received all header bytes?
+034B: FE04    	      cp    A, 0x04
+034D: 201C    	      jr    NZ, write_cmd_hdr_byte  ; No if NZ, store into buffer
+              	
+              	      ; Place bytes into memory from here
+034F: 78      	      ld    A, B                    ; Restore RX'd byte
+0350: ED4B037F	      ld    BC, (rx_BC)             ; Load working BC and HL
+0354: 2A057F  	      ld    HL, (rx_HL)
+              	
+0357: 77      	      ld    (HL), A                 ; Store RX'd byte
+              	
+0358: 0B      	      dec   BC
+0359: 23      	      inc   HL
+              	
+035A: ED43037F	      ld    (rx_BC), BC
+035E: 22057F  	      ld    (rx_HL), HL
+              	
+0361: 78      	      ld    A, B                    ; BC == 0?
+0362: B1      	      or    A, C
+0363: 209B    	      jr    NZ, rx_task             ; No if NZ, more bytes to come
+              	
+0365: 3E21    	      ld    A, '!'                  ; Send command complete to host
+0367: D3FC    	      out   (SIO_A_DATA), A
+              	
+0369: 18C2    	      jr    end_command
+              	
+036B:         	write_cmd_hdr_byte:
+036B: 21107F  	      ld    HL, rx_buf              ; Increment HL by rx_ctr
+036E: 85      	      add   A, L
+036F: 6F      	      ld    L, A
+              	
+0370: 70      	      ld    (HL), B                 ; Store B into (HL)
+              	
+0371: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+0374: 34      	      inc   (HL)
+0375: 7E      	      ld    A, (HL)
+              	
+0376: FE04    	      cp    A, 0x04                 ; Received 4 header bytes?
+0378: 2086    	      jr    NZ, rx_task             ; No if NZ
+              	
+037A: 2A107F  	      ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
+037D: 22037F  	      ld    (rx_BC), HL
+0380: 2A127F  	      ld    HL, (rx_buf+2)          ; Xfer working HL out of rx_buf
+0383: 22057F  	      ld    (rx_HL), HL
+              	
+0386: C30003  	      jp    rx_task
+              	
+              	
+0389:         	exec_cmd:
+0389: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
+038B: 28AB    	      jr    Z, start_command        ; No if Z, start
+              	
+038D: 3A027F  	      ld    A, (rx_ctr)             ; Increment HL by rx_ctr
+0390: 21107F  	      ld    HL, rx_buf
+0393: 85      	      add   A, L
+0394: 6F      	      ld    L, A
+              	
+0395: 70      	      ld    (HL), B                 ; Store B into (HL)
+              	
+0396: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+0399: 34      	      inc   (HL)
+039A: 7E      	      ld    A, (HL)
+039B: D3DE    	      out   (DEBUG_PORT), A
+              	
+039D: FE02    	      cp    A, 0x02                 ; Received 2 header bytes?
+039F: C20003  	      jp    NZ, rx_task             ; No if NZ
+              	
+03A2: 2A107F  	      ld    HL, (rx_buf)            ; Load HL and jump
+              	
+03A5: 3E2B    	      ld    A, '+'                  ; Send command complete to host
+03A7: D3FC    	      out   (SIO_A_DATA), A
+              	
+03A9: 0600    	      ld    B, 0
+03AB:         	dec_b:
+03AB: 10FE    	      djnz  dec_b
+              	
+03AD: E9      	      jp    (HL)
+              	
+              	
+              	
+              	
+              	#endlocal
+              	
+              	
+              	#code ROM
+03AE: FFFFFFFF	      .align 0x100
+03B2: FF...   	
+              	
+              	#include "c_lib.s"
+              	#data RAM
+              	
+              	#code ROM
+              	      .align 0x100
+              	;---------------------------------------------------------------------
+              	;     memcpy                                                         :
+              	;                                                                    :
+              	; Description                                                        :
+              	;     Copy block of memory.                                          :
+              	;                                                                    :
+              	;     Copies the values of BC bytes from the location pointed to by  :
+              	;     HL directly to the memory block pointed to by DE.              :
+              	;                                                                    :
+              	; Parameters                                                         :
+              	;     BC  Number of bytes to copy                                    :
+              	;     DE  Pointer to the destination                                 :
+              	;     HL  Pointer to the source of data to be copied                 :
+              	;                                                                    :
+              	; Returns                                                            :
+              	;     Nothing                                                        :
+              	;                                                                    :
+              	; Destroys                                                           :
+              	;     A                                                              :
+              	;---------------------------------------------------------------------
+0400:         	memcpy:
+0400: 78      	      ld    A, B                    ; BC == 0?
+0401: B1      	      or    A, C
+0402: C8      	      ret   Z                       ; Yes if Z, return
+              	
+0403: EDB0    	      ldir                          ; while (BC != 0) {
+              	                                    ;   (DE) <- (HL)
+              	                                    ;   DE++, HL++, BC--
+              	                                    ; }
+0405: C9      	      ret
+              	
+              	;---------------------------------------------------------------------
+              	;     strncpy                                                        :
+              	;                                                                    :
+              	; Description                                                        :
+              	;     Copy characters from string.                                   :
+              	;                                                                    :
+              	;     Copies the first BC characters from HL to DE. If the end of    :
+              	;     the source string (which is signaled by a null-character) is   :
+              	;     found before BC characters have been copied, DE is padded with :
+              	;     zeros until a total of BC characters have been written to it.  :
+              	;
+              	;     No null-character is implicitly appended at the end of DE if   ;
+              	;     HL is longer than BC. Thus, in this case, DE shall not be      ;
+              	;     considered a null terminated string.                           ;
+              	;                                                                    :
+              	; Parameters                                                         :
+              	;     BC  Maximum number of characters to be copied                  :
+              	;     DE  Pointer to the destination                                 :
+              	;     HL  String to be copied                                        :
+              	;                                                                    :
+              	; Returns                                                            :
+              	;     Nothing                                                        :
+              	;                                                                    :
+              	; Destroys                                                           :
+              	;     A                                                              :
+              	;---------------------------------------------------------------------
+0406:         	strncpy:
+              	#local
+0406: 78      	      ld    A, B                    ; BC == 0?
+0407: B1      	      or    A, C
+0408: C8      	      ret   Z                       ; Yes if Z, return
+              	
+0409: 7E      	      ld    A, (HL)                 ; Load char from source
+040A: FE00    	      cp    A, 0                    ; Is it a zero?
+040C: 2806    	      jr    Z, zero_fill            ; Yes if Z, zero fill from here
+              	
+040E: 12      	      ld    (DE), A                 ; No, store char to dest
+              	
+040F: 0B      	      dec   BC                      ; Dec byte count
+0410: 13      	      inc   DE                      ; Inc dest pointer
+0411: 23      	      inc   HL                      ; Inc source pointer
+              	
+0412: 18F2    	      jr    strncpy                 ; Next char
+              	
+0414:         	zero_fill:
+0414: AF      	      xor   A, A                    ; Store 0 into DE
+0415: 12      	      ld    (DE), A
+              	
+0416: 0B      	      dec   BC                      ; Dec byte count
+0417: 13      	      inc   DE                      ; Inc dest pointer
+              	
+0418: 78      	      ld    A, B                    ; BC == 0?
+0419: B1      	      or    A, C
+041A: 20F8    	      jr    NZ, zero_fill           ; No if NZ, fill next char
+              	
+041C: C9      	      ret
+              	#endlocal
+              	
+              	;---------------------------------------------------------------------
+              	;     memset                                                         :
+              	;                                                                    :
+              	; Description                                                        :
+              	;     Fill block of memory.                                          :
+              	;                                                                    :
+              	;     Sets the first BC bytes of the block of memory pointed by HL   :
+              	;     to the specified value in A.                                   :
+              	;                                                                    :
+              	; Parameters                                                         :
+              	;     A   Value to be set                                            :
+              	;     BC  Number of bytes to be set to the value of A                :
+              	;     HL  Pointer to the block of memory to fill                     :
+              	;                                                                    :
+              	; Returns                                                            :
+              	;     Nothing                                                        :
+              	;                                                                    :
+              	; Destroys                                                           :
+              	;     D                                                              :
+              	;---------------------------------------------------------------------
+041D:         	memset:
+              	#local
+041D: 57      	      ld    D, A
+              	
+041E:         	next:
+041E: 78      	      ld    A, B                    ; BC == 0?
+041F: B1      	      or    A, C
+0420: C8      	      ret   Z                       ; Yes if Z, return
+              	
+0421: 72      	      ld    (HL), D                 ; Set
+              	
+0422: 0B      	      dec   BC                      ; Dec byte count
+0423: 23      	      inc   HL                      ; Inc dest pointer
+              	
+0424: 18F8    	      jr    next
+              	#endlocal
+
+
+; +++ segments +++
+
+#CODE ROM      = $0000 =     0,  size = $2000 =  8192
+#DATA RAM      = $7F00 = 32512,  size = $0100 =   256
+
+; +++ global symbols +++
+
+CHAR_ROM_BASE       = $E000 = 57344          platform.inc:30 (unused)
+CHAR_ROM_SZ         = $2000 =  8192          platform.inc:31 (unused)
+DEBUG_PORT          = $00DE =   222          uart_mon.s:6
+FCTC                = $8000 =4096000          platform.inc:8 (unused)
+FSYS                = $8D80 =6000000          platform.inc:7 (unused)
+FUART               = $8000 =7372800          platform.inc:9 (unused)
+RAM                 = $7F00 = 32512  RAM     uart_mon.s:4
+RAM_BASE            = $6000 = 24576          platform.inc:23
+RAM_SZ              = $2000 =  8192          platform.inc:24
+RAM_end             = $8000 = 32768  RAM     uart_mon.s:4 (unused)
+RAM_size            = $0100 =   256  RAM     uart_mon.s:4
+ROM                 = $0000 =     0  ROM     sio.inc:2 (unused)
+ROM_BASE            = $0000 =     0          platform.inc:20
+ROM_SZ              = $6000 = 24576          platform.inc:21 (unused)
+ROM_end             = $2000 =  8192  ROM     sio.inc:2 (unused)
+ROM_size            = $2000 =  8192  ROM     sio.inc:2 (unused)
+RX_CMD              = $0000 =     0  RAM     uart_mon.s:129
+SIO_A_CTL           = $00FE =   254          sio.inc:4
+SIO_A_DATA          = $00FC =   252          sio.inc:2
+SIO_A_WR1           = $0000 =     0          uart_mon.s:8
+SIO_A_WR3           = $00C1 =   193          uart_mon.s:9
+SIO_A_WR4           = $00C4 =   196          uart_mon.s:10
+SIO_A_WR5           = $00E8 =   232          uart_mon.s:11
+SIO_BASE            = $00FC =   252          sio.inc:1
+SIO_B_CTL           = $00FF =   255          sio.inc:5
+SIO_B_DATA          = $00FD =   253          sio.inc:3 (unused)
+SIO_INT_VECT_BASE   = $01F0 =   496          uart_mon.s:14
+SIO_RR0_BREAK       = $0007 =     7          sio.inc:14 (unused)
+SIO_RR0_CTS         = $0005 =     5          sio.inc:12 (unused)
+SIO_RR0_DCD         = $0003 =     3          sio.inc:10 (unused)
+SIO_RR0_INT_PEND    = $0001 =     1          sio.inc:8 (unused)
+SIO_RR0_RX_AVAIL    = $0000 =     0          sio.inc:7
+SIO_RR0_SYNC_HUNT   = $0004 =     4          sio.inc:11 (unused)
+SIO_RR0_TX_EMPTY    = $0002 =     2          sio.inc:9 (unused)
+SIO_RR0_TX_URUN     = $0006 =     6          sio.inc:13 (unused)
+SIO_WR0_CMD_ABT     = $0008 =     8          sio.inc:23 (unused)
+SIO_WR0_CMD_CH_RST  = $0018 =    24          sio.inc:25
+SIO_WR0_CMD_EN_INT_RX = $0020 =    32          sio.inc:26 (unused)
+SIO_WR0_CMD_ERR_RST = $0030 =    48          sio.inc:28 (unused)
+SIO_WR0_CMD_RST_EXT = $0010 =    16          sio.inc:24
+SIO_WR0_CMD_RST_TXINT = $0028 =    40          sio.inc:27 (unused)
+SIO_WR0_CMD_RTN_INT = $0038 =    56          sio.inc:29
+SIO_WR0_CRC_RST_EOM = $00C0 =   192          sio.inc:32 (unused)
+SIO_WR0_CRC_RST_RX  = $0040 =    64          sio.inc:30 (unused)
+SIO_WR0_CRC_RST_TX  = $0080 =   128          sio.inc:31 (unused)
+SIO_WR0_REG1        = $0001 =     1          sio.inc:16
+SIO_WR0_REG2        = $0002 =     2          sio.inc:17
+SIO_WR0_REG3        = $0003 =     3          sio.inc:18
+SIO_WR0_REG4        = $0004 =     4          sio.inc:19
+SIO_WR0_REG5        = $0005 =     5          sio.inc:20
+SIO_WR0_REG6        = $0006 =     6          sio.inc:21 (unused)
+SIO_WR0_REG7        = $0007 =     7          sio.inc:22 (unused)
+SIO_WR1_EXT_INT     = $0001 =     1          sio.inc:34 (unused)
+SIO_WR1_RDY_FUNC    = $0040 =    64          sio.inc:41 (unused)
+SIO_WR1_RX_INT_1ST  = $0008 =     8          sio.inc:37 (unused)
+SIO_WR1_RX_INT_ALL  = $0018 =    24          sio.inc:39 (unused)
+SIO_WR1_RX_INT_ALL_PAV = $0010 =    16          sio.inc:38 (unused)
+SIO_WR1_STAT_VECT   = $0004 =     4          sio.inc:36
+SIO_WR1_TX_INT      = $0002 =     2          sio.inc:35 (unused)
+SIO_WR1_WT_RDY      = $0080 =   128          sio.inc:42 (unused)
+SIO_WR1_WT_RDY_RX   = $0020 =    32          sio.inc:40 (unused)
+SIO_WR3_ADDR_SRCH   = $0004 =     4          sio.inc:46 (unused)
+SIO_WR3_AUTO_EN     = $0020 =    32          sio.inc:49 (unused)
+SIO_WR3_HUNT_PH     = $0010 =    16          sio.inc:48 (unused)
+SIO_WR3_RX_6        = $0080 =   128          sio.inc:51 (unused)
+SIO_WR3_RX_7        = $0040 =    64          sio.inc:50 (unused)
+SIO_WR3_RX_8        = $00C0 =   192          sio.inc:52
+SIO_WR3_RX_CRC_EN   = $0008 =     8          sio.inc:47 (unused)
+SIO_WR3_RX_EN       = $0001 =     1          sio.inc:44
+SIO_WR3_SYNC_INH    = $0002 =     2          sio.inc:45 (unused)
+SIO_WR4_1_16_CLK    = $0040 =    64          sio.inc:62 (unused)
+SIO_WR4_1_32_CLK    = $0080 =   128          sio.inc:63 (unused)
+SIO_WR4_1_64_CLK    = $00C0 =   192          sio.inc:64
+SIO_WR4_EXT_SYNC    = $0030 =    48          sio.inc:61 (unused)
+SIO_WR4_PAR_EN      = $0001 =     1          sio.inc:54 (unused)
+SIO_WR4_PAR_EVN     = $0002 =     2          sio.inc:55 (unused)
+SIO_WR4_SDLC        = $0020 =    32          sio.inc:60 (unused)
+SIO_WR4_STOP_1      = $0004 =     4          sio.inc:56
+SIO_WR4_STOP_1_5    = $0008 =     8          sio.inc:57 (unused)
+SIO_WR4_STOP_2      = $000C =    12          sio.inc:58 (unused)
+SIO_WR4_SYNC_16     = $0010 =    16          sio.inc:59 (unused)
+SIO_WR5_CRC16       = $0004 =     4          sio.inc:68 (unused)
+SIO_WR5_DTR         = $0080 =   128          sio.inc:74
+SIO_WR5_RTS         = $0002 =     2          sio.inc:67 (unused)
+SIO_WR5_SND_BRK     = $0010 =    16          sio.inc:70 (unused)
+SIO_WR5_TX_6        = $0040 =    64          sio.inc:72 (unused)
+SIO_WR5_TX_7        = $0020 =    32          sio.inc:71 (unused)
+SIO_WR5_TX_8        = $0060 =    96          sio.inc:73
+SIO_WR5_TX_CRC      = $0001 =     1          sio.inc:66 (unused)
+SIO_WR5_TX_EN       = $0008 =     8          sio.inc:69
+TZ_ROM_BASE         = $C000 = 49152          platform.inc:27 (unused)
+TZ_ROM_SZ           = $2000 =  8192          platform.inc:28 (unused)
+VECTOR_INT_PG       = $0001 =     1          uart_mon.s:13
+int_vector_table    = $0100 =   256  ROM     uart_mon.s:55 (unused)
+main                = $0200 =   512  ROM     uart_mon.s:62
+main_loop           = $024F =   591  ROM     uart_mon.s:121
+memcpy              = $0400 =  1024  ROM     c_lib.s:25 (unused)
+memset              = $041D =  1053  ROM     c_lib.s:114
+nmi_vector          = $0066 =   102  ROM     uart_mon.s:51 (unused)
+rx_BC               = $7F03 = 32515  RAM     uart_mon.s:133
+rx_HL               = $7F05 = 32517  RAM     uart_mon.s:134
+rx_buf              = $7F10 = 32528  RAM     uart_mon.s:137
+rx_command          = $7F01 = 32513  RAM     uart_mon.s:131
+rx_ctr              = $7F02 = 32514  RAM     uart_mon.s:132
+rx_flags            = $7F00 = 32512  RAM     uart_mon.s:128
+rx_task             = $0300 =   768  ROM     uart_mon.s:141
+strncpy             = $0406 =  1030  ROM     c_lib.s:62
+
+; +++ local symbols +++
+
+continue           = $0316 =   790  ROM     uart_mon.s:161
+dec_b              = $03AB =   939  ROM     uart_mon.s:273
+end_command        = $032D =   813  ROM     uart_mon.s:179
+exec_cmd           = $0389 =   905  ROM     uart_mon.s:248
+new_command        = $0325 =   805  ROM     uart_mon.s:172
+start_command      = $0338 =   824  ROM     uart_mon.s:187
+write_cmd          = $0344 =   836  ROM     uart_mon.s:196
+write_cmd_hdr_byte = $036B =   875  ROM     uart_mon.s:226
+
+; +++ local symbols +++
+
+zero_fill = $0414 =  1044  ROM     c_lib.s:80
+
+; +++ local symbols +++
+
+next    = $041E =  1054  ROM     c_lib.s:118
+
+
+total time: 0.0069 sec.
+no errors
