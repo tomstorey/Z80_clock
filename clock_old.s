@@ -646,9 +646,8 @@ DO_ROW_NEXT:
       PUSH  HL
 
       LD    HL, CHAR_ROM_BASE       ; Set pointer to start of CHAR_ROM
-      SLA   E                       ; Double DE
-      RL    D
-      ADD   HL, DE                  ; HL + DE = char position in ROM
+      ADD   HL, DE                  ; HL + DE twice to get char
+      ADD   HL, DE                  ; position in ROM
 
       PUSH  BC                      ; Save B
 
