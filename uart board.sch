@@ -4843,7 +4843,6 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <part name="P+6" library="supply1" deviceset="+5V" device=""/>
 <part name="P+7" library="supply1" deviceset="+5V" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
-<part name="P+8" library="supply1" deviceset="+5V" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4876,9 +4875,9 @@ FC-FF</text>
 <attribute name="NAME" x="106.68" y="95.758" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="109.474" y="93.599" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-7" x="40.64" y="-66.04" smashed="yes">
-<attribute name="NAME" x="43.18" y="-66.802" size="1.778" layer="95"/>
-<attribute name="VALUE" x="40.386" y="-68.961" size="1.778" layer="96"/>
+<instance part="BUS" gate="-7" x="256.54" y="104.14" smashed="yes">
+<attribute name="NAME" x="259.08" y="103.378" size="1.778" layer="95"/>
+<attribute name="VALUE" x="256.286" y="101.219" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-8" x="109.22" y="88.9" smashed="yes" rot="MR0">
 <attribute name="NAME" x="106.68" y="88.138" size="1.778" layer="95" rot="MR0"/>
@@ -4888,57 +4887,57 @@ FC-FF</text>
 <attribute name="NAME" x="30.48" y="52.578" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="33.274" y="50.419" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-10" x="40.64" y="-81.28" smashed="yes">
-<attribute name="NAME" x="43.18" y="-82.042" size="1.778" layer="95"/>
-<attribute name="VALUE" x="40.386" y="-84.201" size="1.778" layer="96"/>
+<instance part="BUS" gate="-10" x="256.54" y="88.9" smashed="yes">
+<attribute name="NAME" x="259.08" y="88.138" size="1.778" layer="95"/>
+<attribute name="VALUE" x="256.286" y="85.979" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-11" x="109.22" y="73.66" smashed="yes" rot="MR0">
 <attribute name="NAME" x="106.68" y="72.898" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="109.474" y="70.739" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-12" x="60.96" y="-40.64" smashed="yes">
-<attribute name="NAME" x="63.5" y="-41.402" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-43.561" size="1.778" layer="96"/>
+<instance part="BUS" gate="-12" x="276.86" y="129.54" smashed="yes">
+<attribute name="NAME" x="279.4" y="128.778" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="126.619" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-13" x="60.96" y="-45.72" smashed="yes">
-<attribute name="NAME" x="63.5" y="-46.482" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-48.641" size="1.778" layer="96"/>
+<instance part="BUS" gate="-13" x="276.86" y="124.46" smashed="yes">
+<attribute name="NAME" x="279.4" y="123.698" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="121.539" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-14" x="109.22" y="93.98" smashed="yes" rot="MR0">
 <attribute name="NAME" x="106.68" y="93.218" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="109.474" y="91.059" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-15" x="106.68" y="60.96" smashed="yes" rot="MR0">
-<attribute name="NAME" x="104.14" y="60.198" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="106.934" y="58.039" size="1.778" layer="96" rot="MR0"/>
+<instance part="BUS" gate="-15" x="109.22" y="68.58" smashed="yes" rot="MR0">
+<attribute name="NAME" x="106.68" y="67.818" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="109.474" y="65.659" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-16" x="60.96" y="-60.96" smashed="yes">
-<attribute name="NAME" x="63.5" y="-61.722" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-63.881" size="1.778" layer="96"/>
+<instance part="BUS" gate="-16" x="276.86" y="109.22" smashed="yes">
+<attribute name="NAME" x="279.4" y="108.458" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="106.299" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-17" x="60.96" y="-66.04" smashed="yes">
-<attribute name="NAME" x="63.5" y="-66.802" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-68.961" size="1.778" layer="96"/>
+<instance part="BUS" gate="-17" x="276.86" y="104.14" smashed="yes">
+<attribute name="NAME" x="279.4" y="103.378" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="101.219" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-18" x="60.96" y="-71.12" smashed="yes">
-<attribute name="NAME" x="63.5" y="-71.882" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-74.041" size="1.778" layer="96"/>
+<instance part="BUS" gate="-18" x="276.86" y="99.06" smashed="yes">
+<attribute name="NAME" x="279.4" y="98.298" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="96.139" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-19" x="60.96" y="-76.2" smashed="yes">
-<attribute name="NAME" x="63.5" y="-76.962" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-79.121" size="1.778" layer="96"/>
+<instance part="BUS" gate="-19" x="276.86" y="93.98" smashed="yes">
+<attribute name="NAME" x="279.4" y="93.218" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="91.059" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-20" x="60.96" y="-81.28" smashed="yes">
-<attribute name="NAME" x="63.5" y="-82.042" size="1.778" layer="95"/>
-<attribute name="VALUE" x="60.706" y="-84.201" size="1.778" layer="96"/>
+<instance part="BUS" gate="-20" x="276.86" y="88.9" smashed="yes">
+<attribute name="NAME" x="279.4" y="88.138" size="1.778" layer="95"/>
+<attribute name="VALUE" x="276.606" y="85.979" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-21" x="81.28" y="-35.56" smashed="yes">
-<attribute name="NAME" x="83.82" y="-36.322" size="1.778" layer="95"/>
-<attribute name="VALUE" x="81.026" y="-38.481" size="1.778" layer="96"/>
+<instance part="BUS" gate="-21" x="297.18" y="134.62" smashed="yes">
+<attribute name="NAME" x="299.72" y="133.858" size="1.778" layer="95"/>
+<attribute name="VALUE" x="296.926" y="131.699" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-22" x="81.28" y="-40.64" smashed="yes">
-<attribute name="NAME" x="83.82" y="-41.402" size="1.778" layer="95"/>
-<attribute name="VALUE" x="81.026" y="-43.561" size="1.778" layer="96"/>
+<instance part="BUS" gate="-22" x="297.18" y="129.54" smashed="yes">
+<attribute name="NAME" x="299.72" y="128.778" size="1.778" layer="95"/>
+<attribute name="VALUE" x="296.926" y="126.619" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-23" x="109.22" y="104.14" smashed="yes" rot="MR0">
 <attribute name="NAME" x="106.68" y="103.378" size="1.778" layer="95" rot="MR0"/>
@@ -4972,13 +4971,13 @@ FC-FF</text>
 <attribute name="NAME" x="106.68" y="121.158" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="109.474" y="118.999" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-31" x="101.6" y="-35.56" smashed="yes">
-<attribute name="NAME" x="104.14" y="-36.322" size="1.778" layer="95"/>
-<attribute name="VALUE" x="101.346" y="-38.481" size="1.778" layer="96"/>
+<instance part="BUS" gate="-31" x="317.5" y="134.62" smashed="yes">
+<attribute name="NAME" x="320.04" y="133.858" size="1.778" layer="95"/>
+<attribute name="VALUE" x="317.246" y="131.699" size="1.778" layer="96"/>
 </instance>
-<instance part="BUS" gate="-32" x="101.6" y="-40.64" smashed="yes">
-<attribute name="NAME" x="104.14" y="-41.402" size="1.778" layer="95"/>
-<attribute name="VALUE" x="101.346" y="-43.561" size="1.778" layer="96"/>
+<instance part="BUS" gate="-32" x="317.5" y="129.54" smashed="yes">
+<attribute name="NAME" x="320.04" y="128.778" size="1.778" layer="95"/>
+<attribute name="VALUE" x="317.246" y="126.619" size="1.778" layer="96"/>
 </instance>
 <instance part="BUS" gate="-33" x="33.02" y="81.28" smashed="yes" rot="MR0">
 <attribute name="NAME" x="30.48" y="80.518" size="1.778" layer="95" rot="MR0"/>
@@ -5103,9 +5102,6 @@ FC-FF</text>
 </instance>
 <instance part="GND5" gate="1" x="101.6" y="7.62" smashed="yes">
 <attribute name="VALUE" x="99.06" y="5.08" size="1.778" layer="96"/>
-</instance>
-<instance part="P+8" gate="1" x="106.68" y="68.58" smashed="yes">
-<attribute name="VALUE" x="104.14" y="63.5" size="1.778" layer="96" rot="R90"/>
 </instance>
 </instances>
 <busses>
@@ -5257,14 +5253,6 @@ FC-FF</text>
 <wire x1="99.06" y1="27.94" x2="101.6" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="27.94" x2="101.6" y2="30.48" width="0.1524" layer="91"/>
 <junction x="101.6" y="30.48"/>
-</segment>
-<segment>
-<pinref part="IC1" gate="1" pin="IEI"/>
-<wire x1="116.84" y1="71.12" x2="111.76" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="111.76" y1="71.12" x2="111.76" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="P+8" gate="1" pin="+5V"/>
-<wire x1="111.76" y1="63.5" x2="106.68" y2="63.5" width="0.1524" layer="91"/>
-<wire x1="106.68" y1="63.5" x2="106.68" y2="66.04" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$2" class="0">
@@ -5626,9 +5614,7 @@ FC-FF</text>
 <net name="N$28" class="0">
 <segment>
 <pinref part="IC1" gate="1" pin="IEO"/>
-<wire x1="116.84" y1="68.58" x2="114.3" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="114.3" y1="68.58" x2="114.3" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="114.3" y1="60.96" x2="109.22" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="68.58" x2="111.76" y2="68.58" width="0.1524" layer="91"/>
 <pinref part="BUS" gate="-15" pin="S"/>
 </segment>
 </net>
