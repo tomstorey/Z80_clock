@@ -39,7 +39,6 @@ break .macro val
       .endm
 
 
-
 #data RAM, 0x7F00, 256
 
 #code ROM, 0, 8192
@@ -47,23 +46,31 @@ break .macro val
       .org 0
       jp    main
 
+      .org 0x08
+      jp    RAM_BASE+$
+      .org 0x10
+      jp    RAM_BASE+$
+      .org 0x18
+      jp    RAM_BASE+$
+      .org 0x20
+      jp    RAM_BASE+$
+      .org 0x28
+      jp    RAM_BASE+$
+      .org 0x30
+      jp    RAM_BASE+$
+      .org 0x38
+      jp    RAM_BASE+$
+
       .org 0x66
 nmi_vector:
-      retn
-
-      .org 0x0100
-int_vector_table:
-      .ds   256
+      jp    RAM_BASE+$
 
       .align 0x100
 #data RAM
 
 #code ROM
 main:
-      im    2
-      ld    A, VECTOR_INT_PG
-      ld    I, A
-      di                            ; Interrupts not used in monitor
+      di                            ; Maskable ints not used
 
       ld    SP, RAM_BASE+RAM_SZ     ; Stack starts at top of RAM
 
@@ -269,15 +276,20 @@ exec_cmd:
       ld    A, '+'                  ; Send command complete to host
       out   (SIO_A_DATA), A
 
-      ld    B, 0
-dec_b:
-      djnz  dec_b
+      ; Wait until all TX buffers are completely empty, then reset
+      ; both SIO channels, then jump to exec address.
+exec_cmd_wait_tx:
+      ld    A, SIO_WR0_REG1         ; Setup RR1
+      out   (SIO_A_CTL), A
+      in    A, (SIO_A_CTL)          ; Read RR1
+      bit   0, A                    ; Is bit 0 set?
+      jr    Z, exec_cmd_wait_tx     ; No, wait some more
 
-      jp    (HL)
+      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B reset
+      out   (SIO_A_CTL), A
+      out   (SIO_B_CTL), A
 
-
-
-
+      jp    (HL)                    ; Execute
 #endlocal
 
 
