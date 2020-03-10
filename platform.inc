@@ -10,7 +10,7 @@ FUART                   .equ  7372800
 
 ;---- Memory sizes (in bytes)
 ;     Define the start (base) and size of ROMs and RAM.
-#if defined(uart_loading)
+#if defined(serial_loading)
 ROM_BASE                .equ  0x6000
 ROM_SZ                  .equ  6144
 
