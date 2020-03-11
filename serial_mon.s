@@ -62,19 +62,23 @@ break .macro val
       jp    RAM_BASE+$
 
       .org 0x66
-nmi_vector:
+nmi_vector
       jp    RAM_BASE+$
+
 
       .align 0x100
 #data RAM
-
 #code ROM
-main:
+main
       di                            ; Maskable ints not used
 
       ld    SP, RAM_BASE+RAM_SZ     ; Stack starts at top of RAM
 
 ;---- Configure SIO Channel A
+      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
+      out   (SIO_A_CTL), A
+      out   (SIO_B_CTL), A
+
       ; Channel A reset
       ld    C, SIO_A_CTL
       ld    A, SIO_WR0_CMD_CH_RST
@@ -125,27 +129,30 @@ main:
 
       call  memset
 
-main_loop:
+      ld    A, '@'                  ; Send "Im here"
+      out   (SIO_A_DATA), A
+
+main_loop
       call  rx_task
 
       jr    main_loop
 
 
 #data RAM
-rx_flags:               .db 0       ; Flags for RX task
-RX_CMD:                 .equ  0     ; Command currently executing
+rx_flags                .db 0       ; Flags for RX task
+RX_CMD                  .equ  0     ; Command currently executing
 
-rx_command:             .db 0       ; Command number that is executing
-rx_ctr:                 .db 0       ; Number of bytes RX'd to buffer
-rx_BC:                  .dw 0       ; Working copy of BC
-rx_HL:                  .dw 0       ; Working copy of HL
+rx_command              .db 0       ; Command number that is executing
+rx_ctr                  .db 0       ; Number of bytes RX'd to buffer
+rx_BC                   .dw 0       ; Working copy of BC
+rx_HL                   .dw 0       ; Working copy of HL
 
       .align 16
-rx_buf:                 .ds 16      ; RX buffer
+rx_buf                  .ds 16      ; RX buffer
 
 #code ROM
       .align 0x100
-rx_task:
+rx_task
 #local
       in    A, (SIO_A_CTL)          ; Any chars waiting?
       bit   SIO_RR0_RX_AVAIL, A
@@ -165,7 +172,7 @@ rx_task:
       out   (DEBUG_PORT), A         ; Output error conds and halt
       halt
 
-continue:
+continue
       ld    A, SIO_WR0_CMD_RTN_INT  ; Return from interrupt
       out   (SIO_A_CTL), A
 
@@ -176,14 +183,16 @@ continue:
 
       ld    A, (rx_command)         ; Load command number into A
 
-new_command:
+new_command
+      cp    A, 0x01                 ; Ping
+      jr    Z, ping_cmd
       cp    A, 0x03                 ; Load into memory command
       jr    Z, write_cmd
       cp    A, 0x04                 ; Execute
       jr    Z, exec_cmd
 
       ; Invalid command, reset state
-end_command:
+end_command
       xor   A, A
       ld    (rx_command), A
       ld    HL, rx_flags
@@ -191,7 +200,7 @@ end_command:
 
       jr    rx_task
 
-start_command:
+start_command
       ld    (rx_command), A         ; Set command number
       set   RX_CMD, (HL)            ; Set command executing flag
       xor   A, A
@@ -200,7 +209,23 @@ start_command:
       jp    rx_task
 
 
-write_cmd:
+ping_cmd
+      ld    A, '@'                  ; Send command complete to host
+      out   (SIO_A_DATA), A
+
+      ; Wait until all TX buffers are completely empty, then return.
+      ld    A, SIO_WR0_REG1         ; Setup RR1
+      ld    C, SIO_A_CTL
+
+ping_cmd_wait_tx
+      out   (C), A
+      in    B, (C)                  ; Read RR1
+      bit   0, B                    ; Is bit 0 set?
+      jr    Z, ping_cmd_wait_tx     ; No, wait some more
+
+      jr    rx_task
+
+write_cmd
       bit   RX_CMD, (HL)            ; Command executing?
       jr    Z, start_command        ; No if Z, start
 
@@ -230,7 +255,7 @@ write_cmd:
 
       jr    end_command
 
-write_cmd_hdr_byte:
+write_cmd_hdr_byte
       ld    HL, rx_buf              ; Increment HL by rx_ctr
       add   A, L
       ld    L, A
@@ -242,7 +267,7 @@ write_cmd_hdr_byte:
       ld    A, (HL)
 
       cp    A, 0x04                 ; Received 4 header bytes?
-      jr    NZ, rx_task             ; No if NZ
+      jp    NZ, rx_task             ; No if NZ
 
       ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
       ld    (rx_BC), HL
@@ -252,7 +277,7 @@ write_cmd_hdr_byte:
       jp    rx_task
 
 
-exec_cmd:
+exec_cmd
       bit   RX_CMD, (HL)            ; Command executing?
       jr    Z, start_command        ; No if Z, start
 
@@ -278,14 +303,16 @@ exec_cmd:
 
       ; Wait until all TX buffers are completely empty, then reset
       ; both SIO channels, then jump to exec address.
-exec_cmd_wait_tx:
       ld    A, SIO_WR0_REG1         ; Setup RR1
-      out   (SIO_A_CTL), A
-      in    A, (SIO_A_CTL)          ; Read RR1
-      bit   0, A                    ; Is bit 0 set?
+      ld    C, SIO_A_CTL
+
+exec_cmd_wait_tx
+      out   (C), A
+      in    B, (C)                  ; Read RR1
+      bit   0, B                    ; Is bit 0 set?
       jr    Z, exec_cmd_wait_tx     ; No, wait some more
 
-      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B reset
+      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
       out   (SIO_A_CTL), A
       out   (SIO_B_CTL), A
 
@@ -295,5 +322,6 @@ exec_cmd_wait_tx:
 
 #code ROM
       .align 0x100
-
 #include "c_lib.s"
+
+      .end

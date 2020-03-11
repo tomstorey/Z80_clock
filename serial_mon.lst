@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "serial_mon.s"
-              	; date: 2020-03-10 16:29:55
+              	; date: 2020-03-11 09:38:10
               	; --------------------------------------
 
 
@@ -190,94 +190,101 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
 003B: FFFFFFFF	      .org 0x66
 003F: FF...   	
-0066:         	nmi_vector:
+0066:         	nmi_vector
 0066: C36660  	      jp    RAM_BASE+$
+              	
               	
 0069: FFFFFFFF	      .align 0x100
 006D: FF...   	
               	#data RAM
-              	
               	#code ROM
-0100:         	main:
+0100:         	main
 0100: F3      	      di                            ; Maskable ints not used
               	
 0101: 310080  	      ld    SP, RAM_BASE+RAM_SZ     ; Stack starts at top of RAM
               	
               	;---- Configure SIO Channel A
+0104: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
+0106: D3FE    	      out   (SIO_A_CTL), A
+0108: D3FF    	      out   (SIO_B_CTL), A
+              	
               	      ; Channel A reset
-0104: 0EFE    	      ld    C, SIO_A_CTL
-0106: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST
-0108: ED79    	      out   (C), A
+010A: 0EFE    	      ld    C, SIO_A_CTL
+010C: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST
+010E: ED79    	      out   (C), A
               	
               	      ; Channel B WR1 - Status affects vector bit
-010A: 0EFF    	      ld    C, SIO_B_CTL
-010C: 3E01    	      ld    A, SIO_WR0_REG1
-010E: 0604    	      ld    B, SIO_WR1_STAT_VECT
-0110: ED79    	      out   (C), A
-0112: ED41    	      out   (C), B
+0110: 0EFF    	      ld    C, SIO_B_CTL
+0112: 3E01    	      ld    A, SIO_WR0_REG1
+0114: 0604    	      ld    B, SIO_WR1_STAT_VECT
+0116: ED79    	      out   (C), A
+0118: ED41    	      out   (C), B
               	
               	      ; Channel B WR2 - Interrupt vector
-0114: 3E02    	      ld    A, SIO_WR0_REG2
-0116: 06F0    	      ld    B, SIO_INT_VECT_BASE & 0xFF
-0118: ED79    	      out   (C), A
-011A: ED41    	      out   (C), B
+011A: 3E02    	      ld    A, SIO_WR0_REG2
+011C: 06F0    	      ld    B, SIO_INT_VECT_BASE & 0xFF
+011E: ED79    	      out   (C), A
+0120: ED41    	      out   (C), B
               	
               	      ; Channel A WR4 - parity, async mode, clock rate
-011C: 0EFE    	      ld    C, SIO_A_CTL
-011E: 3E14    	      ld    A, SIO_WR0_REG4 | SIO_WR0_CMD_RST_EXT
-0120: 06C4    	      ld    B, SIO_A_WR4
-0122: ED79    	      out   (C), A
-0124: ED41    	      out   (C), B
+0122: 0EFE    	      ld    C, SIO_A_CTL
+0124: 3E14    	      ld    A, SIO_WR0_REG4 | SIO_WR0_CMD_RST_EXT
+0126: 06C4    	      ld    B, SIO_A_WR4
+0128: ED79    	      out   (C), A
+012A: ED41    	      out   (C), B
               	
               	      ; Channel A WR5 - TX enable, 8 bit, set DTR/, clear RTS/
-0126: 3E05    	      ld    A, SIO_WR0_REG5
-0128: 06E8    	      ld    B, SIO_A_WR5
-012A: ED79    	      out   (C), A
-012C: ED41    	      out   (C), B
+012C: 3E05    	      ld    A, SIO_WR0_REG5
+012E: 06E8    	      ld    B, SIO_A_WR5
+0130: ED79    	      out   (C), A
+0132: ED41    	      out   (C), B
               	
               	      ; Channel A WR3 - RX enable, 8 bit
-012E: 3E03    	      ld    A, SIO_WR0_REG3
-0130: 06C1    	      ld    B, SIO_A_WR3
-0132: ED79    	      out   (C), A
-0134: ED41    	      out   (C), B
+0134: 3E03    	      ld    A, SIO_WR0_REG3
+0136: 06C1    	      ld    B, SIO_A_WR3
+0138: ED79    	      out   (C), A
+013A: ED41    	      out   (C), B
               	
               	      ; Channel A WR1
-0136: 3E11    	      ld    A, SIO_WR0_REG1 | SIO_WR0_CMD_RST_EXT
-0138: 0600    	      ld    B, SIO_A_WR1
-013A: ED79    	      out   (C), A
-013C: ED41    	      out   (C), B
+013C: 3E11    	      ld    A, SIO_WR0_REG1 | SIO_WR0_CMD_RST_EXT
+013E: 0600    	      ld    B, SIO_A_WR1
+0140: ED79    	      out   (C), A
+0142: ED41    	      out   (C), B
               	
               	;----
-013E: 3E00    	      ld    A, 0                    ; Zeroise RAM
-0140: 01FE00  	      ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
-0143: 21007F  	      ld    HL, RAM
+0144: 3E00    	      ld    A, 0                    ; Zeroise RAM
+0146: 01FE00  	      ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
+0149: 21007F  	      ld    HL, RAM
               	
-0146: CD1D03  	      call  memset
+014C: CD1D03  	      call  memset
               	
-0149:         	main_loop:
-0149: CD0002  	      call  rx_task
+014F: 3E40    	      ld    A, '@'                  ; Send "Im here"
+0151: D3FC    	      out   (SIO_A_DATA), A
               	
-014C: 18FB    	      jr    main_loop
+0153:         	main_loop
+0153: CD0002  	      call  rx_task
+              	
+0156: 18FB    	      jr    main_loop
               	
               	
               	#data RAM
-7F00: 00      	rx_flags:               .db 0       ; Flags for RX task
-0000:         	RX_CMD:                 .equ  0     ; Command currently executing
+7F00: 00      	rx_flags                .db 0       ; Flags for RX task
+0000:         	RX_CMD                  .equ  0     ; Command currently executing
               	
-7F01: 00      	rx_command:             .db 0       ; Command number that is executing
-7F02: 00      	rx_ctr:                 .db 0       ; Number of bytes RX'd to buffer
-7F03: 0000    	rx_BC:                  .dw 0       ; Working copy of BC
-7F05: 0000    	rx_HL:                  .dw 0       ; Working copy of HL
+7F01: 00      	rx_command              .db 0       ; Command number that is executing
+7F02: 00      	rx_ctr                  .db 0       ; Number of bytes RX'd to buffer
+7F03: 0000    	rx_BC                   .dw 0       ; Working copy of BC
+7F05: 0000    	rx_HL                   .dw 0       ; Working copy of HL
               	
 7F07: 00000000	      .align 16
 7F0B: 00...   	
-7F10: 00000000	rx_buf:                 .ds 16      ; RX buffer
+7F10: 00000000	rx_buf                  .ds 16      ; RX buffer
 7F14: 00...   	
               	
               	#code ROM
-014E: FFFFFFFF	      .align 0x100
-0152: FF...   	
-0200:         	rx_task:
+0158: FFFFFFFF	      .align 0x100
+015C: FF...   	
+0200:         	rx_task
               	#local
 0200: DBFE    	      in    A, (SIO_A_CTL)          ; Any chars waiting?
 0202: CB47    	      bit   SIO_RR0_RX_AVAIL, A
@@ -297,7 +304,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0213: D3DE    	      out   (DEBUG_PORT), A         ; Output error conds and halt
 0215: 76      	      halt
               	
-0216:         	continue:
+0216:         	continue
 0216: 3E38    	      ld    A, SIO_WR0_CMD_RTN_INT  ; Return from interrupt
 0218: D3FE    	      out   (SIO_A_CTL), A
               	
@@ -308,127 +315,146 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
 0222: 3A017F  	      ld    A, (rx_command)         ; Load command number into A
               	
-0225:         	new_command:
-0225: FE03    	      cp    A, 0x03                 ; Load into memory command
-0227: 281B    	      jr    Z, write_cmd
-0229: FE04    	      cp    A, 0x04                 ; Execute
-022B: 285C    	      jr    Z, exec_cmd
+0225:         	new_command
+0225: FE01    	      cp    A, 0x01                 ; Ping
+0227: 281F    	      jr    Z, ping_cmd
+0229: FE03    	      cp    A, 0x03                 ; Load into memory command
+022B: 282D    	      jr    Z, write_cmd
+022D: FE04    	      cp    A, 0x04                 ; Execute
+022F: 286F    	      jr    Z, exec_cmd
               	
               	      ; Invalid command, reset state
-022D:         	end_command:
-022D: AF      	      xor   A, A
-022E: 32017F  	      ld    (rx_command), A
-0231: 21007F  	      ld    HL, rx_flags
-0234: CB86    	      res   RX_CMD, (HL)
+0231:         	end_command
+0231: AF      	      xor   A, A
+0232: 32017F  	      ld    (rx_command), A
+0235: 21007F  	      ld    HL, rx_flags
+0238: CB86    	      res   RX_CMD, (HL)
               	
-0236: 18C8    	      jr    rx_task
+023A: 18C4    	      jr    rx_task
               	
-0238:         	start_command:
-0238: 32017F  	      ld    (rx_command), A         ; Set command number
-023B: CBC6    	      set   RX_CMD, (HL)            ; Set command executing flag
-023D: AF      	      xor   A, A
-023E: 32027F  	      ld    (rx_ctr), A             ; Zeroise buffer counter
+023C:         	start_command
+023C: 32017F  	      ld    (rx_command), A         ; Set command number
+023F: CBC6    	      set   RX_CMD, (HL)            ; Set command executing flag
+0241: AF      	      xor   A, A
+0242: 32027F  	      ld    (rx_ctr), A             ; Zeroise buffer counter
               	
-0241: C30002  	      jp    rx_task
+0245: C30002  	      jp    rx_task
               	
               	
-0244:         	write_cmd:
-0244: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
-0246: 28F0    	      jr    Z, start_command        ; No if Z, start
+0248:         	ping_cmd
+0248: 3E40    	      ld    A, '@'                  ; Send command complete to host
+024A: D3FC    	      out   (SIO_A_DATA), A
               	
-0248: 3A027F  	      ld    A, (rx_ctr)             ; Received all header bytes?
-024B: FE04    	      cp    A, 0x04
-024D: 201C    	      jr    NZ, write_cmd_hdr_byte  ; No if NZ, store into buffer
+              	      ; Wait until all TX buffers are completely empty, then return.
+024C: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
+024E: 0EFE    	      ld    C, SIO_A_CTL
+              	
+0250:         	ping_cmd_wait_tx
+0250: ED79    	      out   (C), A
+0252: ED40    	      in    B, (C)                  ; Read RR1
+0254: CB40    	      bit   0, B                    ; Is bit 0 set?
+0256: 28F8    	      jr    Z, ping_cmd_wait_tx     ; No, wait some more
+              	
+0258: 18A6    	      jr    rx_task
+              	
+025A:         	write_cmd
+025A: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
+025C: 28DE    	      jr    Z, start_command        ; No if Z, start
+              	
+025E: 3A027F  	      ld    A, (rx_ctr)             ; Received all header bytes?
+0261: FE04    	      cp    A, 0x04
+0263: 201C    	      jr    NZ, write_cmd_hdr_byte  ; No if NZ, store into buffer
               	
               	      ; Place bytes into memory from here
-024F: 78      	      ld    A, B                    ; Restore RX'd byte
-0250: ED4B037F	      ld    BC, (rx_BC)             ; Load working BC and HL
-0254: 2A057F  	      ld    HL, (rx_HL)
+0265: 78      	      ld    A, B                    ; Restore RX'd byte
+0266: ED4B037F	      ld    BC, (rx_BC)             ; Load working BC and HL
+026A: 2A057F  	      ld    HL, (rx_HL)
               	
-0257: 77      	      ld    (HL), A                 ; Store RX'd byte
+026D: 77      	      ld    (HL), A                 ; Store RX'd byte
               	
-0258: 0B      	      dec   BC
-0259: 23      	      inc   HL
+026E: 0B      	      dec   BC
+026F: 23      	      inc   HL
               	
-025A: ED43037F	      ld    (rx_BC), BC
-025E: 22057F  	      ld    (rx_HL), HL
+0270: ED43037F	      ld    (rx_BC), BC
+0274: 22057F  	      ld    (rx_HL), HL
               	
-0261: 78      	      ld    A, B                    ; BC == 0?
-0262: B1      	      or    A, C
-0263: 209B    	      jr    NZ, rx_task             ; No if NZ, more bytes to come
+0277: 78      	      ld    A, B                    ; BC == 0?
+0278: B1      	      or    A, C
+0279: 2085    	      jr    NZ, rx_task             ; No if NZ, more bytes to come
               	
-0265: 3E21    	      ld    A, '!'                  ; Send command complete to host
-0267: D3FC    	      out   (SIO_A_DATA), A
+027B: 3E21    	      ld    A, '!'                  ; Send command complete to host
+027D: D3FC    	      out   (SIO_A_DATA), A
               	
-0269: 18C2    	      jr    end_command
+027F: 18B0    	      jr    end_command
               	
-026B:         	write_cmd_hdr_byte:
-026B: 21107F  	      ld    HL, rx_buf              ; Increment HL by rx_ctr
-026E: 85      	      add   A, L
-026F: 6F      	      ld    L, A
+0281:         	write_cmd_hdr_byte
+0281: 21107F  	      ld    HL, rx_buf              ; Increment HL by rx_ctr
+0284: 85      	      add   A, L
+0285: 6F      	      ld    L, A
               	
-0270: 70      	      ld    (HL), B                 ; Store B into (HL)
+0286: 70      	      ld    (HL), B                 ; Store B into (HL)
               	
-0271: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
-0274: 34      	      inc   (HL)
-0275: 7E      	      ld    A, (HL)
+0287: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+028A: 34      	      inc   (HL)
+028B: 7E      	      ld    A, (HL)
               	
-0276: FE04    	      cp    A, 0x04                 ; Received 4 header bytes?
-0278: 2086    	      jr    NZ, rx_task             ; No if NZ
+028C: FE04    	      cp    A, 0x04                 ; Received 4 header bytes?
+028E: C20002  	      jp    NZ, rx_task             ; No if NZ
               	
-027A: 2A107F  	      ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
-027D: 22037F  	      ld    (rx_BC), HL
-0280: 2A127F  	      ld    HL, (rx_buf+2)          ; Xfer working HL out of rx_buf
-0283: 22057F  	      ld    (rx_HL), HL
+0291: 2A107F  	      ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
+0294: 22037F  	      ld    (rx_BC), HL
+0297: 2A127F  	      ld    HL, (rx_buf+2)          ; Xfer working HL out of rx_buf
+029A: 22057F  	      ld    (rx_HL), HL
               	
-0286: C30002  	      jp    rx_task
+029D: C30002  	      jp    rx_task
               	
               	
-0289:         	exec_cmd:
-0289: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
-028B: 28AB    	      jr    Z, start_command        ; No if Z, start
+02A0:         	exec_cmd
+02A0: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
+02A2: 2898    	      jr    Z, start_command        ; No if Z, start
               	
-028D: 3A027F  	      ld    A, (rx_ctr)             ; Increment HL by rx_ctr
-0290: 21107F  	      ld    HL, rx_buf
-0293: 85      	      add   A, L
-0294: 6F      	      ld    L, A
+02A4: 3A027F  	      ld    A, (rx_ctr)             ; Increment HL by rx_ctr
+02A7: 21107F  	      ld    HL, rx_buf
+02AA: 85      	      add   A, L
+02AB: 6F      	      ld    L, A
               	
-0295: 70      	      ld    (HL), B                 ; Store B into (HL)
+02AC: 70      	      ld    (HL), B                 ; Store B into (HL)
               	
-0296: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
-0299: 34      	      inc   (HL)
-029A: 7E      	      ld    A, (HL)
-029B: D3DE    	      out   (DEBUG_PORT), A
+02AD: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+02B0: 34      	      inc   (HL)
+02B1: 7E      	      ld    A, (HL)
+02B2: D3DE    	      out   (DEBUG_PORT), A
               	
-029D: FE02    	      cp    A, 0x02                 ; Received 2 header bytes?
-029F: C20002  	      jp    NZ, rx_task             ; No if NZ
+02B4: FE02    	      cp    A, 0x02                 ; Received 2 header bytes?
+02B6: C20002  	      jp    NZ, rx_task             ; No if NZ
               	
-02A2: 2A107F  	      ld    HL, (rx_buf)            ; Load HL and jump
+02B9: 2A107F  	      ld    HL, (rx_buf)            ; Load HL and jump
               	
-02A5: 3E2B    	      ld    A, '+'                  ; Send command complete to host
-02A7: D3FC    	      out   (SIO_A_DATA), A
+02BC: 3E2B    	      ld    A, '+'                  ; Send command complete to host
+02BE: D3FC    	      out   (SIO_A_DATA), A
               	
               	      ; Wait until all TX buffers are completely empty, then reset
               	      ; both SIO channels, then jump to exec address.
-02A9:         	exec_cmd_wait_tx:
-02A9: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
-02AB: D3FE    	      out   (SIO_A_CTL), A
-02AD: DBFE    	      in    A, (SIO_A_CTL)          ; Read RR1
-02AF: CB47    	      bit   0, A                    ; Is bit 0 set?
-02B1: 28F6    	      jr    Z, exec_cmd_wait_tx     ; No, wait some more
+02C0: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
+02C2: 0EFE    	      ld    C, SIO_A_CTL
               	
-02B3: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B reset
-02B5: D3FE    	      out   (SIO_A_CTL), A
-02B7: D3FF    	      out   (SIO_B_CTL), A
+02C4:         	exec_cmd_wait_tx
+02C4: ED79    	      out   (C), A
+02C6: ED40    	      in    B, (C)                  ; Read RR1
+02C8: CB40    	      bit   0, B                    ; Is bit 0 set?
+02CA: 28F8    	      jr    Z, exec_cmd_wait_tx     ; No, wait some more
               	
-02B9: E9      	      jp    (HL)                    ; Execute
+02CC: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
+02CE: D3FE    	      out   (SIO_A_CTL), A
+02D0: D3FF    	      out   (SIO_B_CTL), A
+              	
+02D2: E9      	      jp    (HL)                    ; Execute
               	#endlocal
               	
               	
               	#code ROM
-02BA: FFFFFFFF	      .align 0x100
-02BE: FF...   	
-              	
+02D3: FFFFFFFF	      .align 0x100
+02D7: FF...   	
               	#include "c_lib.s"
               	#data RAM
               	
@@ -559,6 +585,8 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
 0324: 18F8    	      jr    next
               	#endlocal
+              	
+              	      .end
 
 
 ; +++ segments +++
@@ -584,7 +612,7 @@ ROM_BASE            = $0000 =     0          platform.inc:20
 ROM_SZ              = $6000 = 24576          platform.inc:21 (unused)
 ROM_end             = $2000 =  8192  ROM     sio.inc:1 (unused)
 ROM_size            = $2000 =  8192  ROM     sio.inc:1 (unused)
-RX_CMD              = $0000 =     0  RAM     serial_mon.s:136
+RX_CMD              = $0000 =     0  RAM     serial_mon.s:143
 SIO_A_CTL           = $00FE =   254          sio.inc:4
 SIO_A_DATA          = $00FC =   252          sio.inc:2
 SIO_A_WR1           = $0000 =     0          serial_mon.s:8
@@ -662,29 +690,31 @@ TZ_ROM_BASE         = $C000 = 49152          platform.inc:27 (unused)
 TZ_ROM_SZ           = $2000 =  8192          platform.inc:28 (unused)
 VECTOR_INT_PG       = $0001 =     1          serial_mon.s:13
 main                = $0100 =   256  ROM     serial_mon.s:72
-main_loop           = $0149 =   329  ROM     serial_mon.s:128
+main_loop           = $0153 =   339  ROM     serial_mon.s:135
 memcpy              = $0300 =   768  ROM     c_lib.s:25 (unused)
 memset              = $031D =   797  ROM     c_lib.s:114
 nmi_vector          = $0066 =   102  ROM     serial_mon.s:65 (unused)
-rx_BC               = $7F03 = 32515  RAM     serial_mon.s:140
-rx_HL               = $7F05 = 32517  RAM     serial_mon.s:141
-rx_buf              = $7F10 = 32528  RAM     serial_mon.s:144
-rx_command          = $7F01 = 32513  RAM     serial_mon.s:138
-rx_ctr              = $7F02 = 32514  RAM     serial_mon.s:139
-rx_flags            = $7F00 = 32512  RAM     serial_mon.s:135
-rx_task             = $0200 =   512  ROM     serial_mon.s:148
+rx_BC               = $7F03 = 32515  RAM     serial_mon.s:147
+rx_HL               = $7F05 = 32517  RAM     serial_mon.s:148
+rx_buf              = $7F10 = 32528  RAM     serial_mon.s:151
+rx_command          = $7F01 = 32513  RAM     serial_mon.s:145
+rx_ctr              = $7F02 = 32514  RAM     serial_mon.s:146
+rx_flags            = $7F00 = 32512  RAM     serial_mon.s:142
+rx_task             = $0200 =   512  ROM     serial_mon.s:155
 strncpy             = $0306 =   774  ROM     c_lib.s:62
 
 ; +++ local symbols +++
 
-continue           = $0216 =   534  ROM     serial_mon.s:168
-end_command        = $022D =   557  ROM     serial_mon.s:186
-exec_cmd           = $0289 =   649  ROM     serial_mon.s:255
-exec_cmd_wait_tx   = $02A9 =   681  ROM     serial_mon.s:281
-new_command        = $0225 =   549  ROM     serial_mon.s:179
-start_command      = $0238 =   568  ROM     serial_mon.s:194
-write_cmd          = $0244 =   580  ROM     serial_mon.s:203
-write_cmd_hdr_byte = $026B =   619  ROM     serial_mon.s:233
+continue           = $0216 =   534  ROM     serial_mon.s:175
+end_command        = $0231 =   561  ROM     serial_mon.s:195
+exec_cmd           = $02A0 =   672  ROM     serial_mon.s:280
+exec_cmd_wait_tx   = $02C4 =   708  ROM     serial_mon.s:309
+new_command        = $0225 =   549  ROM     serial_mon.s:186
+ping_cmd           = $0248 =   584  ROM     serial_mon.s:212
+ping_cmd_wait_tx   = $0250 =   592  ROM     serial_mon.s:220
+start_command      = $023C =   572  ROM     serial_mon.s:203
+write_cmd          = $025A =   602  ROM     serial_mon.s:228
+write_cmd_hdr_byte = $0281 =   641  ROM     serial_mon.s:258
 
 ; +++ local symbols +++
 
@@ -695,5 +725,5 @@ zero_fill = $0314 =   788  ROM     c_lib.s:80
 next    = $031E =   798  ROM     c_lib.s:118
 
 
-total time: 0.0095 sec.
+total time: 0.0099 sec.
 no errors
