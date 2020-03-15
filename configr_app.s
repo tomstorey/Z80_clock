@@ -676,7 +676,7 @@ adjust_dow
       add   A, A
       ld    D, 0                    ; A into DE
       ld    E, A
-      ld    HL, configr_sun         ; HL = pointer to first tbl entry
+      ld    HL, configr_day_names   ; HL = pointer to first tbl entry
       add   HL, DE                  ; Add offset to pointer
 
       ld    BC, 8                   ; Write day name to row 3
@@ -763,7 +763,7 @@ apply_date
 
       ret
 
-;---- State FF -------------------------------------------------------
+;---- State 12 -------------------------------------------------------
 ;     Exit the config app by releasing the foreground mutex.
 exit_app
       set_state configr_state, CONFIGR_APP_START
@@ -791,7 +791,6 @@ configr_jp_tbl          .dw   app_start
                         .dw   adjust_dow
                         .dw   apply_date
                         .dw   exit_app
-
 #endlocal
 
 configr_title           .text "CONFIGR", 0
@@ -805,12 +804,13 @@ configr_set_year        .text "YEAR", 0
 configr_set_month       .text "MONTH", 0
 configr_set_day         .text "DAY", 0
 configr_set_weekday     .text "WEEKDAY", 0
-configr_sun             .text "SUN", 0    ; Keep day names contiguous
-configr_mon             .text "MON", 0
-configr_tue             .text "TUE", 0
-configr_wed             .text "WED", 0
-configr_thu             .text "THU", 0
-configr_fri             .text "FRI", 0
-configr_sat             .text "SAT", 0
+
+configr_day_names       .text "SUN", 0    ; Keep day names contiguous
+                        .text "MON", 0
+                        .text "TUE", 0
+                        .text "WED", 0
+                        .text "THU", 0
+                        .text "FRI", 0
+                        .text "SAT", 0
 
 ; END configr_app.s
