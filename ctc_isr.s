@@ -22,6 +22,8 @@ ctc_ch0_isr
 ;---------------------------------------------------------------------
 #data RAM
 disp_cur_row            .db 0       ; Current row being displayed
+disp_dim_ctr            .db 0       ; Display dimming counter
+disp_dim                .db 0       ; 0 = bright, 1 = dim
 
 #code ROM
       .align 0x100
@@ -43,6 +45,9 @@ ctc_ch1_isr
 
       ld    A, 1                    ; Reset row counter to 1
       ld    (HL), A
+
+      ld    HL, disp_dim_ctr
+      inc   (HL)
 
 ;---- Once the working row is determined, the next step is to compute
 ;     an offset for the address where that rows buffer is located in
@@ -131,11 +136,19 @@ next_row_char
 
       pop   HL                      ; Restore DP ptr
       ld    A, (HL)                 ; Load DP byte from buffer
-      xor   A, 0xFF                 ; Invert for drivers that sink
+      cpl                           ; Invert for drivers that sink
       out   (C), A
 
-      ld    A, (disp_cur_row)       ; Write row counter to latch new
-      out   (DISP_CTRL), A          ; data into display drivers.
+      ld    HL, disp_dim_ctr        ; Is the display being dimmed?
+      ld    A, (disp_dim)
+      and   A, (HL)
+      ld    A, (disp_cur_row)       ; Default write row counter
+      jr    Z, out_disp_ctrl
+
+      xor   A, A                    ; If dimming, this row will be off
+
+out_disp_ctrl
+      out   (DISP_CTRL), A
 
       exx
       ex    AF, AF'
@@ -151,6 +164,9 @@ next_row_char
 ; Description                                                        :
 ;     Tasks that are to be run periodically (every ~10ms) will be    :
 ;     scheduled through this ISR.                                    :
+;                                                                    :
+;     Additionally, semaphores that permit applications to run will  :
+;     be incremented here.                                           :
 ;                                                                    :
 ;     The processor is halted once all scheduled tasks have          :
 ;     completed, so tasks can only start at the next interrupt, and  :
@@ -168,6 +184,10 @@ ctc_ch2_isr
       schedule_task TASK_WD_POKE
       schedule_task TASK_SIO_RX
 
+      ; Increment semaphores to allow apps to run
+      sem_post clock_app_sem
+      sem_post configr_app_sem
+
       exx
       ex    AF, AF'
 
@@ -175,11 +195,63 @@ ctc_ch2_isr
       reti
 
 
+;---------------------------------------------------------------------
+;     CTC Channel 3 ISR - Clock display refresh scheduler            :
+;                                                                    :
+; Description                                                        :
+;     The RTC is configured to generate an alarm once per minute     :
+;     by asserting its INT/ output. This output is connected to      :
+;     channel 3 of the CTC to provide a vectored interrupt for the   :
+;     RTC alarm.                                                     :
+;                                                                    :
+;                                                                    :
+;---------------------------------------------------------------------
 #data RAM
 #code ROM
       .align 0x100
 ctc_ch3_isr
+#local
+      ex    AF, AF'
+      exx
+
+;---- Before the clock_upd_sem can be incremented, such an update must
+;     have been requested by the clock app. This prevents the
+;     semaphore being incremented while not in the clock app.
+;
+;     Initially when the clock app starts it will read the time from
+;     the RTC and use that to configure the display immediately. It
+;     will then increment the clock_upd_req_sem semaphore, and wait
+;     for the clock_upd_sem semaphore to be updated in turn.
+;       sem_trywait clock_upd_req_sem
+
+;       or    A, A
+;       jr    Z, done
+
+;       sem_post clock_upd_sem        ; Increment display update sem
+
+      ld    A, RTC_CTRL_UTI | RTC_CTRL_CFG
+      out   (RTC_CTRL), A
+
+      in    A, (RTC_MIN)
+      out   (DEBUG_PORT), A
+
+      ld    A, RTC_CTRL_CFG
+      out   (RTC_CTRL), A
+
+done
+      ; Reconfigure things so they can happen again
+      in    A, (RTC_FLAGS)          ; Read RTC flags to clear alarm
+
+      ld    A, CTC_CH3_CFG          ; Reconfigure CTC channel to load
+      out   (CTC_CH3), A            ; new time constant.
+      ld    A, CTC_CH3_TCONST
+      out   (CTC_CH3), A
+
+      exx
+      ex    AF, AF'
+
       ei
       reti
+#endlocal
 
 ; END ctc_isr.s

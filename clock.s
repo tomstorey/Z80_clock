@@ -4,6 +4,7 @@
 #include "platform.inc"
 #include "ctc.inc"
 #include "sio.inc"
+#include "rtc.inc"
 #include "clock.inc"
 
 #data RAM, RAM_BASE, RAM_SZ-256
@@ -240,10 +241,17 @@ mem_test_patterns       .dm   0xAA, 0x55, 0xFF, 0x01, 0
 ;                          APPLICATION CODE                          :
 ;---------------------------------------------------------------------
 #data RAM
+; Mutexes
 foreground_mtx          .db 0       ; Which task owns the foreground.
                                     ; The foreground task can read
                                     ; buttons and update display row
                                     ; data.
+
+; Semaphores
+clock_app_sem           .db 0
+configr_app_sem         .db 0
+clock_upd_req_sem       .db 0
+clock_upd_sem           .db 0
 
       .align 0x10
 task_sched              .ds 16      ; Each byte corresponds to one app
@@ -251,14 +259,22 @@ task_sched              .ds 16      ; Each byte corresponds to one app
                                     ; indicates the app/task is
                                     ; scheduled to run.
 
-; Display row/dot point buffers - keep contiguous!
+; Display row/dot point buffers - keep each block contiguous!
       .align 0x8
-display_row1            .ds 8
-display_row2            .ds 8
-display_row3            .ds 8
-display_dp1             .db 0
+display_row1            .ds 8       ; Working buffers.
+display_row2            .ds 8       ; Display rows will be refreshed
+display_row3            .ds 8       ; using the data held in these
+display_dp1             .db 0       ; buffers.
 display_dp2             .db 0
 display_dp3             .db 0
+
+      .align 0x8
+staging_row1            .ds 8       ; Staging buffers.
+staging_row2            .ds 8       ; New data to be displayed can be
+staging_row3            .ds 8       ; staged in these buffers, then
+staging_dp1             .db 0       ; copied to the working buffers
+staging_dp2             .db 0       ; when ready for display.
+staging_dp3             .db 0
 
 #code ROM
       .align 0x100
@@ -300,6 +316,12 @@ init
       ld    A, CTC_CH2_TCONST
       out   (CTC_CH2), A
 
+      ; Configures CTC Ch 3 as downcounter for RTC interrupt
+      ld    A, CTC_CH3_CFG
+      out   (CTC_CH3), A
+      ld    A, CTC_CH3_TCONST
+      out   (CTC_CH3), A
+
 ;---- Configure SIO channel A
 
       ; Channel A reset
@@ -339,11 +361,32 @@ init
       out   (C), A
       out   (C), B
 
+;---- Configure the RTC
+      ld    A, RTC_RATES_CFG        ; WD and periodic int rates
+      out   (RTC_RATES), A
+      ld    A, RTC_INTS_CFG         ; Interrupt enables
+      out   (RTC_INTS), A
+      ld    A, RTC_CTRL_CFG         ; Control flags
+      out   (RTC_CTRL), A
+
+      xor   A, A                    ; Configure alarm to occur each
+      out    (RTC_SEC_ALM), A       ; minute at 0 seconds.
+      ld    A, RTC_ALM_CFG
+      out    (RTC_MIN_ALM), A
+      out    (RTC_HRS_ALM), A
+      out    (RTC_DAY_ALM), A
+
+      in    A, (RTC_FLAGS)          ; Read RTC flags to clear them
+
       ; Configure and enable Z80 vectored interrupts
       im    2
       ld    A, VECTOR_INT_PG
       ld    I, A
       ei
+
+      ; Set display to dimmed
+      ld    A, 0x01
+      ld    (disp_dim), A
 
 ;---- Schedule applications to run
       schedule_task APP_CLOCK
@@ -357,7 +400,7 @@ main_loop
       run_task APP_CLOCK, clock_app
       run_task APP_CONFIGR, configr_app
 
-;       ld    A, (btn_ack)
+;       ld    A, (configr_app_sem)
 ;       out   (DEBUG_PORT), A
 
       halt
