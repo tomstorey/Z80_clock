@@ -16089,6 +16089,29 @@ Source: AVX .. aphvc.pdf</description>
 <rectangle x1="-0.3048" y1="-1.5748" x2="0.3048" y2="-0.9652" layer="51"/>
 <rectangle x1="2.2352" y1="-1.5748" x2="2.8448" y2="-0.9652" layer="51"/>
 </package>
+<package name="JP1">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<wire x1="-1.016" y1="0" x2="-1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="0" x2="-1.27" y2="-0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="0" x2="1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="0" x2="1.27" y2="-0.254" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="-0.254" x2="1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="-2.54" x2="1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="2.286" x2="1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="2.286" x2="1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="2.54" x2="-1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="2.286" x2="-1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="2.286" x2="-1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="-0.254" x2="-1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="-2.54" x2="-1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="-2.54" x2="1.016" y2="-2.54" width="0.1524" layer="21"/>
+<pad name="1" x="0" y="-1.27" drill="0.9144" shape="long"/>
+<pad name="2" x="0" y="1.27" drill="0.9144" shape="long"/>
+<text x="-1.651" y="-2.54" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
+<text x="2.921" y="-2.54" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
+<rectangle x1="-0.3048" y1="0.9652" x2="0.3048" y2="1.5748" layer="51"/>
+<rectangle x1="-0.3048" y1="-1.5748" x2="0.3048" y2="-0.9652" layer="51"/>
+</package>
 </packages>
 <symbols>
 <symbol name="J3">
@@ -16117,6 +16140,20 @@ Source: AVX .. aphvc.pdf</description>
 <pin name="5" x="2.54" y="-7.62" visible="pad" length="short" direction="pas" rot="R90"/>
 <pin name="6" x="2.54" y="7.62" visible="pad" length="short" direction="pas" rot="R270"/>
 </symbol>
+<symbol name="JP2E">
+<wire x1="0" y1="0" x2="0" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="0" y1="2.54" x2="0" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="2.54" y1="0" x2="2.54" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="0" x2="3.175" y2="0" width="0.4064" layer="94"/>
+<wire x1="3.175" y1="0" x2="3.175" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="3.175" y1="0.635" x2="-0.635" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="0.635" x2="-0.635" y2="0" width="0.4064" layer="94"/>
+<text x="-1.27" y="0" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="5.715" y="0" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="1" x="0" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="2" x="2.54" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="JP3Q" prefix="JP" uservalue="yes">
@@ -16133,6 +16170,23 @@ Source: AVX .. aphvc.pdf</description>
 <connect gate="B" pin="4" pad="4"/>
 <connect gate="B" pin="5" pad="5"/>
 <connect gate="B" pin="6" pad="6"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="JP1E" prefix="JP" uservalue="yes">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<gates>
+<gate name="A" symbol="JP2E" x="2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="JP1">
+<connects>
+<connect gate="A" pin="1" pad="1"/>
+<connect gate="A" pin="2" pad="2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -16698,6 +16752,7 @@ http://www.st.com&lt;p&gt;
 <part name="R5" library="rcl" deviceset="R-EU_" device="0207/10" value="560R"/>
 <part name="C28" library="rcl" deviceset="C-EU" device="050-025X075" value="100nF"/>
 <part name="GND32" library="supply1" deviceset="GND" device=""/>
+<part name="JP2" library="jumper" deviceset="JP1E" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -17628,6 +17683,10 @@ R4=1K5 R5=150R ~91% D/C ~8KHZ</text>
 </instance>
 <instance part="GND32" gate="1" x="231.14" y="-124.46" smashed="yes">
 <attribute name="VALUE" x="228.6" y="-127" size="1.778" layer="96"/>
+</instance>
+<instance part="JP2" gate="A" x="535.94" y="147.32" smashed="yes" rot="R270">
+<attribute name="NAME" x="535.94" y="148.59" size="1.778" layer="95"/>
+<attribute name="VALUE" x="535.94" y="141.605" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -18938,9 +18997,9 @@ R4=1K5 R5=150R ~91% D/C ~8KHZ</text>
 </segment>
 <segment>
 <wire x1="528.32" y1="162.56" x2="530.86" y2="160.02" width="0.1524" layer="91"/>
-<wire x1="530.86" y1="160.02" x2="530.86" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="U9" gate="G$1" pin="!RST!"/>
-<wire x1="530.86" y1="129.54" x2="528.32" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="530.86" y1="160.02" x2="530.86" y2="147.32" width="0.1524" layer="91"/>
+<pinref part="JP2" gate="A" pin="1"/>
+<wire x1="533.4" y1="147.32" x2="530.86" y2="147.32" width="0.1524" layer="91"/>
 <label x="530.86" y="152.4" size="1.778" layer="95" rot="R90"/>
 </segment>
 <segment>
@@ -20726,6 +20785,15 @@ R4=1K5 R5=150R ~91% D/C ~8KHZ</text>
 <pinref part="BUS" gate="-15" pin="S"/>
 <wire x1="452.12" y1="50.8" x2="548.64" y2="50.8" width="0.1524" layer="91"/>
 <label x="543.56" y="50.8" size="1.27" layer="95"/>
+</segment>
+</net>
+<net name="N$53" class="0">
+<segment>
+<pinref part="U9" gate="G$1" pin="!RST!"/>
+<wire x1="530.86" y1="144.78" x2="530.86" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="530.86" y1="129.54" x2="528.32" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="JP2" gate="A" pin="2"/>
+<wire x1="533.4" y1="144.78" x2="530.86" y2="144.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
