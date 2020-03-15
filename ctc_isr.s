@@ -36,6 +36,10 @@ ctc_ch1_isr
 ;     on. At boot, memory is zeroised, so incrementing early means
 ;     row 1 is the starting row. Each iteration the counter is inc'd
 ;     and once it reaches 4 it is reset back to 1 directly.
+;
+;     Also increment the display dimming row counter. The LSb of this
+;     is used to determine if the current working row should be on or
+;     off while dimming is active.
 
       ld    HL, disp_cur_row        ; Increment row counter
       inc   (HL)
@@ -46,15 +50,14 @@ ctc_ch1_isr
       ld    A, 1                    ; Reset row counter to 1
       ld    (HL), A
 
-      ld    HL, disp_dim_ctr
+      ld    HL, disp_dim_ctr        ; Increment dimming counter
       inc   (HL)
 
 ;---- Once the working row is determined, the next step is to compute
 ;     an offset for the address where that rows buffer is located in
 ;     RAM. Start by loading the address of row 1's buffer, and then
-;     subtract 1 from the current row counter. Each row is then a
-;     multiple of 8 from that address (achieved with a couple of left
-;     shifts), skipping 0 of course.
+;     subtract 1 from the current row counter. Each row is then some
+;     multiple of 8 from that address.
 ;
 ;     Due to the layout of the display driver shift registers, the row
 ;     is iterated in reverse, from last character to first.
@@ -66,20 +69,16 @@ ctc_ch1_isr
 ;     data buffer.
 
 row_offset
-      sub   A, 1                    ; Subtract 1 from row counter
-      ld    C, A                    ; Save copy of A
-
       ld    HL, display_dp1         ; Ptr to DP buffer for this row
 
-      ld    A, C                    ; Restore copy of A
-      or    A, A                    ; If row ctr == 0, skip offset adj
-      jr    Z, row_offset_add
+      dec   A                       ; Decrement row counter by 1
+      jr    Z, row_offset_add       ; If row ctr == 0, skip offset adj
 
       ld    B, A                    ; Row counter becomes loop counter
       ld    A, 4                    ; Offset start value
 
 shift_offset
-      sla   A                       ; Shift for each row to offset
+      add   A, A                    ; Double for each row to offset
       inc   HL                      ; Inc DP ptr for each row
       djnz  shift_offset
 
@@ -133,6 +132,9 @@ next_row_char
 ;---- Finally, the dot points are loaded and shifted, and then the row
 ;     counter is written to an output register of the display driver
 ;     board, which also serves to latch in the data to drive that row.
+;
+;     If the row is to be turned off while dimming, output row 0
+;     instead of the working row number.
 
       pop   HL                      ; Restore DP ptr
       ld    A, (HL)                 ; Load DP byte from buffer
