@@ -360,6 +360,8 @@ rtc_update_unlock .macro
 ;     HL  Address at index in jump table                             :
 ;---------------------------------------------------------------------
 get_jp_table_entry .macro table
+      push DE
+
       ld    D, 0
       ld    E, A
       sla   E
@@ -370,6 +372,8 @@ get_jp_table_entry .macro table
       inc   HL
       ld    D, (HL)
       ex    DE, HL
+
+      pop   DE
       .endm
 
 ; END clock.inc
