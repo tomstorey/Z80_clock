@@ -223,8 +223,6 @@ ctc_ch3_isr
 ;     will then increment the clock_upd_req_sem semaphore, and wait
 ;     for the clock_upd_sem semaphore to be updated in turn.
 ;       sem_trywait clock_upd_req_sem
-
-;       or    A, A
 ;       jr    Z, done
 
 ;       sem_post clock_upd_sem        ; Increment display update sem

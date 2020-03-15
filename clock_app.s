@@ -23,12 +23,14 @@ clock_state             .db 0       ; State machine value
       .align 0x100
 clock_app
 #local
+      sem_trywait clock_app_sem
+      or    A, A
+      ret   Z                       ; If zero, sem locked, return
+
       mtx_trylock foreground_mtx, APP_CLOCK
+      or    A, A
+      ret   Z                       ; If zero, mutex not acquired
 
-      or    A, A                    ; If zero, mutex not acquired
-      ret   Z
-
-next_state
       ld    A, (clock_state)
 
 
@@ -60,19 +62,19 @@ state_1
       bit   BTN_ESC_BIT, A
       ret   Z
 
+      ack_btn BTN_ESC_BIT
       set_state clock_state, 0xFF
-      jr    next_state
+
+      ret
 
 
 state_FF
       cp    A, 0xFF
-      jr    NZ, done
+      ret   NZ
 
       set_state clock_state, 0
       mtx_unlock foreground_mtx
 
-
-done
       ret
 #endlocal
 
