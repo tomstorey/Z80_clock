@@ -184,10 +184,11 @@ adjust_hours
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_hrs
       ld    A, (HL)
-      srl   A
-      srl   A
-      srl   A
-      srl   A
+      rrca
+      rrca
+      rrca
+      rrca
+      and   A, 0x0F
       add   A, 0x30
       ld    (display_row3), A
 
@@ -277,10 +278,11 @@ adjust_mins
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_min
       ld    A, (HL)
-      srl   A
-      srl   A
-      srl   A
-      srl   A
+      rrca
+      rrca
+      rrca
+      rrca
+      and   A, 0x0F
       add   A, 0x30
       ld    (display_row3), A
 
@@ -415,10 +417,11 @@ adjust_year
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_year
       ld    A, (HL)
-      srl   A
-      srl   A
-      srl   A
-      srl   A
+      rrca
+      rrca
+      rrca
+      rrca
+      and   A, 0x0F
       add   A, 0x30
       ld    (display_row3), A
 
@@ -492,10 +495,11 @@ adjust_month
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_mon
       ld    A, (HL)
-      srl   A
-      srl   A
-      srl   A
-      srl   A
+      rrca
+      rrca
+      rrca
+      rrca
+      and   A, 0x0F
       add   A, 0x30
       ld    (display_row3), A
 
@@ -580,10 +584,11 @@ adjust_day
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_day
       ld    A, (HL)
-      srl   A
-      srl   A
-      srl   A
-      srl   A
+      rrca
+      rrca
+      rrca
+      rrca
+      and   A, 0x0F
       add   A, 0x30
       ld    (display_row3), A
 
