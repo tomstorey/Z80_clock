@@ -172,6 +172,10 @@ set_state .macro sm, state
 ;     mtx_trylock will return 0, otherwise the mutex will be         :
 ;     acquired and a non-zero value will be returned.                :
 ;                                                                    :
+;     Interrupt safe: interrupts are disabled throughout the         :
+;                     critical code path, and restored to original   :
+;                     state upon completion.                         :
+;                                                                    :
 ; Parameters                                                         :
 ;     mutex     Address of mutex to acquire                          :
 ;     task_num  The task number that wants to acquire the mutex      :
@@ -182,6 +186,10 @@ set_state .macro sm, state
 ;---------------------------------------------------------------------
 mtx_trylock .macro mutex, task_num
       push  HL
+
+      ld    A, I                    ; IFF2 to P/V flag
+      push  AF                      ; Save flags
+      di                            ; Ensure interrupts disabled
 
       ld    HL, &mutex
       ld    A, (HL)                 ; Check current mutex owner
@@ -197,6 +205,11 @@ mtx_trylock .macro mutex, task_num
       ld    A, &task_num            ; Acquire by loading task_num into
       ld    (HL), A                 ; mutex
 
+      pop   HL                      ; F into L
+      bit   2, L                    ; Test IFF2 flag
+      jr    Z, $+3                  ; If IFF2 was not set, go to done
+      ei                            ; Re-enable interrupts
+
       pop   HL                      ; Done
 
       or    A, A                    ; Set Z flag according to A
@@ -209,6 +222,10 @@ mtx_trylock .macro mutex, task_num
 ; Description                                                        :
 ;     Releases a mutual exclusion lock.                              :
 ;                                                                    :
+;     Interrupt safe: interrupts are disabled throughout the         :
+;                     critical code path, and restored to original   :
+;                     state upon completion.                         :
+;                                                                    :
 ; Parameters                                                         :
 ;     mutex     Address of mutex to unlock                           :
 ;                                                                    :
@@ -217,10 +234,21 @@ mtx_trylock .macro mutex, task_num
 ;---------------------------------------------------------------------
 mtx_unlock .macro mutex
       push  AF
+      push  HL
+
+      ld    A, I                    ; IFF2 to P/V flag
+      push  AF                      ; Save flags
+      di                            ; Ensure interrupts disabled
 
       xor   A, A                    ; Load zero to unlock the mutex
       ld    (&mutex), A
 
+      pop   HL                      ; F into L
+      bit   2, L                    ; Test IFF2 flag
+      jr    Z, $+3                  ; If IFF2 was not set, go to done
+      ei                            ; Re-enable interrupts
+
+      pop   HL                      ; Done
       pop   AF
       .endm
 
@@ -231,6 +259,10 @@ mtx_unlock .macro mutex
 ; Description                                                        :
 ;     Increment (unlock) a semaphore.                                :
 ;                                                                    :
+;     Interrupt safe: interrupts are disabled throughout the         :
+;                     critical code path, and restored to original   :
+;                     state upon completion.                         :
+;                                                                    :
 ; Parameters                                                         :
 ;     sem       Address of semaphore to increment (unlock)           :
 ;                                                                    :
@@ -238,12 +270,23 @@ mtx_unlock .macro mutex
 ;     Nothing                                                        :
 ;---------------------------------------------------------------------
 sem_post .macro sem
+      push  AF
       push  HL
+
+      ld    A, I                    ; IFF2 to P/V flag
+      push  AF                      ; Save flags
+      di                            ; Ensure interrupts disabled
 
       ld    HL, &sem
       inc   (HL)
 
+      pop   HL                      ; F into L
+      bit   2, L                    ; Test IFF2 flag
+      jr    Z, $+3                  ; If IFF2 was not set, go to done
+      ei                            ; Re-enable interrupts
+
       pop   HL
+      pop   AF
       .endm
 
 
@@ -255,6 +298,10 @@ sem_post .macro sem
 ;     is non-zero. Otherwise, the semaphore is not decremented and   :
 ;     an error (0) is returned.                                      :
 ;                                                                    :
+;     Interrupt safe: interrupts are disabled throughout the         :
+;                     critical code path, and restored to original   :
+;                     state upon completion.                         :
+;                                                                    :
 ; Parameters                                                         :
 ;     sem       Address of semaphore to increment (unlock)           :
 ;                                                                    :
@@ -265,12 +312,21 @@ sem_post .macro sem
 sem_trywait .macro sem
       push  HL
 
+      ld    A, I                    ; IFF2 to P/V flag
+      push  AF                      ; Save flags
+      di                            ; Ensure interrupts disabled
+
       ld    HL, &sem
       ld    A, (HL)                 ; Load semaphore value for return
       or    A, A                    ; Semaphore value greater than 0?
       jr    Z, $+3                  ; If Z, return 0, go to done
 
       dec   (HL)                    ; Decrement semaphore
+
+      pop   HL                      ; F into L
+      bit   2, L                    ; Test IFF2 flag
+      jr    Z, $+3                  ; If IFF2 was not set, go to done
+      ei                            ; Re-enable interrupts
 
       pop   HL                      ; Done
 
