@@ -40,11 +40,11 @@ state_0
 
       ld    A, 0                    ; Blank display buffers
       ld    BC, 27
-      ld    HL, display_row1
+      ld    HL, staging_row1
       call  memset
 
       ld    BC, 8                   ; Title to row 1
-      ld    DE, display_row1
+      ld    DE, staging_row1
       ld    HL, clock_title
       call  strncpy
 

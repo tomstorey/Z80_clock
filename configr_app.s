@@ -47,13 +47,13 @@ configr_app
 ;     This is where the app starts from fresh.
 app_start
       ld    BC, 8                   ; Display app title on row 1
-      ld    DE, display_row1
+      ld    DE, staging_row1
       ld    HL, configr_title
       call  strncpy
 
       ld    A, 0                    ; Clear rows 2 and 3
       ld    BC, 19
-      ld    HL, display_row2
+      ld    HL, staging_row2
       call  memset
 
       xor   A, A                    ; Reset selected menu option
@@ -74,7 +74,7 @@ app_start
 main_menu
 #local
       ld    BC, 8                   ; Prepare to set text on row 2,
-      ld    DE, display_row2        ; default to "SET DATE"
+      ld    DE, staging_row2        ; default to "SET DATE"
       ld    HL, configr_menu_set_date
 
       ld    A, (configr_menu_opt)   ; If selected menu option is value
@@ -155,7 +155,7 @@ adjust_time
       rtc_update_unlock
 
       ld    BC, 8                   ; Set title/row 1 to "TIME UTC"
-      ld    DE, display_row1
+      ld    DE, staging_row1
       ld    HL, configr_time_utc
       call  strncpy
 
@@ -167,7 +167,7 @@ adjust_time
 ;     Falls through to next state.
 hours_msg
       ld    BC, 16                  ; Set row 2 to "HOURS" and clear
-      ld    DE, display_row2        ; row 3
+      ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_hours
       call  strncpy
 
@@ -190,13 +190,13 @@ adjust_hours
       rrca
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3), A
+      ld    (staging_row3), A
 
       ; Display units digit in row 3 col 1
       ld    A, (HL)
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3+1), A
+      ld    (staging_row3+1), A
 
       ; Handle button presses
       ld    A, (btn_state)
@@ -261,7 +261,7 @@ cp_99
 ;     Falls through to next state.
 minutes_msg
       ld    BC, 16                  ; Set row 2 to "MINUTES" and clear
-      ld    DE, display_row2        ; row 3
+      ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_minutes
       call  strncpy
 
@@ -284,13 +284,13 @@ adjust_mins
       rrca
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3), A
+      ld    (staging_row3), A
 
       ; Display units digit in row 3 col 1
       ld    A, (HL)
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3+1), A
+      ld    (staging_row3+1), A
 
       ; Handle button presses
       ld    A, (btn_state)
@@ -393,7 +393,7 @@ adjust_date
       rtc_update_unlock
 
       ld    BC, 8                   ; Set title/row 1 to "DATE UTC"
-      ld    DE, display_row1
+      ld    DE, staging_row1
       ld    HL, configr_date_utc
       call  strncpy
 
@@ -405,7 +405,7 @@ adjust_date
 ;     Falls through to next state.
 year_msg
       ld    BC, 16                  ; Set row 2 to "YEAR" and clear
-      ld    DE, display_row2        ; row 3
+      ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_year
       call  strncpy
 
@@ -423,13 +423,13 @@ adjust_year
       rrca
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3), A
+      ld    (staging_row3), A
 
       ; Display units digit in row 3 col 1
       ld    A, (HL)
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3+1), A
+      ld    (staging_row3+1), A
 
       ; Handle button presses
       ld    A, (btn_state)
@@ -483,7 +483,7 @@ store
 ;     Falls through to next state.
 month_msg
       ld    BC, 16                  ; Set row 2 to "MONTH" and clear
-      ld    DE, display_row2        ; row 3
+      ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_month
       call  strncpy
 
@@ -501,13 +501,13 @@ adjust_month
       rrca
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3), A
+      ld    (staging_row3), A
 
       ; Display units digit in row 3 col 1
       ld    A, (HL)
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3+1), A
+      ld    (staging_row3+1), A
 
       ; Handle button presses
       ld    A, (btn_state)
@@ -572,7 +572,7 @@ cp_0
 ;     Falls through to next state.
 day_msg
       ld    BC, 16                  ; Set row 2 to "DAY" and clear row
-      ld    DE, display_row2        ; 3
+      ld    DE, staging_row2        ; 3
       ld    HL, configr_set_day
       call  strncpy
 
@@ -590,13 +590,13 @@ adjust_day
       rrca
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3), A
+      ld    (staging_row3), A
 
       ; Display units digit in row 3 col 1
       ld    A, (HL)
       and   A, 0x0F
       add   A, 0x30
-      ld    (display_row3+1), A
+      ld    (staging_row3+1), A
 
       ; Handle button presses
       ld    A, (btn_state)
@@ -661,7 +661,7 @@ cp_0
 ;     Falls through to next state.
 dow_msg
       ld    BC, 16                  ; Set row 2 to "WEEKDAY" and
-      ld    DE, display_row2        ; clear row 3
+      ld    DE, staging_row2        ; clear row 3
       ld    HL, configr_set_weekday
       call  strncpy
 
@@ -680,7 +680,7 @@ adjust_dow
       add   HL, DE                  ; Add offset to pointer
 
       ld    BC, 8                   ; Write day name to row 3
-      ld    DE, display_row3
+      ld    DE, staging_row3
       call  strncpy
 
       ; Handle button presses

@@ -185,6 +185,7 @@ ctc_ch2_isr
       schedule_task TASK_BUTTON_RD
       schedule_task TASK_WD_POKE
       schedule_task TASK_SIO_RX
+      schedule_task TASK_DISPLAY
 
       ; Increment semaphores to allow apps to run
       sem_post clock_app_sem

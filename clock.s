@@ -394,6 +394,9 @@ init
 
 main_loop
       run_task TASK_BUTTON_RD, button_rd_task
+
+      run_task TASK_DISPLAY, display_task
+
       run_task TASK_WD_POKE, wd_poke_task
       run_task TASK_SIO_RX, sio_a_rx_isr
 
@@ -460,6 +463,70 @@ button_rd_task
       ld    (HL), B
 
       deschedule_task TASK_BUTTON_RD
+
+      ret
+#endlocal
+
+
+;---------------------------------------------------------------------
+;     Display update task                                            :
+;                                                                    :
+; Description                                                        :
+;     Applications write only to the staging display buffers, but    :
+;     the ISR that updates the physical displays takes its input     :
+;     from the working display buffers.                              :
+;                                                                    :
+;     This task implements a display update effect which mimicks the :
+;     displays of the DSKY, part of the Apollo Guidance Computer,    :
+;     whereby the contents of the displays appear to transition      :
+;     slowly.                                                        :
+;---------------------------------------------------------------------
+#data RAM
+display_ctr             .db 0       ; Counter for current character
+display_status          .db 0       ; Display updater status register
+display_syncd           .db 0       ; If zero, working == staging
+
+#code ROM
+      .align 0x100
+display_task
+#local
+      ld    HL, display_status
+      ld    A, (HL)
+      xor   A, 0x01
+      ld    (HL), A
+      bit   0, A
+      jr    NZ, done
+
+      xor   A, A
+      ld    D, A
+
+      ld    A, (display_ctr)        ; Load display position counter
+      ld    E, A                    ; DE is offset
+
+      ld    HL, staging_row1        ; Source pointer
+      add   HL, DE
+      push  HL                      ; Save for later
+
+      ld    HL, display_row1        ; Destination pointer
+      add   HL, DE
+      ex    DE, HL                  ; Restore source pointer
+      pop   HL
+
+      ld    A, (HL)
+      ld    (DE), A
+
+      ld    HL, display_ctr         ; Increment display position ctr
+      inc   (HL)
+      ld    A, (HL)
+      cp    A, 27                   ; Overflowed to 27?
+      jr    NZ, done
+
+      xor   A, A                    ; Yes, reset back to zero
+      ld    (HL), A
+
+done
+
+      deschedule_task TASK_DISPLAY
 
       ret
 #endlocal

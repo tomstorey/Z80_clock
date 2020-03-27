@@ -90,6 +90,7 @@ TASK_WD_POKE            .equ  2     ; Poke the watchdog
 APP_CLOCK               .equ  3     ; Clock application
 APP_CONFIGR             .equ  4     ; Configuration application
 TASK_SIO_RX             .equ  5     ; SIO data receiver
+TASK_DISPLAY            .equ  6     ; Display updater
 
 ;---------------------------------------------------------------------
 ;                           MISCELLANEOUS                            :
