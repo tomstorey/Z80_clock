@@ -26,7 +26,7 @@ disp_dim_ctr            .db 0       ; Display dimming counter
 disp_dim                .db 0       ; 0 = bright, 1 = dim
 
 #code ROM
-      .align 0x100
+      .align 0x80
 ctc_ch1_isr
 #local
       ex    AF, AF'
@@ -152,8 +152,8 @@ next_row_char
 out_disp_ctrl
       out   (DISP_CTRL), A
 
-      exx
       ex    AF, AF'
+      exx
 
       ei
       reti
@@ -176,7 +176,7 @@ out_disp_ctrl
 ;---------------------------------------------------------------------
 #data RAM
 #code ROM
-      .align 0x100
+      .align 0x80
 ctc_ch2_isr
       ex    AF, AF'
       exx
@@ -184,15 +184,14 @@ ctc_ch2_isr
       ; Schedule periodic tasks
       schedule_task TASK_BUTTON_RD
       schedule_task TASK_WD_POKE
-      schedule_task TASK_SIO_RX
       schedule_task TASK_DISPLAY
 
       ; Increment semaphores to allow apps to run
       sem_post clock_app_sem
       sem_post configr_app_sem
 
-      exx
       ex    AF, AF'
+      exx
 
       ei
       reti
@@ -211,7 +210,7 @@ ctc_ch2_isr
 ;---------------------------------------------------------------------
 #data RAM
 #code ROM
-      .align 0x100
+      .align 0x80
 ctc_ch3_isr
 #local
       ex    AF, AF'
@@ -225,19 +224,10 @@ ctc_ch3_isr
 ;     the RTC and use that to configure the display immediately. It
 ;     will then increment the clock_upd_req_sem semaphore, and wait
 ;     for the clock_upd_sem semaphore to be updated in turn.
-;       sem_trywait clock_upd_req_sem
-;       jr    Z, done
+      sem_trywait clock_upd_req_sem
+      jr    Z, done
 
-;       sem_post clock_upd_sem        ; Increment display update sem
-
-      ld    A, RTC_CTRL_UTI | RTC_CTRL_CFG
-      out   (RTC_CTRL), A
-
-      in    A, (RTC_MIN)
-      out   (DEBUG_PORT), A
-
-      ld    A, RTC_CTRL_CFG
-      out   (RTC_CTRL), A
+      sem_post clock_upd_sem        ; Increment display update sem
 
 done
       ; Reconfigure things so they can happen again
@@ -248,8 +238,8 @@ done
       ld    A, CTC_CH3_TCONST
       out   (CTC_CH3), A
 
-      exx
       ex    AF, AF'
+      exx
 
       ei
       reti
