@@ -45,6 +45,7 @@ At time of writing, the following TODO list remains:
 
  - Modifications/corrections to RAM decoding logic and address lines to allow RAM to span the entire address range 0x6000-0x9FFF
  - Implementing a 555 timer based oscillator to drive the piezo speaker which could be used for alarms, beeps when pressing buttons, etc (currently it is hooked up to a pin of an output register, but this requires driving in software to perform the oscillation which is very intensive depending on the frequency)
+ - Note 1 below
 
 Otherwise, here are some lightweight descriptions of the schematic files:
 
