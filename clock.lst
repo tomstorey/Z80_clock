@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "clock.s"
-              	; date: 2020-04-01 09:09:30
+              	; date: 2020-04-01 10:24:36
               	; --------------------------------------
 
 
@@ -370,6 +370,50 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
               	      pop   HL                      ; Done
               	      pop   AF
+              	      .endm
+              	
+              	
+              	;---------------------------------------------------------------------
+              	;     mtx_owned                                                      :
+              	;                                                                    :
+              	; Description                                                        :
+              	;     Returns non-zero if the task indicated by the task_num param   :
+              	;     owns the mutex. If that task does not hold the mutex, zero is  :
+              	;     returned.                                                      :
+              	;                                                                    :
+              	;     Interrupt safe: interrupts are disabled throughout the         :
+              	;                     critical code path, and restored to original   :
+              	;                     state upon completion.                         :
+              	;                                                                    :
+              	; Parameters                                                         :
+              	;     mutex     Address of mutex to check ownership of               :
+              	;     task_num  The task number to compare                           :
+              	;                                                                    :
+              	; Returns                                                            :
+              	;     A  0 if lock not owned, or task_num if owned                   :
+              	;     F  Z flag is set or cleared based on value of A                :
+              	;---------------------------------------------------------------------
+              	mtx_owned .macro mutex, task_num
+              	      push  HL
+              	
+              	      ld    A, I                    ; IFF2 to P/V flag
+              	      push  AF                      ; Save flags
+              	      di                            ; Ensure interrupts disabled
+              	
+              	      ld    A, (&mutex)             ; Compare the value stored in
+              	      cp    A, &task_num            ; (mutex) with task_num.
+              	      jr    Z, $+3
+              	
+              	      xor   A, A                    ; Not equal, return 0
+              	
+              	      pop   HL                      ; F into L
+              	      bit   2, L                    ; Test IFF2 flag
+              	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+              	      ei                            ; Re-enable interrupts
+              	
+              	      pop   HL                      ; Done
+              	
+              	      or    A, A
               	      .endm
               	
               	
@@ -952,36 +996,43 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 636C: FFFFFFFF	      .align 0x100
 6370: FF...   	
 6400:         	main_loop
+              	      ; Inputs
               	      run_task TASK_BUTTON_RD, button_rd_task
 6400: 211178  	      ld    HL, task_sched+TASK_BUTTON_RD
 6403: 7E      	      ld    A, (HL)
 6404: B7      	      or    A, A
               	
 6405: C40065  	      call  NZ, button_rd_task
-              	      run_task TASK_DISPLAY, display_task
-6408: 211578  	      ld    HL, task_sched+TASK_DISPLAY
+              	
+              	      ; Applications
+              	      run_task APP_CLOCK, clock_app
+6408: 211378  	      ld    HL, task_sched+APP_CLOCK
 640B: 7E      	      ld    A, (HL)
 640C: B7      	      or    A, A
               	
-640D: C40066  	      call  NZ, display_task
-              	      run_task TASK_WD_POKE, wd_poke_task
-6410: 211278  	      ld    HL, task_sched+TASK_WD_POKE
+640D: C40068  	      call  NZ, clock_app
+              	      run_task APP_CONFIGR, configr_app
+6410: 211478  	      ld    HL, task_sched+APP_CONFIGR
 6413: 7E      	      ld    A, (HL)
 6414: B7      	      or    A, A
               	
-6415: C40067  	      call  NZ, wd_poke_task
-              	      run_task APP_CLOCK, clock_app
-6418: 211378  	      ld    HL, task_sched+APP_CLOCK
+6415: C4006D  	      call  NZ, configr_app
+              	
+              	      ; Outputs
+              	      run_task TASK_DISPLAY, display_task
+6418: 211578  	      ld    HL, task_sched+TASK_DISPLAY
 641B: 7E      	      ld    A, (HL)
 641C: B7      	      or    A, A
               	
-641D: C40068  	      call  NZ, clock_app
-              	      run_task APP_CONFIGR, configr_app
-6420: 211478  	      ld    HL, task_sched+APP_CONFIGR
+641D: C40066  	      call  NZ, display_task
+              	
+              	      ; Other
+              	      run_task TASK_WD_POKE, wd_poke_task
+6420: 211278  	      ld    HL, task_sched+TASK_WD_POKE
 6423: 7E      	      ld    A, (HL)
 6424: B7      	      or    A, A
               	
-6425: C4006D  	      call  NZ, configr_app
+6425: C40067  	      call  NZ, wd_poke_task
               	
 6428: 76      	      halt
               	
@@ -1012,7 +1063,6 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 642F: FF...   	
 6500:         	button_rd_task
               	#local
-              	
 6500: 3E01    	      ld    A, 0x01                 ; For extra button debouncing,
 6502: 215F78  	      ld    HL, btn_flags           ; only run task every other time.
 6505: AE      	      xor   A, (HL)                 ; Invert bit 0 of flags and test
@@ -1253,52 +1303,52 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 670A: FFFFFFFF	      .align 0x100
 670E: FF...   	
 6800:         	clock_app
-              	      ; Check semaphore to determine if clock app should run
-              	      sem_trywait clock_app_sem
+              	      ; Try to lock the foreground mutex if it is available, or return
+              	      mtx_trylock foreground_mtx, APP_CLOCK
 6800: E5      	      push  HL
               	
 6801: ED57    	      ld    A, I                    ; IFF2 to P/V flag
 6803: F5      	      push  AF                      ; Save flags
 6804: F3      	      di                            ; Ensure interrupts disabled
               	
-6805: 210178  	      ld    HL, clock_app_sem
-6808: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
-6809: B7      	      or    A, A                    ; Semaphore value greater than 0?
-680A: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
+6805: 210078  	      ld    HL, foreground_mtx
+6808: 7E      	      ld    A, (HL)                 ; Check current mutex owner
+6809: B7      	      or    A, A
+680A: 2807    	      jr    Z, $+9                  ; If zero, acquire it
               	
-680C: 35      	      dec   (HL)                    ; Decrement semaphore
+680C: FE03    	      cp    A, APP_CLOCK            ; If not zero, do we own it?
+680E: 2806    	      jr    Z, $+8                  ; Yes if Z, return mutex value
               	
-680D: E1      	      pop   HL                      ; F into L
-680E: CB55    	      bit   2, L                    ; Test IFF2 flag
-6810: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-6812: FB      	      ei                            ; Re-enable interrupts
+6810: AF      	      xor   A, A                    ; No otherwise, return 0
+6811: 1803    	      jr    $+5                     ; Go to done
               	
-6813: E1      	      pop   HL                      ; Done
+6813: 3E03    	      ld    A, APP_CLOCK            ; Acquire by loading task_num into
+6815: 77      	      ld    (HL), A                 ; mutex
               	
-6814: B7      	      or    A, A                    ; Set Z flag according to A
-6815: C8      	      ret   Z
+6816: E1      	      pop   HL                      ; F into L
+6817: CB55    	      bit   2, L                    ; Test IFF2 flag
+6819: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+681B: FB      	      ei                            ; Re-enable interrupts
               	
-              	      ; Try to lock the foreground mutex if it is available, or return
-              	      mtx_trylock foreground_mtx, APP_CLOCK
-6816: E5      	      push  HL
+681C: E1      	      pop   HL                      ; Done
               	
-6817: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-6819: F5      	      push  AF                      ; Save flags
-681A: F3      	      di                            ; Ensure interrupts disabled
+681D: B7      	      or    A, A                    ; Set Z flag according to A
+681E: C8      	      ret   Z
               	
-681B: 210078  	      ld    HL, foreground_mtx
-681E: 7E      	      ld    A, (HL)                 ; Check current mutex owner
-681F: B7      	      or    A, A
-6820: 2807    	      jr    Z, $+9                  ; If zero, acquire it
+              	      ; Check semaphore to determine if clock app should run
+              	      sem_trywait clock_app_sem
+681F: E5      	      push  HL
               	
-6822: FE03    	      cp    A, APP_CLOCK            ; If not zero, do we own it?
-6824: 2806    	      jr    Z, $+8                  ; Yes if Z, return mutex value
+6820: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+6822: F5      	      push  AF                      ; Save flags
+6823: F3      	      di                            ; Ensure interrupts disabled
               	
-6826: AF      	      xor   A, A                    ; No otherwise, return 0
-6827: 1803    	      jr    $+5                     ; Go to done
+6824: 210178  	      ld    HL, clock_app_sem
+6827: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
+6828: B7      	      or    A, A                    ; Semaphore value greater than 0?
+6829: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
               	
-6829: 3E03    	      ld    A, APP_CLOCK            ; Acquire by loading task_num into
-682B: 77      	      ld    (HL), A                 ; mutex
+682B: 35      	      dec   (HL)                    ; Decrement semaphore
               	
 682C: E1      	      pop   HL                      ; F into L
 682D: CB55    	      bit   2, L                    ; Test IFF2 flag
@@ -1955,10 +2005,10 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 6AE2: AF      	      xor   A, A
               	
 6AE3: B8      	      cp    A, B
-6AE4: 2813    	      jr    Z, display_row
-6AE6: 3011    	      jr    NC, display_row
+6AE4: 2813    	      jr    Z, display_row          ; cur_hour == end_hour, no DST
+6AE6: 3011    	      jr    NC, display_row         ; cur_hour > end_hour, no DST
               	
-6AE8: CBC6    	      set   0, (HL)                 ; Hour <=, set match flag
+6AE8: CBC6    	      set   0, (HL)                 ; Hour <, set match flag
               	
               	
               	;---- Check DST match flags ------------------------------------------
@@ -2459,52 +2509,52 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 6C89: FFFFFFFF	      .align 0x100
 6C8D: FF...   	
 6D00:         	configr_app
-              	      ; Check semaphore to determine if config app should run
-              	      sem_trywait configr_app_sem
+              	      ; Try to lock the foreground mutex if it is available, or return
+              	      mtx_trylock foreground_mtx, APP_CONFIGR
 6D00: E5      	      push  HL
               	
 6D01: ED57    	      ld    A, I                    ; IFF2 to P/V flag
 6D03: F5      	      push  AF                      ; Save flags
 6D04: F3      	      di                            ; Ensure interrupts disabled
               	
-6D05: 210278  	      ld    HL, configr_app_sem
-6D08: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
-6D09: B7      	      or    A, A                    ; Semaphore value greater than 0?
-6D0A: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
+6D05: 210078  	      ld    HL, foreground_mtx
+6D08: 7E      	      ld    A, (HL)                 ; Check current mutex owner
+6D09: B7      	      or    A, A
+6D0A: 2807    	      jr    Z, $+9                  ; If zero, acquire it
               	
-6D0C: 35      	      dec   (HL)                    ; Decrement semaphore
+6D0C: FE04    	      cp    A, APP_CONFIGR            ; If not zero, do we own it?
+6D0E: 2806    	      jr    Z, $+8                  ; Yes if Z, return mutex value
               	
-6D0D: E1      	      pop   HL                      ; F into L
-6D0E: CB55    	      bit   2, L                    ; Test IFF2 flag
-6D10: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-6D12: FB      	      ei                            ; Re-enable interrupts
+6D10: AF      	      xor   A, A                    ; No otherwise, return 0
+6D11: 1803    	      jr    $+5                     ; Go to done
               	
-6D13: E1      	      pop   HL                      ; Done
+6D13: 3E04    	      ld    A, APP_CONFIGR            ; Acquire by loading task_num into
+6D15: 77      	      ld    (HL), A                 ; mutex
               	
-6D14: B7      	      or    A, A                    ; Set Z flag according to A
-6D15: C8      	      ret   Z
+6D16: E1      	      pop   HL                      ; F into L
+6D17: CB55    	      bit   2, L                    ; Test IFF2 flag
+6D19: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+6D1B: FB      	      ei                            ; Re-enable interrupts
               	
-              	      ; Try to lock the foreground mutex if it is available, or return
-              	      mtx_trylock foreground_mtx, APP_CONFIGR
-6D16: E5      	      push  HL
+6D1C: E1      	      pop   HL                      ; Done
               	
-6D17: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-6D19: F5      	      push  AF                      ; Save flags
-6D1A: F3      	      di                            ; Ensure interrupts disabled
+6D1D: B7      	      or    A, A                    ; Set Z flag according to A
+6D1E: C8      	      ret   Z
               	
-6D1B: 210078  	      ld    HL, foreground_mtx
-6D1E: 7E      	      ld    A, (HL)                 ; Check current mutex owner
-6D1F: B7      	      or    A, A
-6D20: 2807    	      jr    Z, $+9                  ; If zero, acquire it
+              	      ; Check semaphore to determine if config app should run
+              	      sem_trywait configr_app_sem
+6D1F: E5      	      push  HL
               	
-6D22: FE04    	      cp    A, APP_CONFIGR            ; If not zero, do we own it?
-6D24: 2806    	      jr    Z, $+8                  ; Yes if Z, return mutex value
+6D20: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+6D22: F5      	      push  AF                      ; Save flags
+6D23: F3      	      di                            ; Ensure interrupts disabled
               	
-6D26: AF      	      xor   A, A                    ; No otherwise, return 0
-6D27: 1803    	      jr    $+5                     ; Go to done
+6D24: 210278  	      ld    HL, configr_app_sem
+6D27: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
+6D28: B7      	      or    A, A                    ; Semaphore value greater than 0?
+6D29: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
               	
-6D29: 3E04    	      ld    A, APP_CONFIGR            ; Acquire by loading task_num into
-6D2B: 77      	      ld    (HL), A                 ; mutex
+6D2B: 35      	      dec   (HL)                    ; Decrement semaphore
               	
 6D2C: E1      	      pop   HL                      ; F into L
 6D2D: CB55    	      bit   2, L                    ; Test IFF2 flag
@@ -3916,6 +3966,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 73D9: FFFFFFFF	      .align 0x80
 73DD: FF...   	
 7400:         	ctc_ch2_isr
+              	#local
 7400: 08      	      ex    AF, AF'
 7401: D9      	      exx
               	
@@ -3942,50 +3993,101 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
 7416: E1      	      pop   HL
               	
-              	      ; Increment semaphores to allow apps to run
+              	      ; Increment semaphores to allow apps to run, but only where an
+              	      ; app owns the foreground mutex. It is important that apps only
+              	      ; run once per ~10ms to allow button acknowledges to be applied
+              	      ; and reduce erratic behaviour.
+7417:         	clock_sem
+              	      mtx_owned foreground_mtx, APP_CLOCK
+7417: E5      	      push  HL
+              	
+7418: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+741A: F5      	      push  AF                      ; Save flags
+741B: F3      	      di                            ; Ensure interrupts disabled
+              	
+741C: 3A0078  	      ld    A, (foreground_mtx)             ; Compare the value stored in
+741F: FE03    	      cp    A, APP_CLOCK            ; (mutex) with task_num.
+7421: 2801    	      jr    Z, $+3
+              	
+7423: AF      	      xor   A, A                    ; Not equal, return 0
+              	
+7424: E1      	      pop   HL                      ; F into L
+7425: CB55    	      bit   2, L                    ; Test IFF2 flag
+7427: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+7429: FB      	      ei                            ; Re-enable interrupts
+              	
+742A: E1      	      pop   HL                      ; Done
+              	
+742B: B7      	      or    A, A
+742C: 2812    	      jr    Z, configr_sem
               	      sem_post clock_app_sem
-7417: F5      	      push  AF
-7418: E5      	      push  HL
+742E: F5      	      push  AF
+742F: E5      	      push  HL
               	
-7419: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-741B: F5      	      push  AF                      ; Save flags
-741C: F3      	      di                            ; Ensure interrupts disabled
+7430: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+7432: F5      	      push  AF                      ; Save flags
+7433: F3      	      di                            ; Ensure interrupts disabled
               	
-741D: 210178  	      ld    HL, clock_app_sem
-7420: 34      	      inc   (HL)
+7434: 210178  	      ld    HL, clock_app_sem
+7437: 34      	      inc   (HL)
               	
-7421: E1      	      pop   HL                      ; F into L
-7422: CB55    	      bit   2, L                    ; Test IFF2 flag
-7424: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-7426: FB      	      ei                            ; Re-enable interrupts
+7438: E1      	      pop   HL                      ; F into L
+7439: CB55    	      bit   2, L                    ; Test IFF2 flag
+743B: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+743D: FB      	      ei                            ; Re-enable interrupts
               	
-7427: E1      	      pop   HL
-7428: F1      	      pop   AF
+743E: E1      	      pop   HL
+743F: F1      	      pop   AF
+              	
+7440:         	configr_sem
+              	      mtx_owned foreground_mtx, APP_CONFIGR
+7440: E5      	      push  HL
+              	
+7441: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+7443: F5      	      push  AF                      ; Save flags
+7444: F3      	      di                            ; Ensure interrupts disabled
+              	
+7445: 3A0078  	      ld    A, (foreground_mtx)             ; Compare the value stored in
+7448: FE04    	      cp    A, APP_CONFIGR            ; (mutex) with task_num.
+744A: 2801    	      jr    Z, $+3
+              	
+744C: AF      	      xor   A, A                    ; Not equal, return 0
+              	
+744D: E1      	      pop   HL                      ; F into L
+744E: CB55    	      bit   2, L                    ; Test IFF2 flag
+7450: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+7452: FB      	      ei                            ; Re-enable interrupts
+              	
+7453: E1      	      pop   HL                      ; Done
+              	
+7454: B7      	      or    A, A
+7455: 2812    	      jr    Z, done
               	      sem_post configr_app_sem
-7429: F5      	      push  AF
-742A: E5      	      push  HL
+7457: F5      	      push  AF
+7458: E5      	      push  HL
               	
-742B: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-742D: F5      	      push  AF                      ; Save flags
-742E: F3      	      di                            ; Ensure interrupts disabled
+7459: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+745B: F5      	      push  AF                      ; Save flags
+745C: F3      	      di                            ; Ensure interrupts disabled
               	
-742F: 210278  	      ld    HL, configr_app_sem
-7432: 34      	      inc   (HL)
+745D: 210278  	      ld    HL, configr_app_sem
+7460: 34      	      inc   (HL)
               	
-7433: E1      	      pop   HL                      ; F into L
-7434: CB55    	      bit   2, L                    ; Test IFF2 flag
-7436: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-7438: FB      	      ei                            ; Re-enable interrupts
+7461: E1      	      pop   HL                      ; F into L
+7462: CB55    	      bit   2, L                    ; Test IFF2 flag
+7464: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+7466: FB      	      ei                            ; Re-enable interrupts
               	
-7439: E1      	      pop   HL
-743A: F1      	      pop   AF
+7467: E1      	      pop   HL
+7468: F1      	      pop   AF
               	
-743B: 08      	      ex    AF, AF'
-743C: D9      	      exx
+7469:         	done
+7469: 08      	      ex    AF, AF'
+746A: D9      	      exx
               	
-743D: FB      	      ei
-743E: ED4D    	      reti
-              	
+746B: FB      	      ei
+746C: ED4D    	      reti
+              	#endlocal
               	
               	;---------------------------------------------------------------------
               	;     CTC Channel 3 ISR - Clock display refresh scheduler            :
@@ -4000,8 +4102,8 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;---------------------------------------------------------------------
               	#data RAM
               	#code ROM
-7440: FFFFFFFF	      .align 0x80
-7444: FF...   	
+746E: FFFFFFFF	      .align 0x80
+7472: FF...   	
 7480:         	ctc_ch3_isr
               	#local
 7480: 08      	      ex    AF, AF'
@@ -4368,12 +4470,12 @@ _INITIALIZER        = $7700 = 30464  _INITIALIZER platform.inc:7
 _INITIALIZER_end    = $7800 = 30720  _INITIALIZER platform.inc:7 (unused)
 _INITIALIZER_size   = $0100 =   256  _INITIALIZER platform.inc:7
 bcd_to_dec          = $6C77 = 27767  ROM          clock_app.s:1033
-btn_ack             = $785C = 30812  RAM          clock.s:366
-btn_debounce        = $785E = 30814  RAM          clock.s:368
-btn_flags           = $785F = 30815  RAM          clock.s:369
-btn_state           = $785D = 30813  RAM          clock.s:367
-btn_valid           = $785B = 30811  RAM          clock.s:365
-button_rd_task      = $6500 = 25856  ROM          clock.s:373
+btn_ack             = $785C = 30812  RAM          clock.s:373
+btn_debounce        = $785E = 30814  RAM          clock.s:375
+btn_flags           = $785F = 30815  RAM          clock.s:376
+btn_state           = $785D = 30813  RAM          clock.s:374
+btn_valid           = $785B = 30811  RAM          clock.s:372
+button_rd_task      = $6500 = 25856  ROM          clock.s:380
 clock_app           = $6800 = 26624  ROM          clock_app.s:78
 clock_app_sem       = $7801 = 30721  RAM          clock.s:233
 clock_app_start     = $684D = 26701  ROM          clock_app.s:97
@@ -4445,24 +4547,24 @@ configr_year_msg    = $6F65 = 28517  ROM          configr_app.s:428
 ctc_ch0_isr         = $7300 = 29440  ROM          ctc_isr.s:4
 ctc_ch1_isr         = $7380 = 29568  ROM          ctc_isr.s:30
 ctc_ch2_isr         = $7400 = 29696  ROM          ctc_isr.s:180
-ctc_ch3_isr         = $7480 = 29824  ROM          ctc_isr.s:214
+ctc_ch3_isr         = $7480 = 29824  ROM          ctc_isr.s:226
 day_array_ptr       = $787B = 30843  RAM          clock_app.s:49
 days_common_year    = $6C00 = 27648  ROM          clock_app.s:902
 days_leap_year      = $6C10 = 27664  ROM          clock_app.s:907
 disp_cur_row        = $7888 = 30856  RAM          ctc_isr.s:24
 disp_dim            = $788A = 30858  RAM          ctc_isr.s:26
 disp_dim_ctr        = $7889 = 30857  RAM          ctc_isr.s:25
-display_ctr         = $7860 = 30816  RAM          clock.s:427
+display_ctr         = $7860 = 30816  RAM          clock.s:433
 display_dp1         = $7838 = 30776  RAM          clock.s:249
 display_dp2         = $7839 = 30777  RAM          clock.s:250 (unused)
 display_dp3         = $783A = 30778  RAM          clock.s:251 (unused)
-display_effect      = $7863 = 30819  RAM          clock.s:430
+display_effect      = $7863 = 30819  RAM          clock.s:436
 display_row1        = $7820 = 30752  RAM          clock.s:246
 display_row2        = $7828 = 30760  RAM          clock.s:247 (unused)
 display_row3        = $7830 = 30768  RAM          clock.s:248 (unused)
-display_status      = $7861 = 30817  RAM          clock.s:428
-display_syncd       = $7862 = 30818  RAM          clock.s:429 (unused)
-display_task        = $6600 = 26112  ROM          clock.s:436
+display_status      = $7861 = 30817  RAM          clock.s:434
+display_syncd       = $7862 = 30818  RAM          clock.s:435 (unused)
+display_task        = $6600 = 26112  ROM          clock.s:442
 find_first_sunday   = $6C40 = 27712  ROM          clock_app.s:934
 find_last_sunday    = $6C5B = 27739  ROM          clock_app.s:978
 find_second_sunday  = $6C70 = 27760  ROM          clock_app.s:1016
@@ -4491,7 +4593,7 @@ strncpy             = $7520 = 29984  ROM          c_lib.s:57
 task_sched          = $7810 = 30736  RAM          clock.s:239
 tz_rom_ptr          = $7877 = 30839  RAM          clock_app.s:47
 tz_sw_ptr           = $7875 = 30837  RAM          clock_app.s:46
-wd_poke_task        = $6700 = 26368  ROM          clock.s:506
+wd_poke_task        = $6700 = 26368  ROM          clock.s:512
 
 ; +++ local symbols +++
 
@@ -4509,12 +4611,12 @@ mem_test_patterns = $62A4 = 25252  ROM          clock.s:218
 
 ; +++ local symbols +++
 
-done    = $6525 = 25893  ROM          clock.s:406
+done    = $6525 = 25893  ROM          clock.s:412
 
 ; +++ local symbols +++
 
-done        = $663E = 26174  ROM          clock.s:485
-dsky_effect = $6615 = 26133  ROM          clock.s:450
+done        = $663E = 26174  ROM          clock.s:491
+dsky_effect = $6615 = 26133  ROM          clock.s:456
 
 ; +++ local symbols +++
 
@@ -4632,7 +4734,13 @@ shift_offset   = $739B = 29595  ROM          ctc_isr.s:80
 
 ; +++ local symbols +++
 
-done    = $74AB = 29867  ROM          ctc_isr.s:232
+clock_sem   = $7417 = 29719  ROM          ctc_isr.s:194 (unused)
+configr_sem = $7440 = 29760  ROM          ctc_isr.s:199
+done        = $7469 = 29801  ROM          ctc_isr.s:204
+
+; +++ local symbols +++
+
+done    = $74AB = 29867  ROM          ctc_isr.s:244
 
 ; +++ local symbols +++
 
@@ -4643,5 +4751,5 @@ zero_fill = $752D = 29997  ROM          c_lib.s:75
 next    = $7541 = 30017  ROM          c_lib.s:115
 
 
-total time: 0.0374 sec.
+total time: 0.0383 sec.
 no errors
