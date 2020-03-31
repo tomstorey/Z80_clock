@@ -178,6 +178,7 @@ out_disp_ctrl
 #code ROM
       .align 0x80
 ctc_ch2_isr
+#local
       ex    AF, AF'
       exx
 
@@ -186,16 +187,27 @@ ctc_ch2_isr
       schedule_task TASK_WD_POKE
       schedule_task TASK_DISPLAY
 
-      ; Increment semaphores to allow apps to run
+      ; Increment semaphores to allow apps to run, but only where an
+      ; app owns the foreground mutex. It is important that apps only
+      ; run once per ~10ms to allow button acknowledges to be applied
+      ; and reduce erratic behaviour.
+clock_sem
+      mtx_owned foreground_mtx, APP_CLOCK
+      jr    Z, configr_sem
       sem_post clock_app_sem
+
+configr_sem
+      mtx_owned foreground_mtx, APP_CONFIGR
+      jr    Z, done
       sem_post configr_app_sem
 
+done
       ex    AF, AF'
       exx
 
       ei
       reti
-
+#endlocal
 
 ;---------------------------------------------------------------------
 ;     CTC Channel 3 ISR - Clock display refresh scheduler            :
