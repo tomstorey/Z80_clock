@@ -38,7 +38,7 @@ In no particular order:
 Other `.inc` files define setting for control registers of various peripherals.
 
 
-##Hardware designs/schematics
+## Hardware designs/schematics
 Hardware is still a small work in progress, but is largely complete, correct, and at the very least is functional.
 
 At time of writing, the following TODO list remains:
