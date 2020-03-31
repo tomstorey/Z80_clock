@@ -1,4 +1,4 @@
-; #define serial_loading 1
+#define serial_loading 1
 
 #target ROM
 #include "platform.inc"
@@ -366,11 +366,19 @@ btn_valid               .db 0       ; Valid button mask
 btn_ack                 .db 0       ; Acknowledged button presses
 btn_state               .db 0       ; Serviceable buttons!
 btn_debounce            .db 0       ; Buttons presses being debounced
+btn_flags               .db 0       ; Button reader task flags
 
 #code ROM
       .align 0x100
 button_rd_task
 #local
+
+      ld    A, 0x01                 ; For extra button debouncing,
+      ld    HL, btn_flags           ; only run task every other time.
+      xor   A, (HL)                 ; Invert bit 0 of flags and test
+      bit   0, (HL)
+      jr    NZ, done                ; If bit is 0, run task
+
       in    A, (BTN_REG)            ; Read in button state
       cpl                           ; Buttons pull down, make positive
 
@@ -395,6 +403,7 @@ button_rd_task
       ld    (btn_state), A
       ld    (HL), B
 
+done
       deschedule_task TASK_BUTTON_RD
 
       ret
