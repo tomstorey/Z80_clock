@@ -268,6 +268,50 @@ mtx_unlock .macro mutex
 
 
 ;---------------------------------------------------------------------
+;     mtx_owned                                                      :
+;                                                                    :
+; Description                                                        :
+;     Returns non-zero if the task indicated by the task_num param   :
+;     owns the mutex. If that task does not hold the mutex, zero is  :
+;     returned.                                                      :
+;                                                                    :
+;     Interrupt safe: interrupts are disabled throughout the         :
+;                     critical code path, and restored to original   :
+;                     state upon completion.                         :
+;                                                                    :
+; Parameters                                                         :
+;     mutex     Address of mutex to check ownership of               :
+;     task_num  The task number to compare                           :
+;                                                                    :
+; Returns                                                            :
+;     A  0 if lock not owned, or task_num if owned                   :
+;     F  Z flag is set or cleared based on value of A                :
+;---------------------------------------------------------------------
+mtx_owned .macro mutex, task_num
+      push  HL
+
+      ld    A, I                    ; IFF2 to P/V flag
+      push  AF                      ; Save flags
+      di                            ; Ensure interrupts disabled
+
+      ld    A, (&mutex)             ; Compare the value stored in
+      cp    A, &task_num            ; (mutex) with task_num.
+      jr    Z, $+3
+
+      xor   A, A                    ; Not equal, return 0
+
+      pop   HL                      ; F into L
+      bit   2, L                    ; Test IFF2 flag
+      jr    Z, $+3                  ; If IFF2 was not set, go to done
+      ei                            ; Re-enable interrupts
+
+      pop   HL                      ; Done
+
+      or    A, A
+      .endm
+
+
+;---------------------------------------------------------------------
 ;     sem_post                                                       :
 ;                                                                    :
 ; Description                                                        :
