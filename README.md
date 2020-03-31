@@ -83,11 +83,11 @@ Otherwise, here are some lightweight descriptions of the schematic files:
 
 `CPU board *.sch` contains the processor and all memories (RAM/ROMs), reset circuitry, oscillator, and power input.
 
-`timer rtc io.sch` is a module which contains the RTC, CTC, and user interface inputs such as buttons and DIP switches. It also has the speaker. The RTC also includes a watchdog reset function. See note 1 below.
+`timer rtc io.sch` is a module which contains the RTC, a Z80 CTC peripheral, and user interface inputs such as buttons and DIP switches. It also has the speaker. The RTC also includes a watchdog reset function. See note 1 below.
 
 `display driver shift reg.sch` contains all of the shift registers to drive all display segments on one row. In the current revision it implements a discrete parallel-load to serial-output peripheral that allows the Z80 to OUT a byte and have it shifted serially into the shift registers that drive the displays. See note 2 below.
 
-`uard board.sch` contains an SIO peripheral which was used for serial loading of code for execution from RAM. See note 1 below.
+`uard board.sch` contains a Z80 SIO peripheral which was used for serial loading of code for execution from RAM. See note 1 below.
 
 There is currently no schematic for the display board itself, this is a work in progress.
 
