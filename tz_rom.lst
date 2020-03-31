@@ -1,11 +1,14 @@
               	; --------------------------------------
               	; zasm: assemble "tz_rom.s"
-              	; date: 2020-03-31 15:13:51
+              	; date: 2020-03-31 15:58:19
               	; --------------------------------------
 
 
               	#target ROM
 0000:         	#code ROM, 0, 8192
+              	
+              	;     Correct as of Tue 31 Mar 2020
+              	
               	      .org 0
               	;---- Entry 0
               	;     This entry is reserved for blanking display lines
@@ -71,17 +74,17 @@
 0041: 4C4F4E00	      .text "LON", 0
               	
 0045: 00      	      .db 0x00
-0046: 00      	      .db 0x00
+0046: 00      	      .db 0x00          ; 0 hours offset from UTC
               	
-0047: 03      	      .db 0x03
+0047: 03      	      .db 0x03          ; DST starts in March
 0048: 00      	      .db 0x00
-0049: 01      	      .db 0x01
-004A: 02      	      .db %00000010
+0049: 01      	      .db 0x01          ; at 1am
+004A: 02      	      .db %00000010     ; on last Sunday of month
               	
-004B: 10      	      .db 0x10
+004B: 10      	      .db 0x10          ; DST ends in October
 004C: 00      	      .db 0x00
-004D: 02      	      .db 0x02
-004E: 02      	      .db %00000010
+004D: 02      	      .db 0x02          ; at 2am
+004E: 02      	      .db %00000010     ; on last Sunday of month
               	
               	;---- Entry 3: Sydney timezone ---------------------------------------
 004F: FFFFFFFF	      .align 0x20
@@ -91,17 +94,17 @@
 0061: 53594400	      .text "SYD", 0
               	
 0065: 00      	      .db 0x00
-0066: 10      	      .db 0x10
+0066: 10      	      .db 0x10          ; 10 hours offset from UTC
               	
-0067: 10      	      .db 0x10
+0067: 10      	      .db 0x10          ; DST starts in October
 0068: 00      	      .db 0x00
-0069: 02      	      .db 0x02
-006A: 01      	      .db %00000001
+0069: 02      	      .db 0x02          ; at 2am
+006A: 01      	      .db %00000001     ; on first Sunday of month
               	
-006B: 04      	      .db 0x04
+006B: 04      	      .db 0x04          ; DST ends in April
 006C: 00      	      .db 0x00
-006D: 03      	      .db 0x03
-006E: 01      	      .db %00000001
+006D: 03      	      .db 0x03          ; at 3am
+006E: 01      	      .db %00000001     ; on first Sunday of month
               	
               	;---- Entry 4: Los Angeles timezone ----------------------------------
 006F: FFFFFFFF	      .align 0x20
@@ -111,17 +114,17 @@
 0081: 4C415800	      .text "LAX", 0
               	
 0085: 00      	      .db 0x00
-0086: 92      	      .db 0x92
+0086: 92      	      .db 0x92          ; -8 hours offset from UTC
               	
-0087: 03      	      .db 0x03
+0087: 03      	      .db 0x03          ; DST starts in March
 0088: 00      	      .db 0x00
-0089: 02      	      .db 0x02
-008A: 04      	      .db %00000100
+0089: 02      	      .db 0x02          ; at 2am
+008A: 04      	      .db %00000100     ; on second Sunday of month
               	
-008B: 11      	      .db 0x11
+008B: 11      	      .db 0x11          ; DST ends in November
 008C: 00      	      .db 0x00
-008D: 02      	      .db 0x02
-008E: 01      	      .db %00000001
+008D: 02      	      .db 0x02          ; at 2am
+008E: 01      	      .db %00000001     ; on first Sunday of month
 
 
 ; +++ segments +++
@@ -135,5 +138,5 @@ ROM_end  = $2000 =  8192  ROM     tz_rom.s:1 (unused)
 ROM_size = $2000 =  8192  ROM     tz_rom.s:1 (unused)
 
 
-total time: 0.0045 sec.
+total time: 0.0017 sec.
 no errors
