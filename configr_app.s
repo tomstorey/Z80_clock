@@ -12,6 +12,28 @@
 ;     The task self determines if it should run, signalled by the    :
 ;     foreground mutex either being null or owned.                   :
 ;---------------------------------------------------------------------
+
+; State machine states
+CONFIGR_APP_START       .equ  0
+CONFIGR_MAIN_MENU       .equ  0x01
+CONFIGR_ADJUST_TIME     .equ  0x02
+CONFIGR_HOURS_MSG       .equ  0x03
+CONFIGR_ADJUST_HOURS    .equ  0x04
+CONFIGR_MINUTES_MSG     .equ  0x05
+CONFIGR_ADJUST_MINS     .equ  0x06
+CONFIGR_APPLY_TIME      .equ  0x07
+CONFIGR_ADJUST_DATE     .equ  0x08
+CONFIGR_YEAR_MSG        .equ  0x09
+CONFIGR_ADJUST_YEAR     .equ  0x0A
+CONFIGR_MONTH_MSG       .equ  0x0B
+CONFIGR_ADJUST_MONTH    .equ  0x0C
+CONFIGR_DAY_MSG         .equ  0x0D
+CONFIGR_ADJUST_DAY      .equ  0x0E
+CONFIGR_DOW_MSG         .equ  0x0F
+CONFIGR_ADJUST_DOW      .equ  0x10
+CONFIGR_APPLY_DATE      .equ  0x11
+CONFIGR_EXIT            .equ  0x12
+
 #data RAM
 configr_state           .db 0       ; State machine value
 configr_menu_opt        .db 0       ; Current menu option
@@ -29,7 +51,6 @@ configr_rtc_year        .db 0
 #code ROM
       .align 0x100
 configr_app
-#local
       ; Check semaphore to determine if config app should run
       sem_trywait configr_app_sem
       ret   Z
@@ -45,7 +66,7 @@ configr_app
 
 ;---- State 00 -------------------------------------------------------
 ;     This is where the app starts from fresh.
-app_start
+configr_app_start
       ld    BC, 8                   ; Display app title on row 1
       ld    DE, staging_row1
       ld    HL, configr_title
@@ -56,8 +77,9 @@ app_start
       ld    HL, staging_row2
       call  memset
 
-      xor   A, A                    ; Reset selected menu option
-      ld    (configr_menu_opt), A
+      xor   A, A
+      ld    (configr_menu_opt), A   ; Reset selected menu option
+      ld    (display_effect), A     ; Disable display update effects
 
       set_valid_btn_mask BTN_ALL
       set_state configr_state, CONFIGR_MAIN_MENU
@@ -71,7 +93,7 @@ app_start
 ;     * Select between setting date and time using Up/Down buttons
 ;     * Proceed to perform that action by pressing the Enter button
 ;     * Exit configurator app using Escape button
-main_menu
+configr_main_menu
 #local
       ld    BC, 8                   ; Prepare to set text on row 2,
       ld    DE, staging_row2        ; default to "SET DATE"
@@ -143,7 +165,7 @@ test_updn_btns
 ;     they can be adjusted independently, and then applied at the end.
 ;
 ;     Falls through to next state.
-adjust_time
+configr_adjust_time
       rtc_update_lock
 
       in    A, (RTC_MIN)
@@ -165,7 +187,7 @@ adjust_time
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-hours_msg
+configr_hours_msg
       ld    BC, 16                  ; Set row 2 to "HOURS" and clear
       ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_hours
@@ -179,7 +201,7 @@ hours_msg
 ;     Hours value can be adjusted using the Up/Down buttons. Proceed
 ;     to Minutes adjustment using the Enter button, or exit back to
 ;     the main menu using the Escape button.
-adjust_hours
+configr_adjust_hours
 #local
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_hrs
@@ -259,7 +281,7 @@ cp_99
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-minutes_msg
+configr_minutes_msg
       ld    BC, 16                  ; Set row 2 to "MINUTES" and clear
       ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_minutes
@@ -273,7 +295,7 @@ minutes_msg
 ;     Minutes value can be adjusted using the Up/Down buttons. Proceed
 ;     to apply new time using Enter button, or return to hours
 ;     adjustment using Escape button.
-adjust_mins
+configr_adjust_mins
 #local
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_min
@@ -352,7 +374,7 @@ cp_99
 ;---- State 07 -------------------------------------------------------
 ;     The adjusted hours and minutes values are written to the RTC
 ;     registers to apply the new time.
-apply_time
+configr_apply_time
       rtc_update_lock
 
       xor   A, A                    ; Seconds are always reset to 0
@@ -378,7 +400,7 @@ apply_time
 ;     applied at the end.
 ;
 ;     Falls through to next state.
-adjust_date
+configr_adjust_date
       rtc_update_lock
 
       in    A, (RTC_DAY)
@@ -403,7 +425,7 @@ adjust_date
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-year_msg
+configr_year_msg
       ld    BC, 16                  ; Set row 2 to "YEAR" and clear
       ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_year
@@ -412,7 +434,7 @@ year_msg
       set_state configr_state, CONFIGR_ADJUST_YEAR
 
 ;---- State 0A -------------------------------------------------------
-adjust_year
+configr_adjust_year
 #local
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_year
@@ -481,7 +503,7 @@ store
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-month_msg
+configr_month_msg
       ld    BC, 16                  ; Set row 2 to "MONTH" and clear
       ld    DE, staging_row2        ; row 3
       ld    HL, configr_set_month
@@ -490,7 +512,7 @@ month_msg
       set_state configr_state, CONFIGR_ADJUST_MONTH
 
 ;---- State 0C --------------------------------------------------------
-adjust_month
+configr_adjust_month
 #local
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_mon
@@ -570,7 +592,7 @@ cp_0
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-day_msg
+configr_day_msg
       ld    BC, 16                  ; Set row 2 to "DAY" and clear row
       ld    DE, staging_row2        ; 3
       ld    HL, configr_set_day
@@ -579,7 +601,7 @@ day_msg
       set_state configr_state, CONFIGR_ADJUST_DAY
 
 ;---- State 0E --------------------------------------------------------
-adjust_day
+configr_adjust_day
 #local
       ; Display tens digit in row 3 col 0
       ld    HL, configr_rtc_day
@@ -659,7 +681,7 @@ cp_0
 ;     Updates display row 2 to indicate which value is being adjusted.
 ;
 ;     Falls through to next state.
-dow_msg
+configr_dow_msg
       ld    BC, 16                  ; Set row 2 to "WEEKDAY" and
       ld    DE, staging_row2        ; clear row 3
       ld    HL, configr_set_weekday
@@ -668,7 +690,7 @@ dow_msg
       set_state configr_state, CONFIGR_ADJUST_DOW
 
 ;---- State 10 --------------------------------------------------------
-adjust_dow
+configr_adjust_dow
 #local
       ld    A, (configr_rtc_dow)    ; DOW value into A
       dec   A                       ; Decrement by 1 and mult by 4 to
@@ -744,7 +766,7 @@ cp_0
 ;---- State 11 --------------------------------------------------------
 ;     The adjusted year, month, day and day of week values are written
 ;     to the RTC registers to apply the new date.
-apply_date
+configr_apply_date
       rtc_update_lock
 
       ld    A, (configr_rtc_day)
@@ -765,33 +787,32 @@ apply_date
 
 ;---- State 12 -------------------------------------------------------
 ;     Exit the config app by releasing the foreground mutex.
-exit_app
+configr_exit_app
       set_state configr_state, CONFIGR_APP_START
       mtx_unlock foreground_mtx
 
       ret
 
 ; State machine jump table
-configr_jp_tbl          .dw   app_start
-                        .dw   main_menu
-                        .dw   adjust_time
-                        .dw   hours_msg
-                        .dw   adjust_hours
-                        .dw   minutes_msg
-                        .dw   adjust_mins
-                        .dw   apply_time
-                        .dw   adjust_date
-                        .dw   year_msg
-                        .dw   adjust_year
-                        .dw   month_msg
-                        .dw   adjust_month
-                        .dw   day_msg
-                        .dw   adjust_day
-                        .dw   dow_msg
-                        .dw   adjust_dow
-                        .dw   apply_date
-                        .dw   exit_app
-#endlocal
+configr_jp_tbl          .dw   configr_app_start
+                        .dw   configr_main_menu
+                        .dw   configr_adjust_time
+                        .dw   configr_hours_msg
+                        .dw   configr_adjust_hours
+                        .dw   configr_minutes_msg
+                        .dw   configr_adjust_mins
+                        .dw   configr_apply_time
+                        .dw   configr_adjust_date
+                        .dw   configr_year_msg
+                        .dw   configr_adjust_year
+                        .dw   configr_month_msg
+                        .dw   configr_adjust_month
+                        .dw   configr_day_msg
+                        .dw   configr_adjust_day
+                        .dw   configr_dow_msg
+                        .dw   configr_adjust_dow
+                        .dw   configr_apply_date
+                        .dw   configr_exit_app
 
 configr_title           .text "CONFIGR", 0
 configr_menu_set_time   .text "SET TIME", 0
