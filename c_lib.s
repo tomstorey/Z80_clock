@@ -1,6 +1,5 @@
 #data RAM
 #code ROM
-      .align 0x100
 ;---------------------------------------------------------------------
 ;     memcpy                                                         :
 ;                                                                    :
@@ -18,16 +17,18 @@
 ; Returns                                                            :
 ;     Nothing                                                        :
 ;---------------------------------------------------------------------
+      .align 0x100
 memcpy:
       ld    A, B                    ; BC == 0?
       or    A, C
       ret   Z                       ; Yes if Z, return
 
       ldir                          ; while (BC != 0) {
-                                    ;   (DE) <- (HL)
-                                    ;   DE++, HL++, BC--
+                                    ;   (DE) <- (HL);
+                                    ;   DE++; HL++; BC--;
                                     ; }
       ret
+
 
 ;---------------------------------------------------------------------
 ;     strncpy                                                        :
@@ -52,6 +53,7 @@ memcpy:
 ; Returns                                                            :
 ;     Nothing                                                        :
 ;---------------------------------------------------------------------
+      .align 0x20
 strncpy:
 #local
       ld    A, B                    ; BC == 0?
@@ -59,7 +61,7 @@ strncpy:
       ret   Z                       ; Yes if Z, return
 
       ld    A, (HL)                 ; Load char from source
-      cp    A, 0                    ; Is it a zero?
+      or    A, A                    ; Is it a zero?
       jr    Z, zero_fill            ; Yes if Z, zero fill from here
 
       ld    (DE), A                 ; No, store char to dest
@@ -84,6 +86,7 @@ zero_fill:
       ret
 #endlocal
 
+
 ;---------------------------------------------------------------------
 ;     memset                                                         :
 ;                                                                    :
@@ -104,6 +107,7 @@ zero_fill:
 ; Destroys                                                           :
 ;     D                                                              :
 ;---------------------------------------------------------------------
+      .align 0x20
 memset:
 #local
       ld    D, A
