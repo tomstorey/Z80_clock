@@ -32,9 +32,9 @@ BTN_UP_BIT        .equ  0           ;    Up button bit
 BTN_DN_BIT        .equ  1           ;    Down button bit
 BTN_ENT_BIT       .equ  2           ;    Enter button bit
 BTN_ESC_BIT       .equ  3           ;    Escape button bit
-SW1_REG           .equ  0x09        ; Switches 1 (timezone 1)
-SW2_REG           .equ  0x0A        ; Switches 2 (timezone 2)
-SW3_REG           .equ  0x0B        ; Switches 3 (timezone 3)
+TZ_SW1_REG        .equ  0x09        ; Switches 1 (timezone 1)
+TZ_SW2_REG        .equ  0x0A        ; Switches 2 (timezone 2)
+TZ_SW3_REG        .equ  0x0B        ; Switches 3 (timezone 3)
 OUTPUT_REG        .equ  0x0C        ; Outputs, e.g. beeper
 
 ; RTC register addresses
@@ -63,20 +63,6 @@ RTC_CTRL_CFG      .equ  RTC_CTRL_RUN_BAT | RTC_CTRL_24HR
 DISP_DATA         .equ  0x20        ; Display data register
 DISP_CTRL         .equ  0x21        ; Display control register
 
-; SIO channel/register addresses
-SIO_BASE          .equ  0xFC
-SIO_A_DATA        .equ  SIO_BASE
-SIO_B_DATA        .equ  SIO_BASE+1
-SIO_A_CTL         .equ  SIO_BASE+2
-SIO_B_CTL         .equ  SIO_BASE+3
-
-; SIO channel configuration
-SIO_A_WR1               .equ  0
-SIO_A_WR3               .equ  SIO_WR3_RX_8 | SIO_WR3_RX_EN
-SIO_A_WR4               .equ  SIO_WR4_1_64_CLK | SIO_WR4_STOP_1
-SIO_A_WR5               .equ  SIO_WR5_TX_8 | SIO_WR5_TX_EN
-SIO_INT_VECT_BASE       .equ  SIO_BASE & 0xF0
-
 ;---------------------------------------------------------------------
 ;                         TASK/APP CONSTANTS                         :
 ;---------------------------------------------------------------------
@@ -89,36 +75,31 @@ TASK_BUTTON_RD          .equ  1     ; Button reader
 TASK_WD_POKE            .equ  2     ; Poke the watchdog
 APP_CLOCK               .equ  3     ; Clock application
 APP_CONFIGR             .equ  4     ; Configuration application
-TASK_SIO_RX             .equ  5     ; SIO data receiver
-TASK_DISPLAY            .equ  6     ; Display updater
+TASK_DISPLAY            .equ  5     ; Display updater
 
 ;---------------------------------------------------------------------
 ;                           MISCELLANEOUS                            :
 ;---------------------------------------------------------------------
 DEBUG_PORT              .equ  0xDE
 
-CONFIGR_APP_START       .equ  0
-CONFIGR_MAIN_MENU       .equ  0x01
-CONFIGR_ADJUST_TIME     .equ  0x02
-CONFIGR_HOURS_MSG       .equ  0x03
-CONFIGR_ADJUST_HOURS    .equ  0x04
-CONFIGR_MINUTES_MSG     .equ  0x05
-CONFIGR_ADJUST_MINS     .equ  0x06
-CONFIGR_APPLY_TIME      .equ  0x07
-CONFIGR_ADJUST_DATE     .equ  0x08
-CONFIGR_YEAR_MSG        .equ  0x09
-CONFIGR_ADJUST_YEAR     .equ  0x0A
-CONFIGR_MONTH_MSG       .equ  0x0B
-CONFIGR_ADJUST_MONTH    .equ  0x0C
-CONFIGR_DAY_MSG         .equ  0x0D
-CONFIGR_ADJUST_DAY      .equ  0x0E
-CONFIGR_DOW_MSG         .equ  0x0F
-CONFIGR_ADJUST_DOW      .equ  0x10
-CONFIGR_APPLY_DATE      .equ  0x11
-CONFIGR_EXIT            .equ  0x12
-
 ;---------------------------------------------------------------------
 ;                              MACROS                                :
+;---------------------------------------------------------------------
+
+;---------------------------------------------------------------------
+;     schedule_task                                                  :
+;                                                                    :
+; Description                                                        :
+;     Schedule a task to be run at the next iteration of the main    :
+;     loop.                                                          :
+;                                                                    :
+;     This is achieved by loading a positive value (the task number  :
+;     itself, which is used as an offset) into the task's scheduling :
+;     byte.                                                          :
+;                                                                    :
+; Parameters                                                         :
+;     task_num  Task number to schedule                              :
+;                                                                    :
 ;---------------------------------------------------------------------
 schedule_task .macro task_num
       push  HL
@@ -129,6 +110,20 @@ schedule_task .macro task_num
       pop   HL
       .endm
 
+
+;---------------------------------------------------------------------
+;     deschedule_task                                                :
+;                                                                    :
+; Description                                                        :
+;     De-schedule a task to prevent it from running during future    :
+;     iterations of the main loop.                                   :
+;                                                                    :
+;     This is achieved by loading a value of zero into the task's    :
+;     scheduling byte.                                               :
+;                                                                    :
+; Parameters                                                         :
+;     task_num  Task number to deschedule                            :
+;---------------------------------------------------------------------
 deschedule_task .macro task_num
       push  HL
 
@@ -138,6 +133,21 @@ deschedule_task .macro task_num
       pop   HL
       .endm
 
+
+
+;---------------------------------------------------------------------
+;     run_task                                                       :
+;                                                                    :
+; Description                                                        :
+;     Runs a task if it has been scheduled.                          :
+;                                                                    :
+;     A task is scheduled if its task scheduling byte contains any   :
+;     non-zero value.                                                :
+;                                                                    :
+; Parameters                                                         :
+;     task_num    Task number to run                                 :
+;     call_label  If scheduled, the label to CALL                    :
+;---------------------------------------------------------------------
 run_task .macro task_num, call_label
       ld    HL, task_sched+&task_num
       ld    A, (HL)
@@ -147,9 +157,16 @@ run_task .macro task_num, call_label
       .endm
 
 
-
-
-
+;---------------------------------------------------------------------
+;     set_state                                                      :
+;                                                                    :
+; Description                                                        :
+;     Update the value of a state machine variable.                  :
+;                                                                    :
+; Parameters                                                         :
+;     sm     Destination state machine variable                      :
+;     state  State to be loaded                                      :
+;---------------------------------------------------------------------
 set_state .macro sm, state
       push  AF
 
@@ -158,10 +175,6 @@ set_state .macro sm, state
 
       pop   AF
       .endm
-
-
-
-
 
 
 ;---------------------------------------------------------------------
@@ -356,19 +369,29 @@ sem_trywait .macro sem
 ;---------------------------------------------------------------------
 set_valid_btn_mask .macro mask
       push  AF
+      push  BC
 
-      ld    A, (btn_state)          ; Make all pressed buttons ack'd,
-      cp    A, 0                    ; but only if there are recognised
-      jr    Z, $+5                  ; button presses.
+      ld    A, (btn_state)          ; Ack all un-ack'd buttons by
+      ld    B, A                    ; OR'ing them with all ack'd
+      ld    A, (btn_ack)            ; buttons.
+      or    A, B
       ld    (btn_ack), A
 
       ld    A, &mask
       ld    (btn_valid), A          ; Load new mask
 
+      pop   BC
       pop   AF
       .endm
 
 
+;---------------------------------------------------------------------
+;     ack_btn                                                        :
+;                                                                    :
+; Description                                                        :
+;     Acknowledge a button press by setting its appropriate bit in   :
+;     the btn_ack variable.                                          :
+;---------------------------------------------------------------------
 ack_btn .macro button
       push  HL
 
@@ -379,6 +402,16 @@ ack_btn .macro button
       .endm
 
 
+;---------------------------------------------------------------------
+;     rtc_update_lock                                                :
+;                                                                    :
+; Description                                                        :
+;     Set the Update Transfer Inhibit bit of the RTC control         :
+;     register.                                                      :
+;                                                                    :
+;     Prevents the RTC from updating public registers while they are :
+;     being read by an application.                                  :
+;---------------------------------------------------------------------
 rtc_update_lock .macro
       push  AF
 
@@ -389,6 +422,16 @@ rtc_update_lock .macro
       .endm
 
 
+;---------------------------------------------------------------------
+;     rtc_update_unlock                                              :
+;                                                                    :
+; Description                                                        :
+;     Clear the Update Transfer Inhibit bit of the RTC control       :
+;     register.                                                      :
+;                                                                    :
+;     Allows the RTC to update public registers so that their new    :
+;     values may be read by an application.                          :
+;---------------------------------------------------------------------
 rtc_update_unlock .macro
       push  AF
 
@@ -397,7 +440,6 @@ rtc_update_unlock .macro
 
       pop   AF
       .endm
-
 
 
 ;---------------------------------------------------------------------
@@ -419,16 +461,19 @@ rtc_update_unlock .macro
 get_jp_table_entry .macro table
       push DE
 
-      ld    D, 0
+      ld    D, 0                    ; DE becomes offset by doubling A
       ld    E, A
       sla   E
       rl    D
+
       ld    HL, &table              ; HL = pointer to jump table
       add   HL, DE                  ; Add offset to pointer
-      ld    E, (HL)
+
+      ld    E, (HL)                 ; Load HL pair into DE
       inc   HL
       ld    D, (HL)
-      ex    DE, HL
+
+      ex    DE, HL                  ; DE becomes HL for return
 
       pop   DE
       .endm
