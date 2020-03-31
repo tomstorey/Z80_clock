@@ -51,12 +51,12 @@ configr_rtc_year        .db 0
 #code ROM
       .align 0x100
 configr_app
-      ; Check semaphore to determine if config app should run
-      sem_trywait configr_app_sem
-      ret   Z
-
       ; Try to lock the foreground mutex if it is available, or return
       mtx_trylock foreground_mtx, APP_CONFIGR
+      ret   Z
+
+      ; Check semaphore to determine if config app should run
+      sem_trywait configr_app_sem
       ret   Z
 
       ; Get jump table entry and jump to state

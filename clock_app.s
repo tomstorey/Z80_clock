@@ -76,12 +76,12 @@ row_flags               .db 0       ; Flags used during row work:
 #code ROM
       .align 0x100
 clock_app
-      ; Check semaphore to determine if clock app should run
-      sem_trywait clock_app_sem
-      ret   Z
-
       ; Try to lock the foreground mutex if it is available, or return
       mtx_trylock foreground_mtx, APP_CLOCK
+      ret   Z
+
+      ; Check semaphore to determine if clock app should run
+      sem_trywait clock_app_sem
       ret   Z
 
       ; Get jump table entry and jump to state
