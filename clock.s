@@ -338,11 +338,18 @@ init
 ;     Runs all scheduled tasks and applications.
       .align 0x100
 main_loop
+      ; Inputs
       run_task TASK_BUTTON_RD, button_rd_task
-      run_task TASK_DISPLAY, display_task
-      run_task TASK_WD_POKE, wd_poke_task
+
+      ; Applications
       run_task APP_CLOCK, clock_app
       run_task APP_CONFIGR, configr_app
+
+      ; Outputs
+      run_task TASK_DISPLAY, display_task
+
+      ; Other
+      run_task TASK_WD_POKE, wd_poke_task
 
       halt
 
@@ -372,7 +379,6 @@ btn_flags               .db 0       ; Button reader task flags
       .align 0x100
 button_rd_task
 #local
-
       ld    A, 0x01                 ; For extra button debouncing,
       ld    HL, btn_flags           ; only run task every other time.
       xor   A, (HL)                 ; Invert bit 0 of flags and test
