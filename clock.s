@@ -1,9 +1,8 @@
-#define serial_loading 1
+; #define serial_loading 1
 
 #target ROM
 #include "platform.inc"
 #include "ctc.inc"
-#include "sio.inc"
 #include "rtc.inc"
 #include "clock.inc"
 
@@ -20,38 +19,24 @@
       jp    proc_test
 
       .org ROM_BASE+0x8             ; RST1
-      ld    A, 0x08
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x10            ; RST2
-      ld    A, 0x10
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x18            ; RST3
-      ld    A, 0x18
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x20            ; RST4
-      ld    A, 0x20
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x28            ; RST5
-      ld    A, 0x28
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x30            ; RST6
-      ld    A, 0x30
-      out   (DEBUG_PORT), A
       halt
 
       .org ROM_BASE+0x38            ; RST7
-      ld    A, 0x38
-      out   (DEBUG_PORT), A
       halt
 
 
@@ -60,8 +45,6 @@
 ;---------------------------------------------------------------------
       .org ROM_BASE+0x66
 nmi_vector
-      ld    A, 0x66
-      out   (DEBUG_PORT), A
       halt
 
       .org VECTOR_INT_PG<<8
@@ -196,7 +179,6 @@ proc_test_err
 ;                                                                    :
 ;     !!! DESTROYS CONTENTS OF ENTIRE MEMORY BLOCK !!!               :
 ;---------------------------------------------------------------------
-      .align 0x100
 mem_test
 #local
       exx
@@ -279,22 +261,19 @@ staging_dp3             .db 0
 #code ROM
       .align 0x100
 init
-      ld    SP, RAM_BASE+RAM_SZ     ; SP to top of RAM
+
+      ld    SP, RAM_end             ; SP to top of RAM, below init'd
 
       ld    BC, _INITIALIZER_size   ; Copy initialised RAM from ROM
       ld    DE, _INITIALIZED
       ld    HL, _INITIALIZER
-
-      ld    A, B                    ; BC == 0?
-      or    A, C
-      jr    Z, $+4                  ; Skip if no initialised RAM
-      ldir                          ; Block transfer data
+      call  memcpy
 
       xor   A, A
       out   (DEBUG_PORT), A         ; Clear debug port display
 
-      ; Zeroise RAM
-      ld    BC, RAM_SZ-2            ; -2 to save return addr on stack
+      ; Zeroise RAM, -2 to save return addr on stack
+      ld    BC, RAM_size-2
       ld    HL, RAM_BASE
       call  memset
 
@@ -322,45 +301,6 @@ init
       ld    A, CTC_CH3_TCONST
       out   (CTC_CH3), A
 
-;---- Configure SIO channel A
-
-      ; Channel A reset
-      ld    C, SIO_A_CTL
-      ld    A, SIO_WR0_CMD_CH_RST
-      out   (C), A
-
-      ; Channel B WR2 - Interrupt vector
-      ld    C, SIO_B_CTL
-      ld    A, SIO_WR0_REG2
-      ld    B, SIO_INT_VECT_BASE
-      out   (C), A
-      out   (C), B
-
-      ; Channel A WR4 - parity, async mode, clock rate
-      ld    C, SIO_A_CTL
-      ld    A, SIO_WR0_REG4 | SIO_WR0_CMD_RST_EXT
-      ld    B, SIO_A_WR4
-      out   (C), A
-      out   (C), B
-
-      ; Channel A WR5 - TX enable, 8 bit
-      ld    A, SIO_WR0_REG5
-      ld    B, SIO_A_WR5
-      out   (C), A
-      out   (C), B
-
-      ; Channel A WR3 - RX enable, 8 bit
-      ld    A, SIO_WR0_REG3
-      ld    B, SIO_A_WR3
-      out   (C), A
-      out   (C), B
-
-      ; Channel A WR1
-      ld    A, SIO_WR0_REG1 | SIO_WR0_CMD_RST_EXT
-      ld    B, SIO_A_WR1
-      out   (C), A
-      out   (C), B
-
 ;---- Configure the RTC
       ld    A, RTC_RATES_CFG        ; WD and periodic int rates
       out   (RTC_RATES), A
@@ -385,35 +325,28 @@ init
       ei
 
       ; Set display to dimmed
-      ld    A, 0x01
+      ld    A, 0
       ld    (disp_dim), A
 
 ;---- Schedule applications to run
       schedule_task APP_CLOCK
       schedule_task APP_CONFIGR
 
+      jp    main_loop
+
+;---- Main application loop
+;     Runs all scheduled tasks and applications.
+      .align 0x100
 main_loop
       run_task TASK_BUTTON_RD, button_rd_task
-
       run_task TASK_DISPLAY, display_task
-
       run_task TASK_WD_POKE, wd_poke_task
-      run_task TASK_SIO_RX, sio_a_rx_isr
-
       run_task APP_CLOCK, clock_app
       run_task APP_CONFIGR, configr_app
-
-;       ld    A, (configr_app_sem)
-;       out   (DEBUG_PORT), A
 
       halt
 
       jr    main_loop
-
-
-
-
-
 
 
 ;---------------------------------------------------------------------
@@ -485,12 +418,28 @@ button_rd_task
 display_ctr             .db 0       ; Counter for current character
 display_status          .db 0       ; Display updater status register
 display_syncd           .db 0       ; If zero, working == staging
+display_effect          .db 0       ; Display update effect:
+                                    ; LSb 0: DSKY effect
+                                    ; Anything else, no effect
 
 #code ROM
       .align 0x100
 display_task
 #local
-      ld    HL, display_status
+      ld    A, (display_effect)
+      bit   0, A
+      jr    NZ, dsky_effect
+
+      ; No effect - copy the staging buffers to working buffers
+      ld    BC, 27
+      ld    DE, display_row1
+      ld    HL, staging_row1
+      call  memcpy
+
+      jr    done
+
+dsky_effect
+      ld    HL, display_status      ; Skip every other iteration
       ld    A, (HL)
       xor   A, 0x01
       ld    (HL), A
@@ -525,7 +474,6 @@ display_task
       ld    (HL), A
 
 done
-
       deschedule_task TASK_DISPLAY
 
       ret
@@ -556,54 +504,10 @@ wd_poke_task
 #endlocal
 
 
-
-
-
 #include "clock_app.s"
 #include "configr_app.s"
 #include "ctc_isr.s"
 #include "c_lib.s"
 
-
-
-
-
-
-
-#data RAM
-rx_ctr                  .db 0       ; Number of chars received, mod 24
-
-#code ROM
-      .align 0x100
-sio_a_rx_isr
-#local
-      in    A, (SIO_A_CTL)          ; Any chars waiting?
-      bit   SIO_RR0_RX_AVAIL, A
-      ret   Z                       ; No if Z, return
-
-      ld    A, (rx_ctr)             ; Load receive counter
-      ld    B, A                    ; Save copy for later
-
-      ld    D, 0                    ; DE becomes offset
-      ld    E, A
-
-      ld    HL, display_row1        ; HL is pointer to display buffer
-      add   HL, DE                  ; Add offset to pointer
-
-      in    A, (SIO_A_DATA)         ; Load waiting byte
-      ld    (HL), A                 ; Put received byte into buffer
-
-      ld    A, B                    ; Increment receive counter
-      inc   A
-      cp    A, 24                   ; Receive counter == 24?
-      jr    NZ, done
-
-      xor   A, A                    ; Reset receive counter to 0
-
-done
-      ld    (rx_ctr), A             ; Store updated receive counter
-
-      ret
-#endlocal
 
       .end
