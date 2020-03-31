@@ -553,8 +553,7 @@ check2
       ld    (row_flags), A
       pop   BC                      ; No longer needed
 
-
-      jp    check_for_dst
+      jp    display_row
 
 
 ;---- DST check #3: Progressively check start conditions -------------
@@ -604,7 +603,7 @@ check3_match_day
       ; 3. Day of month is greater than start day, DST in effect
       cp    A, B
       jr    Z, check3_day_equal     ; Maybe in effect
-      jr    NC, check_for_dst       ; Less than, not in effect
+      jr    NC, display_row         ; Less than, not in effect
 
       ; Day is greater than start day, DST is IN EFFECT. Set remaining
       ; match flags
@@ -622,7 +621,7 @@ check3_day_equal
       ld    B, (IX+9)               ; Load start hour from TZ ROM
 
       cp    A, B
-      jr    C, check_for_dst        ; Hour is less than start, no DST
+      jr    C, display_row          ; Hour is less than start, no DST
 
       set   0, (HL)                 ; Hour matches, set match flag
 
@@ -632,9 +631,10 @@ check3_day_equal
 ;---- DST check #4: Progressively check end conditions ---------------
 check_end_cond
       pop   BC                      ; POP but dont PUSH again
+      ld    A, (clock_tz_mon)
 
       cp    A, C                    ; In end month?
-      jr    NZ, check_for_dst       ; No if NZ (should have been?)
+      jr    NZ, display_row         ; No if NZ (should have been?)
 
       ; Yes - In end month
       ld    A, (clock_tz_mon)
@@ -653,7 +653,7 @@ check_end_cond
 
 check4_last_sun
       bit   1, C                    ; If bit 1 of the start options
-      jr    Z, check_for_dst        ; was set, find the day number of
+      jr    Z, display_row          ; was set, find the day number of
       call  find_last_sunday        ; the last Sunday of the month. If
                                     ; bit 1 not set, some other bit is
                                     ; and that is unhandled (no DST).
@@ -692,10 +692,10 @@ check4_day_equal
       xor   A, A
 
       cp    A, B
-      jr    Z, check_for_dst
-      jr    NC, check_for_dst
+      jr    Z, display_row          ; cur_hour == end_hour, no DST
+      jr    NC, display_row         ; cur_hour > end_hour, no DST
 
-      set   0, (HL)                 ; Hour <=, set match flag
+      set   0, (HL)                 ; Hour <, set match flag
 
 
 ;---- Check DST match flags ------------------------------------------
