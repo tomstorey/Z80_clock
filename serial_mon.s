@@ -123,10 +123,9 @@ main
       out   (C), B
 
 ;----
-      ld    A, 0                    ; Zeroise RAM
+      xor   A, A                    ; Zeroise RAM
       ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
       ld    HL, RAM
-
       call  memset
 
       ld    A, '@'                  ; Send "Im here"
@@ -291,7 +290,6 @@ exec_cmd
       ld    HL, rx_ctr              ; Increment rx_ctr
       inc   (HL)
       ld    A, (HL)
-      out   (DEBUG_PORT), A
 
       cp    A, 0x02                 ; Received 2 header bytes?
       jp    NZ, rx_task             ; No if NZ

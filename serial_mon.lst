@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "serial_mon.s"
-              	; date: 2020-03-11 09:38:10
+              	; date: 2020-04-01 08:46:02
               	; --------------------------------------
 
 
@@ -252,19 +252,18 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0142: ED41    	      out   (C), B
               	
               	;----
-0144: 3E00    	      ld    A, 0                    ; Zeroise RAM
-0146: 01FE00  	      ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
-0149: 21007F  	      ld    HL, RAM
+0144: AF      	      xor   A, A                    ; Zeroise RAM
+0145: 01FE00  	      ld    BC, RAM_size-2          ; -2 to keep ret addr on stack
+0148: 21007F  	      ld    HL, RAM
+014B: CD4003  	      call  memset
               	
-014C: CD1D03  	      call  memset
+014E: 3E40    	      ld    A, '@'                  ; Send "Im here"
+0150: D3FC    	      out   (SIO_A_DATA), A
               	
-014F: 3E40    	      ld    A, '@'                  ; Send "Im here"
-0151: D3FC    	      out   (SIO_A_DATA), A
+0152:         	main_loop
+0152: CD0002  	      call  rx_task
               	
-0153:         	main_loop
-0153: CD0002  	      call  rx_task
-              	
-0156: 18FB    	      jr    main_loop
+0155: 18FB    	      jr    main_loop
               	
               	
               	#data RAM
@@ -282,8 +281,8 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 7F14: 00...   	
               	
               	#code ROM
-0158: FFFFFFFF	      .align 0x100
-015C: FF...   	
+0157: FFFFFFFF	      .align 0x100
+015B: FF...   	
 0200:         	rx_task
               	#local
 0200: DBFE    	      in    A, (SIO_A_CTL)          ; Any chars waiting?
@@ -321,7 +320,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0229: FE03    	      cp    A, 0x03                 ; Load into memory command
 022B: 282D    	      jr    Z, write_cmd
 022D: FE04    	      cp    A, 0x04                 ; Execute
-022F: 286F    	      jr    Z, exec_cmd
+022F: 2872    	      jr    Z, exec_cmd
               	
               	      ; Invalid command, reset state
 0231:         	end_command
@@ -363,7 +362,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
 025E: 3A027F  	      ld    A, (rx_ctr)             ; Received all header bytes?
 0261: FE04    	      cp    A, 0x04
-0263: 201C    	      jr    NZ, write_cmd_hdr_byte  ; No if NZ, store into buffer
+0263: 201F    	      jr    NZ, write_cmd_hdr_byte  ; No if NZ, store into buffer
               	
               	      ; Place bytes into memory from here
 0265: 78      	      ld    A, B                    ; Restore RX'd byte
@@ -378,88 +377,88 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0270: ED43037F	      ld    (rx_BC), BC
 0274: 22057F  	      ld    (rx_HL), HL
               	
-0277: 78      	      ld    A, B                    ; BC == 0?
-0278: B1      	      or    A, C
-0279: 2085    	      jr    NZ, rx_task             ; No if NZ, more bytes to come
+0277: 7D      	      ld    A, L
+0278: D3FC    	      out   (SIO_A_DATA), A
               	
-027B: 3E21    	      ld    A, '!'                  ; Send command complete to host
-027D: D3FC    	      out   (SIO_A_DATA), A
+027A: 78      	      ld    A, B                    ; BC == 0?
+027B: B1      	      or    A, C
+027C: 2082    	      jr    NZ, rx_task             ; No if NZ, more bytes to come
               	
-027F: 18B0    	      jr    end_command
+027E: 3E21    	      ld    A, '!'                  ; Send command complete to host
+0280: D3FC    	      out   (SIO_A_DATA), A
               	
-0281:         	write_cmd_hdr_byte
-0281: 21107F  	      ld    HL, rx_buf              ; Increment HL by rx_ctr
-0284: 85      	      add   A, L
-0285: 6F      	      ld    L, A
+0282: 18AD    	      jr    end_command
               	
-0286: 70      	      ld    (HL), B                 ; Store B into (HL)
+0284:         	write_cmd_hdr_byte
+0284: 21107F  	      ld    HL, rx_buf              ; Increment HL by rx_ctr
+0287: 85      	      add   A, L
+0288: 6F      	      ld    L, A
               	
-0287: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
-028A: 34      	      inc   (HL)
-028B: 7E      	      ld    A, (HL)
+0289: 70      	      ld    (HL), B                 ; Store B into (HL)
               	
-028C: FE04    	      cp    A, 0x04                 ; Received 4 header bytes?
-028E: C20002  	      jp    NZ, rx_task             ; No if NZ
+028A: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+028D: 34      	      inc   (HL)
+028E: 7E      	      ld    A, (HL)
               	
-0291: 2A107F  	      ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
-0294: 22037F  	      ld    (rx_BC), HL
-0297: 2A127F  	      ld    HL, (rx_buf+2)          ; Xfer working HL out of rx_buf
-029A: 22057F  	      ld    (rx_HL), HL
+028F: FE04    	      cp    A, 0x04                 ; Received 4 header bytes?
+0291: C20002  	      jp    NZ, rx_task             ; No if NZ
               	
-029D: C30002  	      jp    rx_task
+0294: 2A107F  	      ld    HL, (rx_buf)            ; Xfer working BC out of rx_buf
+0297: 22037F  	      ld    (rx_BC), HL
+029A: 2A127F  	      ld    HL, (rx_buf+2)          ; Xfer working HL out of rx_buf
+029D: 22057F  	      ld    (rx_HL), HL
+              	
+02A0: C30002  	      jp    rx_task
               	
               	
-02A0:         	exec_cmd
-02A0: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
-02A2: 2898    	      jr    Z, start_command        ; No if Z, start
+02A3:         	exec_cmd
+02A3: CB46    	      bit   RX_CMD, (HL)            ; Command executing?
+02A5: 2895    	      jr    Z, start_command        ; No if Z, start
               	
-02A4: 3A027F  	      ld    A, (rx_ctr)             ; Increment HL by rx_ctr
-02A7: 21107F  	      ld    HL, rx_buf
-02AA: 85      	      add   A, L
-02AB: 6F      	      ld    L, A
+02A7: 3A027F  	      ld    A, (rx_ctr)             ; Increment HL by rx_ctr
+02AA: 21107F  	      ld    HL, rx_buf
+02AD: 85      	      add   A, L
+02AE: 6F      	      ld    L, A
               	
-02AC: 70      	      ld    (HL), B                 ; Store B into (HL)
+02AF: 70      	      ld    (HL), B                 ; Store B into (HL)
               	
-02AD: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
-02B0: 34      	      inc   (HL)
-02B1: 7E      	      ld    A, (HL)
-02B2: D3DE    	      out   (DEBUG_PORT), A
+02B0: 21027F  	      ld    HL, rx_ctr              ; Increment rx_ctr
+02B3: 34      	      inc   (HL)
+02B4: 7E      	      ld    A, (HL)
               	
-02B4: FE02    	      cp    A, 0x02                 ; Received 2 header bytes?
-02B6: C20002  	      jp    NZ, rx_task             ; No if NZ
+02B5: FE02    	      cp    A, 0x02                 ; Received 2 header bytes?
+02B7: C20002  	      jp    NZ, rx_task             ; No if NZ
               	
-02B9: 2A107F  	      ld    HL, (rx_buf)            ; Load HL and jump
+02BA: 2A107F  	      ld    HL, (rx_buf)            ; Load HL and jump
               	
-02BC: 3E2B    	      ld    A, '+'                  ; Send command complete to host
-02BE: D3FC    	      out   (SIO_A_DATA), A
+02BD: 3E2B    	      ld    A, '+'                  ; Send command complete to host
+02BF: D3FC    	      out   (SIO_A_DATA), A
               	
               	      ; Wait until all TX buffers are completely empty, then reset
               	      ; both SIO channels, then jump to exec address.
-02C0: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
-02C2: 0EFE    	      ld    C, SIO_A_CTL
+02C1: 3E01    	      ld    A, SIO_WR0_REG1         ; Setup RR1
+02C3: 0EFE    	      ld    C, SIO_A_CTL
               	
-02C4:         	exec_cmd_wait_tx
-02C4: ED79    	      out   (C), A
-02C6: ED40    	      in    B, (C)                  ; Read RR1
-02C8: CB40    	      bit   0, B                    ; Is bit 0 set?
-02CA: 28F8    	      jr    Z, exec_cmd_wait_tx     ; No, wait some more
+02C5:         	exec_cmd_wait_tx
+02C5: ED79    	      out   (C), A
+02C7: ED40    	      in    B, (C)                  ; Read RR1
+02C9: CB40    	      bit   0, B                    ; Is bit 0 set?
+02CB: 28F8    	      jr    Z, exec_cmd_wait_tx     ; No, wait some more
               	
-02CC: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
-02CE: D3FE    	      out   (SIO_A_CTL), A
-02D0: D3FF    	      out   (SIO_B_CTL), A
+02CD: 3E18    	      ld    A, SIO_WR0_CMD_CH_RST   ; SIO channel A and B full reset
+02CF: D3FE    	      out   (SIO_A_CTL), A
+02D1: D3FF    	      out   (SIO_B_CTL), A
               	
-02D2: E9      	      jp    (HL)                    ; Execute
+02D3: E9      	      jp    (HL)                    ; Execute
               	#endlocal
               	
               	
               	#code ROM
-02D3: FFFFFFFF	      .align 0x100
-02D7: FF...   	
+02D4: FFFFFFFF	      .align 0x100
+02D8: FF...   	
               	#include "c_lib.s"
               	#data RAM
-              	
               	#code ROM
-              	      .align 0x100
               	;---------------------------------------------------------------------
               	;     memcpy                                                         :
               	;                                                                    :
@@ -476,20 +475,19 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;                                                                    :
               	; Returns                                                            :
               	;     Nothing                                                        :
-              	;                                                                    :
-              	; Destroys                                                           :
-              	;     A                                                              :
               	;---------------------------------------------------------------------
+              	      .align 0x100
 0300:         	memcpy:
 0300: 78      	      ld    A, B                    ; BC == 0?
 0301: B1      	      or    A, C
 0302: C8      	      ret   Z                       ; Yes if Z, return
               	
 0303: EDB0    	      ldir                          ; while (BC != 0) {
-              	                                    ;   (DE) <- (HL)
-              	                                    ;   DE++, HL++, BC--
+              	                                    ;   (DE) <- (HL);
+              	                                    ;   DE++; HL++; BC--;
               	                                    ; }
 0305: C9      	      ret
+              	
               	
               	;---------------------------------------------------------------------
               	;     strncpy                                                        :
@@ -513,41 +511,41 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;                                                                    :
               	; Returns                                                            :
               	;     Nothing                                                        :
-              	;                                                                    :
-              	; Destroys                                                           :
-              	;     A                                                              :
               	;---------------------------------------------------------------------
-0306:         	strncpy:
+0306: FFFFFFFF	      .align 0x20
+030A: FF...   	
+0320:         	strncpy:
               	#local
-0306: 78      	      ld    A, B                    ; BC == 0?
-0307: B1      	      or    A, C
-0308: C8      	      ret   Z                       ; Yes if Z, return
+0320: 78      	      ld    A, B                    ; BC == 0?
+0321: B1      	      or    A, C
+0322: C8      	      ret   Z                       ; Yes if Z, return
               	
-0309: 7E      	      ld    A, (HL)                 ; Load char from source
-030A: FE00    	      cp    A, 0                    ; Is it a zero?
-030C: 2806    	      jr    Z, zero_fill            ; Yes if Z, zero fill from here
+0323: 7E      	      ld    A, (HL)                 ; Load char from source
+0324: B7      	      or    A, A                    ; Is it a zero?
+0325: 2806    	      jr    Z, zero_fill            ; Yes if Z, zero fill from here
               	
-030E: 12      	      ld    (DE), A                 ; No, store char to dest
+0327: 12      	      ld    (DE), A                 ; No, store char to dest
               	
-030F: 0B      	      dec   BC                      ; Dec byte count
-0310: 13      	      inc   DE                      ; Inc dest pointer
-0311: 23      	      inc   HL                      ; Inc source pointer
+0328: 0B      	      dec   BC                      ; Dec byte count
+0329: 13      	      inc   DE                      ; Inc dest pointer
+032A: 23      	      inc   HL                      ; Inc source pointer
               	
-0312: 18F2    	      jr    strncpy                 ; Next char
+032B: 18F3    	      jr    strncpy                 ; Next char
               	
-0314:         	zero_fill:
-0314: AF      	      xor   A, A                    ; Store 0 into DE
-0315: 12      	      ld    (DE), A
+032D:         	zero_fill:
+032D: AF      	      xor   A, A                    ; Store 0 into DE
+032E: 12      	      ld    (DE), A
               	
-0316: 0B      	      dec   BC                      ; Dec byte count
-0317: 13      	      inc   DE                      ; Inc dest pointer
+032F: 0B      	      dec   BC                      ; Dec byte count
+0330: 13      	      inc   DE                      ; Inc dest pointer
               	
-0318: 78      	      ld    A, B                    ; BC == 0?
-0319: B1      	      or    A, C
-031A: 20F8    	      jr    NZ, zero_fill           ; No if NZ, fill next char
+0331: 78      	      ld    A, B                    ; BC == 0?
+0332: B1      	      or    A, C
+0333: 20F8    	      jr    NZ, zero_fill           ; No if NZ, fill next char
               	
-031C: C9      	      ret
+0335: C9      	      ret
               	#endlocal
+              	
               	
               	;---------------------------------------------------------------------
               	;     memset                                                         :
@@ -569,22 +567,26 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	; Destroys                                                           :
               	;     D                                                              :
               	;---------------------------------------------------------------------
-031D:         	memset:
+0336: FFFFFFFF	      .align 0x20
+033A: FF...   	
+0340:         	memset:
               	#local
-031D: 57      	      ld    D, A
+0340: 57      	      ld    D, A
               	
-031E:         	next:
-031E: 78      	      ld    A, B                    ; BC == 0?
-031F: B1      	      or    A, C
-0320: C8      	      ret   Z                       ; Yes if Z, return
+0341:         	next:
+0341: 78      	      ld    A, B                    ; BC == 0?
+0342: B1      	      or    A, C
+0343: C8      	      ret   Z                       ; Yes if Z, return
               	
-0321: 72      	      ld    (HL), D                 ; Set
+0344: 72      	      ld    (HL), D                 ; Set
               	
-0322: 0B      	      dec   BC                      ; Dec byte count
-0323: 23      	      inc   HL                      ; Inc dest pointer
+0345: 0B      	      dec   BC                      ; Dec byte count
+0346: 23      	      inc   HL                      ; Inc dest pointer
               	
-0324: 18F8    	      jr    next
+0347: 18F8    	      jr    next
               	#endlocal
+              	
+              	; END c_lib.s
               	
               	      .end
 
@@ -612,7 +614,7 @@ ROM_BASE            = $0000 =     0          platform.inc:20
 ROM_SZ              = $6000 = 24576          platform.inc:21 (unused)
 ROM_end             = $2000 =  8192  ROM     sio.inc:1 (unused)
 ROM_size            = $2000 =  8192  ROM     sio.inc:1 (unused)
-RX_CMD              = $0000 =     0  RAM     serial_mon.s:143
+RX_CMD              = $0000 =     0  RAM     serial_mon.s:142
 SIO_A_CTL           = $00FE =   254          sio.inc:4
 SIO_A_DATA          = $00FC =   252          sio.inc:2
 SIO_A_WR1           = $0000 =     0          serial_mon.s:8
@@ -690,40 +692,40 @@ TZ_ROM_BASE         = $C000 = 49152          platform.inc:27 (unused)
 TZ_ROM_SZ           = $2000 =  8192          platform.inc:28 (unused)
 VECTOR_INT_PG       = $0001 =     1          serial_mon.s:13
 main                = $0100 =   256  ROM     serial_mon.s:72
-main_loop           = $0153 =   339  ROM     serial_mon.s:135
-memcpy              = $0300 =   768  ROM     c_lib.s:25 (unused)
-memset              = $031D =   797  ROM     c_lib.s:114
+main_loop           = $0152 =   338  ROM     serial_mon.s:134
+memcpy              = $0300 =   768  ROM     c_lib.s:21 (unused)
+memset              = $0340 =   832  ROM     c_lib.s:111
 nmi_vector          = $0066 =   102  ROM     serial_mon.s:65 (unused)
-rx_BC               = $7F03 = 32515  RAM     serial_mon.s:147
-rx_HL               = $7F05 = 32517  RAM     serial_mon.s:148
-rx_buf              = $7F10 = 32528  RAM     serial_mon.s:151
-rx_command          = $7F01 = 32513  RAM     serial_mon.s:145
-rx_ctr              = $7F02 = 32514  RAM     serial_mon.s:146
-rx_flags            = $7F00 = 32512  RAM     serial_mon.s:142
-rx_task             = $0200 =   512  ROM     serial_mon.s:155
-strncpy             = $0306 =   774  ROM     c_lib.s:62
+rx_BC               = $7F03 = 32515  RAM     serial_mon.s:146
+rx_HL               = $7F05 = 32517  RAM     serial_mon.s:147
+rx_buf              = $7F10 = 32528  RAM     serial_mon.s:150
+rx_command          = $7F01 = 32513  RAM     serial_mon.s:144
+rx_ctr              = $7F02 = 32514  RAM     serial_mon.s:145
+rx_flags            = $7F00 = 32512  RAM     serial_mon.s:141
+rx_task             = $0200 =   512  ROM     serial_mon.s:154
+strncpy             = $0320 =   800  ROM     c_lib.s:57
 
 ; +++ local symbols +++
 
-continue           = $0216 =   534  ROM     serial_mon.s:175
-end_command        = $0231 =   561  ROM     serial_mon.s:195
-exec_cmd           = $02A0 =   672  ROM     serial_mon.s:280
-exec_cmd_wait_tx   = $02C4 =   708  ROM     serial_mon.s:309
-new_command        = $0225 =   549  ROM     serial_mon.s:186
-ping_cmd           = $0248 =   584  ROM     serial_mon.s:212
-ping_cmd_wait_tx   = $0250 =   592  ROM     serial_mon.s:220
-start_command      = $023C =   572  ROM     serial_mon.s:203
-write_cmd          = $025A =   602  ROM     serial_mon.s:228
-write_cmd_hdr_byte = $0281 =   641  ROM     serial_mon.s:258
+continue           = $0216 =   534  ROM     serial_mon.s:174
+end_command        = $0231 =   561  ROM     serial_mon.s:194
+exec_cmd           = $02A3 =   675  ROM     serial_mon.s:282
+exec_cmd_wait_tx   = $02C5 =   709  ROM     serial_mon.s:310
+new_command        = $0225 =   549  ROM     serial_mon.s:185
+ping_cmd           = $0248 =   584  ROM     serial_mon.s:211
+ping_cmd_wait_tx   = $0250 =   592  ROM     serial_mon.s:219
+start_command      = $023C =   572  ROM     serial_mon.s:202
+write_cmd          = $025A =   602  ROM     serial_mon.s:227
+write_cmd_hdr_byte = $0284 =   644  ROM     serial_mon.s:260
 
 ; +++ local symbols +++
 
-zero_fill = $0314 =   788  ROM     c_lib.s:80
+zero_fill = $032D =   813  ROM     c_lib.s:75
 
 ; +++ local symbols +++
 
-next    = $031E =   798  ROM     c_lib.s:118
+next    = $0341 =   833  ROM     c_lib.s:115
 
 
-total time: 0.0099 sec.
+total time: 0.0101 sec.
 no errors
