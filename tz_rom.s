@@ -1,5 +1,8 @@
 #target ROM
 #code ROM, 0, 8192
+
+;     Correct as of Tue 31 Mar 2020
+
       .org 0
 ;---- Entry 0
 ;     This entry is reserved for blanking display lines
@@ -63,17 +66,17 @@
       .text "LON", 0
 
       .db 0x00
-      .db 0x00
+      .db 0x00          ; 0 hours offset from UTC
 
-      .db 0x03
+      .db 0x03          ; DST starts in March
       .db 0x00
-      .db 0x01
-      .db %00000010
+      .db 0x01          ; at 1am
+      .db %00000010     ; on last Sunday of month
 
-      .db 0x10
+      .db 0x10          ; DST ends in October
       .db 0x00
-      .db 0x02
-      .db %00000010
+      .db 0x02          ; at 2am
+      .db %00000010     ; on last Sunday of month
 
 ;---- Entry 3: Sydney timezone ---------------------------------------
       .align 0x20
@@ -82,17 +85,17 @@
       .text "SYD", 0
 
       .db 0x00
-      .db 0x10
+      .db 0x10          ; 10 hours offset from UTC
 
-      .db 0x10
+      .db 0x10          ; DST starts in October
       .db 0x00
-      .db 0x02
-      .db %00000001
+      .db 0x02          ; at 2am
+      .db %00000001     ; on first Sunday of month
 
-      .db 0x04
+      .db 0x04          ; DST ends in April
       .db 0x00
-      .db 0x03
-      .db %00000001
+      .db 0x03          ; at 3am
+      .db %00000001     ; on first Sunday of month
 
 ;---- Entry 4: Los Angeles timezone ----------------------------------
       .align 0x20
@@ -101,14 +104,14 @@
       .text "LAX", 0
 
       .db 0x00
-      .db 0x92
+      .db 0x92          ; -8 hours offset from UTC
 
-      .db 0x03
+      .db 0x03          ; DST starts in March
       .db 0x00
-      .db 0x02
-      .db %00000100
+      .db 0x02          ; at 2am
+      .db %00000100     ; on second Sunday of month
 
-      .db 0x11
+      .db 0x11          ; DST ends in November
       .db 0x00
-      .db 0x02
-      .db %00000001
+      .db 0x02          ; at 2am
+      .db %00000001     ; on first Sunday of month
