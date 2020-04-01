@@ -68,6 +68,18 @@ Semaphores can be used to signal one piece of code from another piece of code. A
 
 Mutexes are used to lock resouces so that only one piece of code may use them at any one time. A particular use of mutexes in this clock is to determine which application "owns the foreground", or in other words, who can write to display buffers and read button states. The first application to acquire the foreground mutex can then hold onto it for as long as it wants (usually until the user presses the Esc button to switch between the clock and the configr apps).
 
+### Utilities
+
+There are a couple of small Python based utilities included as well, which were used during development, and in conjunction with `serial_mon.s`:
+
+`loader.py` is used to load a `.rom` (i.e. binary) file into RAM and optionally execute it. This tool was used heavily and has had the most development. Each time I would build a new version of the clock software I would hit the reset button and use this tool to load the code into RAM and execute it.
+
+`execer.py` is essentially the execute portion of the above, and simply tells the serial monitor to jump to a certain address. Could be used after a reset to simply re-execute the code without having to reload it.
+
+`sender.py` is used to send bytes, and was used mostly during development of the serial monitor itself.
+
+`reader.py` was intended to provide an ability to read back a portion of memory, but is in an unknown state at this time and the matching functionality is not implemented in the current serial loader.
+
 ## Hardware designs/schematics
 Hardware is still a small work in progress, but is largely complete, correct, and at the very least is functional.
 
