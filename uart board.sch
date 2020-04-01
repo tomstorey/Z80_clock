@@ -4843,6 +4843,8 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <part name="P+6" library="supply1" deviceset="+5V" device=""/>
 <part name="P+7" library="supply1" deviceset="+5V" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
+<part name="R7" library="rcl" deviceset="R-EU_" device="0207/10"/>
+<part name="P+8" library="supply1" deviceset="+5V" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4907,9 +4909,9 @@ FC-FF</text>
 <attribute name="NAME" x="106.68" y="93.218" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="109.474" y="91.059" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="BUS" gate="-15" x="109.22" y="68.58" smashed="yes" rot="MR0">
-<attribute name="NAME" x="106.68" y="67.818" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="109.474" y="65.659" size="1.778" layer="96" rot="MR0"/>
+<instance part="BUS" gate="-15" x="109.22" y="71.12" smashed="yes" rot="MR0">
+<attribute name="NAME" x="106.68" y="70.358" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="109.474" y="68.199" size="1.778" layer="96" rot="MR0"/>
 </instance>
 <instance part="BUS" gate="-16" x="276.86" y="109.22" smashed="yes">
 <attribute name="NAME" x="279.4" y="108.458" size="1.778" layer="95"/>
@@ -5103,6 +5105,13 @@ FC-FF</text>
 <instance part="GND5" gate="1" x="101.6" y="7.62" smashed="yes">
 <attribute name="VALUE" x="99.06" y="5.08" size="1.778" layer="96"/>
 </instance>
+<instance part="R7" gate="G$1" x="114.3" y="60.96" smashed="yes" rot="R90">
+<attribute name="NAME" x="112.8014" y="57.15" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="117.602" y="57.15" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="P+8" gate="1" x="106.68" y="58.42" smashed="yes">
+<attribute name="VALUE" x="104.14" y="53.34" size="1.778" layer="96" rot="R90"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -5253,6 +5262,13 @@ FC-FF</text>
 <wire x1="99.06" y1="27.94" x2="101.6" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="27.94" x2="101.6" y2="30.48" width="0.1524" layer="91"/>
 <junction x="101.6" y="30.48"/>
+</segment>
+<segment>
+<pinref part="P+8" gate="1" pin="+5V"/>
+<wire x1="106.68" y1="55.88" x2="106.68" y2="53.34" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="53.34" x2="114.3" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R7" gate="G$1" pin="1"/>
+<wire x1="114.3" y1="53.34" x2="114.3" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$2" class="0">
@@ -5611,11 +5627,15 @@ FC-FF</text>
 <label x="152.4" y="50.8" size="1.27" layer="95"/>
 </segment>
 </net>
-<net name="N$28" class="0">
+<net name="N$27" class="0">
 <segment>
-<pinref part="IC1" gate="1" pin="IEO"/>
-<wire x1="116.84" y1="68.58" x2="111.76" y2="68.58" width="0.1524" layer="91"/>
 <pinref part="BUS" gate="-15" pin="S"/>
+<pinref part="IC1" gate="1" pin="IEI"/>
+<wire x1="111.76" y1="71.12" x2="114.3" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R7" gate="G$1" pin="2"/>
+<wire x1="114.3" y1="71.12" x2="116.84" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="66.04" x2="114.3" y2="71.12" width="0.1524" layer="91"/>
+<junction x="114.3" y="71.12"/>
 </segment>
 </net>
 </nets>
