@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "clock.s"
-              	; date: 2020-04-02 15:21:58
+              	; date: 2020-04-03 10:39:56
               	; --------------------------------------
 
 
@@ -128,16 +128,23 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0004:         	WDT_POKE          .equ  0x04
               	
               	; Buttons and switches
-0008:         	BTN_REG           .equ  0x08        ; Buttons
-0001:         	BTN_UP            .equ  0x01        ;    Up button mask
-0002:         	BTN_DN            .equ  0x02        ;    Down button mask
-0004:         	BTN_ENT           .equ  0x04        ;    Enter button mask
-0008:         	BTN_ESC           .equ  0x08        ;    Escape button mask
-000F:         	BTN_ALL           .equ  0x0F        ;    All buttons mask
-0000:         	BTN_UP_BIT        .equ  0           ;    Up button bit
-0001:         	BTN_DN_BIT        .equ  1           ;    Down button bit
-0002:         	BTN_ENT_BIT       .equ  2           ;    Enter button bit
-0003:         	BTN_ESC_BIT       .equ  3           ;    Escape button bit
+0008:         	BTN_REG           .equ  0x08        ; Buttons/switches
+              	                                    ;   Masks
+0001:         	BTN_UP            .equ  0x01        ;     Up button
+0002:         	BTN_DN            .equ  0x02        ;     Down button
+0004:         	BTN_ENT           .equ  0x04        ;     Enter button
+0008:         	BTN_ESC           .equ  0x08        ;     Escape button
+000F:         	BTN_ALL           .equ  0x0F        ;     All buttons
+0030:         	DIMM_ROW          .equ  0x30        ;     Dimming row bits
+0040:         	DUTY_CYCLE        .equ  0x40        ;     Dimming duty cycle
+              	                                    ;   Bits
+0000:         	BTN_UP_BIT        .equ  0           ;     Up button
+0001:         	BTN_DN_BIT        .equ  1           ;     Down button
+0002:         	BTN_ENT_BIT       .equ  2           ;     Enter button
+0003:         	BTN_ESC_BIT       .equ  3           ;     Escape button
+0004:         	DIMM_ROW_SW0      .equ  4           ;     Dimming row select bit 0
+0004:         	DIMM_ROW_SW1      .equ  4           ;     Dimming row select bit 1
+0006:         	DUTY_CYCLE_BIT    .equ  6           ;     Dimming duty cycle
 0009:         	TZ_SW1_REG        .equ  0x09        ; Switches 1 (timezone 1)
 000A:         	TZ_SW2_REG        .equ  0x0A        ; Switches 2 (timezone 2)
 000B:         	TZ_SW3_REG        .equ  0x0B        ; Switches 3 (timezone 3)
@@ -1369,7 +1376,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 083F: CB23    	      sla   E
 0841: CB12    	      rl    D
               	
-0843: 211E0C  	      ld    HL, clock_jp_tbl              ; HL = pointer to jump table
+0843: 21240C  	      ld    HL, clock_jp_tbl              ; HL = pointer to jump table
 0846: 19      	      add   HL, DE                  ; Add offset to pointer
               	
 0847: 5E      	      ld    E, (HL)                 ; Load HL pair into DE
@@ -1517,10 +1524,10 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	      ; Process this timezone setting?
 08E5: DD7E00  	      ld    A, (IX+0)               ; Entry contains data?
 08E8: FEFF    	      cp    A, 0xFF
-08EA: CAA80B  	      jp    Z, row_loop_done        ; No if 0xFF, skip row
+08EA: CAAE0B  	      jp    Z, row_loop_done        ; No if 0xFF, skip row
               	
 08ED: CB47    	      bit   0, A                    ; If bit 0 is set, this is a TZ
-08EF: CAA80B  	      jp    Z, row_loop_done        ; Skip if not a TZ
+08EF: CAAE0B  	      jp    Z, row_loop_done        ; Skip if not a TZ
               	
               	      ; Take a copy of all of the RTC time registers
 08F2: 216860  	      ld    HL, clock_rtc_min
@@ -2023,12 +2030,12 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	      ; Enable dimming of the display if configured
 0AF9: DB08    	      in    A, (BTN_REG)            ; Read buttons and switches
 0AFB: 2F      	      cpl                           ; Buttons pull down, make positive
-0AFC: 1F      	      rra                           ; Move upper nibble to lower
-0AFD: 1F      	      rra
+0AFC: 4F      	      ld    C, A                    ; Save A for later, determine d/c
+0AFD: 1F      	      rra                           ; Move upper nibble to lower
 0AFE: 1F      	      rra
 0AFF: 1F      	      rra
-0B00: E603    	      and   A, 0x03                 ; 2 LSbs are row dimming selector
-0B02: 3C      	      inc   A                       ; Testing, row to 1
+0B00: 1F      	      rra
+0B01: E603    	      and   A, DIMM_ROW>>4          ; 2 LSbs are row dimming selector
 0B03: 47      	      ld    B, A                    ; Save for later
               	
 0B04: 3A7460  	      ld    A, (clock_row)          ; Get display row counter and INC.
@@ -2038,7 +2045,7 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	                                    ; means dimming not enabled.
               	
 0B08: B8      	      cp    A, B                    ; Compare row ctr with switches
-0B09: 2015    	      jr    NZ, no_dimming          ; No match or dimming not enabled
+0B09: 201B    	      jr    NZ, no_dimming          ; No match or dimming not enabled
               	
               	      ; Dimming enabled on this row. Dimming in effect between 2100
               	      ; and 0600 hours.
@@ -2049,185 +2056,198 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0B12: 3004    	      jr    NC, dimming_on          ; hour > 2100
               	
 0B14: FE06    	      cp    A, 0x06
-0B16: 3004    	      jr    NC, dimming_off         ; hour >= 0600
+0B16: 300A    	      jr    NC, dimming_off         ; hour >= 0600
               	
 0B18:         	dimming_on
-0B18: 3E01    	      ld    A, 0x01                 ; Enable dimming
-0B1A: 1801    	      jr    apply_dimming
+0B18: 3E01    	      ld    A, 0x01                 ; Enable dimming (default 50% d/c)
               	
-0B1C:         	dimming_off
-0B1C: AF      	      xor   A, A
+              	      ; Configure duty cycle, which is determined by the value of bit
+              	      ; position 6 of the buttons register:
+              	      ;
+              	      ; Low (0): 50% duty cycle
+              	      ; High (1): 25% duty cycle
               	
-0B1D:         	apply_dimming
-0B1D: 328A60  	      ld    (disp_dim), A
+0B1A: CB71    	      bit   DUTY_CYCLE_BIT, C       ; Test switch position
+0B1C: 2805    	      jr    Z, apply_dimming        ; Leave A as is for 50% d/c
               	
-0B20:         	no_dimming
+0B1E: 37      	      scf                           ; Set carry flag and rotate into A
+0B1F: 17      	      rla                           ; for 25% d/c
+              	
+0B20: 1801    	      jr    apply_dimming
+              	
+0B22:         	dimming_off
+0B22: AF      	      xor   A, A
+              	
+0B23:         	apply_dimming
+0B23: 328A60  	      ld    (disp_dim), A
+              	
+0B26:         	no_dimming
               	      ; The MSb switch position indicates if the row should be
               	      ; displaying a time (low) or date (high)
-0B20: 2A7560  	      ld    HL, (tz_sw_ptr)         ; Get value of timezone switches
-0B23: 7E      	      ld    A, (HL)                 ; for this row
-0B24: 2F      	      cpl                           ; Switches pull down, so invert
-0B25: CB7F    	      bit   7, A
+0B26: 2A7560  	      ld    HL, (tz_sw_ptr)         ; Get value of timezone switches
+0B29: 7E      	      ld    A, (HL)                 ; for this row
+0B2A: 2F      	      cpl                           ; Switches pull down, so invert
+0B2B: CB7F    	      bit   7, A
               	
-0B27: 203F    	      jr    NZ, display_date
+0B2D: 203F    	      jr    NZ, display_date
               	
               	
               	;---- Time display ---------------------------------------------------
-0B29:         	display_time
+0B2F:         	display_time
               	      ; Load the name of the timezone into the beginning of this row
-0B29: 2A7960  	      ld    HL, (row_buf_ptr)       ; Row pointer to DE
-0B2C: EB      	      ex    DE, HL
-0B2D: 2A7760  	      ld    HL, (tz_rom_ptr)        ; TZ ROM pointer to HL, TZ name
-0B30: 23      	      inc   HL                      ; begins from second byte
-0B31: 010300  	      ld    BC, 3
-0B34: CD2015  	      call  strncpy
+0B2F: 2A7960  	      ld    HL, (row_buf_ptr)       ; Row pointer to DE
+0B32: EB      	      ex    DE, HL
+0B33: 2A7760  	      ld    HL, (tz_rom_ptr)        ; TZ ROM pointer to HL, TZ name
+0B36: 23      	      inc   HL                      ; begins from second byte
+0B37: 010300  	      ld    BC, 3
+0B3A: CD2015  	      call  strncpy
               	
-0B37: EB      	      ex    DE, HL                  ; Save ptr for later
-0B38: E5      	      push  HL
+0B3D: EB      	      ex    DE, HL                  ; Save ptr for later
+0B3E: E5      	      push  HL
               	
               	      ; If in DST, add a + to indicate it
-0B39: 217F60  	      ld    HL, row_flags
-0B3C: 3E20    	      ld    A, ' '
+0B3F: 217F60  	      ld    HL, row_flags
+0B42: 3E20    	      ld    A, ' '
               	
-0B3E: CB7E    	      bit   7, (HL)
-0B40: 2802    	      jr    Z, $+4
-0B42: 3E2B    	      ld    A, '+'
+0B44: CB7E    	      bit   7, (HL)
+0B46: 2802    	      jr    Z, $+4
+0B48: 3E2B    	      ld    A, '+'
               	
-0B44: E1      	      pop   HL                      ; Restore ptr
-0B45: 77      	      ld    (HL), A
-0B46: 23      	      inc   HL
+0B4A: E1      	      pop   HL                      ; Restore ptr
+0B4B: 77      	      ld    (HL), A
+0B4C: 23      	      inc   HL
               	
               	      ; Place hours and minutes into display buffer
-0B47: 3A6F60  	      ld    A, (clock_tz_hrs)       ; Hours value, in BCD
-0B4A: 0602    	      ld    B, 2
+0B4D: 3A6F60  	      ld    A, (clock_tz_hrs)       ; Hours value, in BCD
+0B50: 0602    	      ld    B, 2
               	
-0B4C:         	hrs_min_to_buf
-0B4C: 4F      	      ld    C, A                    ; Save a copy
+0B52:         	hrs_min_to_buf
+0B52: 4F      	      ld    C, A                    ; Save a copy
               	
-0B4D: 1F      	      rra                           ; Tens digit is upper nibble, move
-0B4E: 1F      	      rra                           ; to lower nibble
-0B4F: 1F      	      rra
-0B50: 1F      	      rra
-0B51: E607    	      and   A, 0x07                 ; Remove AM/PM, keep only 3 LSb's
-0B53: C630    	      add   A, 0x30                 ; Add 0x30 to make ASCII char val
-0B55: 77      	      ld    (HL), A                 ; Store char val into disp buf
-0B56: 23      	      inc   HL
+0B53: 1F      	      rra                           ; Tens digit is upper nibble, move
+0B54: 1F      	      rra                           ; to lower nibble
+0B55: 1F      	      rra
+0B56: 1F      	      rra
+0B57: E607    	      and   A, 0x07                 ; Remove AM/PM, keep only 3 LSb's
+0B59: C630    	      add   A, 0x30                 ; Add 0x30 to make ASCII char val
+0B5B: 77      	      ld    (HL), A                 ; Store char val into disp buf
+0B5C: 23      	      inc   HL
               	
-0B57: 79      	      ld    A, C                    ; Units digit
-0B58: E60F    	      and   A, 0x0F
-0B5A: C630    	      add   A, 0x30
-0B5C: 77      	      ld    (HL), A
-0B5D: 23      	      inc   HL
+0B5D: 79      	      ld    A, C                    ; Units digit
+0B5E: E60F    	      and   A, 0x0F
+0B60: C630    	      add   A, 0x30
+0B62: 77      	      ld    (HL), A
+0B63: 23      	      inc   HL
               	
-0B5E: 3A6E60  	      ld    A, (clock_tz_min)       ; Load mins value for next iter
+0B64: 3A6E60  	      ld    A, (clock_tz_min)       ; Load mins value for next iter
               	
-0B61: 10E9    	      djnz  hrs_min_to_buf
+0B67: 10E9    	      djnz  hrs_min_to_buf
               	
-0B63: 227960  	      ld    (row_buf_ptr), HL       ; Save updated row buffer pointer
+0B69: 227960  	      ld    (row_buf_ptr), HL       ; Save updated row buffer pointer
               	                                    ; which now points to the next row
-0B66: 1840    	      jr    row_loop_done
+0B6C: 1840    	      jr    row_loop_done
               	
               	
               	;---- Date display ---------------------------------------------------
-0B68:         	display_date
-0B68: 2A7960  	      ld    HL, (row_buf_ptr)       ; Row buffer is destination
-0B6B: EB      	      ex    DE, HL
+0B6E:         	display_date
+0B6E: 2A7960  	      ld    HL, (row_buf_ptr)       ; Row buffer is destination
+0B71: EB      	      ex    DE, HL
               	
-0B6C: 3A7160  	      ld    A, (clock_tz_dow)       ; DOW forms offset after << 2
-0B6F: 17      	      rla
-0B70: 17      	      rla
-0B71: E61C    	      and   0x1C
+0B72: 3A7160  	      ld    A, (clock_tz_dow)       ; DOW forms offset after << 2
+0B75: 17      	      rla
+0B76: 17      	      rla
+0B77: E61C    	      and   0x1C
               	
-0B73: 21500C  	      ld    HL, short_day_names     ; Add offset to L
-0B76: 0600    	      ld    B, 0
-0B78: 4F      	      ld    C, A
-0B79: 09      	      add   HL, BC
+0B79: 21500C  	      ld    HL, short_day_names     ; Add offset to L
+0B7C: 0600    	      ld    B, 0
+0B7E: 4F      	      ld    C, A
+0B7F: 09      	      add   HL, BC
               	
-0B7A: 010300  	      ld    BC, 3                   ; Copy day name to start of row
-0B7D: CD2015  	      call  strncpy
+0B80: 010300  	      ld    BC, 3                   ; Copy day name to start of row
+0B83: CD2015  	      call  strncpy
               	
-0B80: EB      	      ex    DE, HL
+0B86: EB      	      ex    DE, HL
               	
               	      ; Place month and day number into display buffer
-0B81: 3A7260  	      ld    A, (clock_tz_mon)       ; Month value, in BCD
-0B84: 0602    	      ld    B, 2
+0B87: 3A7260  	      ld    A, (clock_tz_mon)       ; Month value, in BCD
+0B8A: 0602    	      ld    B, 2
               	
-0B86:         	mon_day_to_buf
-0B86: 4F      	      ld    C, A                    ; Save a copy
+0B8C:         	mon_day_to_buf
+0B8C: 4F      	      ld    C, A                    ; Save a copy
               	
-0B87: 1F      	      rra                           ; Tens digit is upper nibble, move
-0B88: 1F      	      rra                           ; to lower nibble
-0B89: 1F      	      rra
-0B8A: 1F      	      rra
-0B8B: E603    	      and   A, 0x03                 ; Keep only 2 LSb's
-0B8D: C630    	      add   A, 0x30                 ; Add 0x30 to make ASCII char val
-0B8F: 77      	      ld    (HL), A                 ; Store char val into disp buf
-0B90: 23      	      inc   HL
+0B8D: 1F      	      rra                           ; Tens digit is upper nibble, move
+0B8E: 1F      	      rra                           ; to lower nibble
+0B8F: 1F      	      rra
+0B90: 1F      	      rra
+0B91: E603    	      and   A, 0x03                 ; Keep only 2 LSb's
+0B93: C630    	      add   A, 0x30                 ; Add 0x30 to make ASCII char val
+0B95: 77      	      ld    (HL), A                 ; Store char val into disp buf
+0B96: 23      	      inc   HL
               	
-0B91: 79      	      ld    A, C                    ; Units digit
-0B92: E60F    	      and   A, 0x0F
-0B94: C630    	      add   A, 0x30
-0B96: 77      	      ld    (HL), A
-0B97: 23      	      inc   HL
+0B97: 79      	      ld    A, C                    ; Units digit
+0B98: E60F    	      and   A, 0x0F
+0B9A: C630    	      add   A, 0x30
+0B9C: 77      	      ld    (HL), A
+0B9D: 23      	      inc   HL
               	
-0B98: 78      	      ld    A, B                    ; Only add / between mon and day
-0B99: 3D      	      dec   A
-0B9A: 2807    	      jr    Z, mon_day_dec
+0B9E: 78      	      ld    A, B                    ; Only add / between mon and day
+0B9F: 3D      	      dec   A
+0BA0: 2807    	      jr    Z, mon_day_dec
               	
-0B9C: 3E2F    	      ld    A, '/'                  ; Add / to separate mon and day
-0B9E: 77      	      ld    (HL), A
-0B9F: 23      	      inc   HL
+0BA2: 3E2F    	      ld    A, '/'                  ; Add / to separate mon and day
+0BA4: 77      	      ld    (HL), A
+0BA5: 23      	      inc   HL
               	
-0BA0: 3A7060  	      ld    A, (clock_tz_day)       ; Load day number for next iter
+0BA6: 3A7060  	      ld    A, (clock_tz_day)       ; Load day number for next iter
               	
-0BA3:         	mon_day_dec
-0BA3: 10E1    	      djnz  mon_day_to_buf
+0BA9:         	mon_day_dec
+0BA9: 10E1    	      djnz  mon_day_to_buf
               	
-0BA5: 227960  	      ld    (row_buf_ptr), HL       ; Save updated row buffer pointer
+0BAB: 227960  	      ld    (row_buf_ptr), HL       ; Save updated row buffer pointer
               	                                    ; which now points to the next row
               	
               	
               	;---- Row loop complete ----------------------------------------------
-0BA8:         	row_loop_done
+0BAE:         	row_loop_done
               	      ; Increment various pointers, counters, etc
-0BA8: 217560  	      ld    HL, tz_sw_ptr           ; Next timezone switch
-0BAB: 34      	      inc   (HL)
+0BAE: 217560  	      ld    HL, tz_sw_ptr           ; Next timezone switch
+0BB1: 34      	      inc   (HL)
               	
-0BAC: 217460  	      ld    HL, clock_row           ; Increment row counter itself
-0BAF: 34      	      inc   (HL)
-0BB0: 7E      	      ld    A, (HL)
+0BB2: 217460  	      ld    HL, clock_row           ; Increment row counter itself
+0BB5: 34      	      inc   (HL)
+0BB6: 7E      	      ld    A, (HL)
               	
               	      ; Iterate again if row counter < 3
-0BB1: FE03    	      cp    A, 3
-0BB3: C2BE08  	      jp    NZ, row_loop
+0BB7: FE03    	      cp    A, 3
+0BB9: C2BE08  	      jp    NZ, row_loop
               	
               	      sem_post clock_upd_req_sem
-0BB6: F5      	      push  AF
-0BB7: E5      	      push  HL
+0BBC: F5      	      push  AF
+0BBD: E5      	      push  HL
               	
-0BB8: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-0BBA: F5      	      push  AF                      ; Save flags
-0BBB: F3      	      di                            ; Ensure interrupts disabled
+0BBE: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+0BC0: F5      	      push  AF                      ; Save flags
+0BC1: F3      	      di                            ; Ensure interrupts disabled
               	
-0BBC: 210360  	      ld    HL, clock_upd_req_sem
-0BBF: 34      	      inc   (HL)
+0BC2: 210360  	      ld    HL, clock_upd_req_sem
+0BC5: 34      	      inc   (HL)
               	
-0BC0: E1      	      pop   HL                      ; F into L
-0BC1: CB55    	      bit   2, L                    ; Test IFF2 flag
-0BC3: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-0BC5: FB      	      ei                            ; Re-enable interrupts
+0BC6: E1      	      pop   HL                      ; F into L
+0BC7: CB55    	      bit   2, L                    ; Test IFF2 flag
+0BC9: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+0BCB: FB      	      ei                            ; Re-enable interrupts
               	
-0BC6: E1      	      pop   HL
-0BC7: F1      	      pop   AF
+0BCC: E1      	      pop   HL
+0BCD: F1      	      pop   AF
               	      set_state clock_state, CLOCK_IDLE
-0BC8: F5      	      push  AF
+0BCE: F5      	      push  AF
               	
-0BC9: 3E02    	      ld    A, CLOCK_IDLE
-0BCB: 326460  	      ld    (clock_state), A
+0BCF: 3E02    	      ld    A, CLOCK_IDLE
+0BD1: 326460  	      ld    (clock_state), A
               	
-0BCE: F1      	      pop   AF
+0BD4: F1      	      pop   AF
               	
-0BCF: C9      	      ret
+0BD5: C9      	      ret
               	#endlocal
               	
               	;---- State 02 -------------------------------------------------------
@@ -2237,105 +2257,104 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     1. Esc button is pressed, and the app is exited
               	;     2. clock_upd_sem contains a non-zero value, and the displays
               	;        are updated
-0BD0:         	clock_idle
+0BD6:         	clock_idle
               	#local
-0BD0: 3A5D60  	      ld    A, (btn_state)          ; Check if the escape button is
-0BD3: CB5F    	      bit   BTN_ESC_BIT, A          ; pressed, if so, proceed to exit
-0BD5: 280F    	      jr    Z, check_semaphore
+0BD6: 3A5D60  	      ld    A, (btn_state)          ; Check if the escape button is
+0BD9: CB5F    	      bit   BTN_ESC_BIT, A          ; pressed, if so, proceed to exit
+0BDB: 280F    	      jr    Z, check_semaphore
               	
               	      ack_btn BTN_ESC_BIT
-0BD7: E5      	      push  HL
+0BDD: E5      	      push  HL
               	
-0BD8: 215C60  	      ld    HL, btn_ack             ; Ack the button
-0BDB: CBDE    	      set   BTN_ESC_BIT, (HL)
+0BDE: 215C60  	      ld    HL, btn_ack             ; Ack the button
+0BE1: CBDE    	      set   BTN_ESC_BIT, (HL)
               	
-0BDD: E1      	      pop   HL
+0BE3: E1      	      pop   HL
               	      set_state clock_state, CLOCK_EXIT
-0BDE: F5      	      push  AF
+0BE4: F5      	      push  AF
               	
-0BDF: 3E03    	      ld    A, CLOCK_EXIT
-0BE1: 326460  	      ld    (clock_state), A
+0BE5: 3E03    	      ld    A, CLOCK_EXIT
+0BE7: 326460  	      ld    (clock_state), A
               	
-0BE4: F1      	      pop   AF
+0BEA: F1      	      pop   AF
               	
-0BE5: C9      	      ret
+0BEB: C9      	      ret
               	
-0BE6:         	check_semaphore
+0BEC:         	check_semaphore
               	      sem_trywait clock_upd_sem     ; Check clock_upd_sem and proceed
-0BE6: E5      	      push  HL
+0BEC: E5      	      push  HL
               	
-0BE7: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-0BE9: F5      	      push  AF                      ; Save flags
-0BEA: F3      	      di                            ; Ensure interrupts disabled
+0BED: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+0BEF: F5      	      push  AF                      ; Save flags
+0BF0: F3      	      di                            ; Ensure interrupts disabled
               	
-0BEB: 210460  	      ld    HL, clock_upd_sem
-0BEE: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
-0BEF: B7      	      or    A, A                    ; Semaphore value greater than 0?
-0BF0: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
+0BF1: 210460  	      ld    HL, clock_upd_sem
+0BF4: 7E      	      ld    A, (HL)                 ; Load semaphore value for return
+0BF5: B7      	      or    A, A                    ; Semaphore value greater than 0?
+0BF6: 2801    	      jr    Z, $+3                  ; If Z, return 0, go to done
               	
-0BF2: 35      	      dec   (HL)                    ; Decrement semaphore
+0BF8: 35      	      dec   (HL)                    ; Decrement semaphore
               	
-0BF3: E1      	      pop   HL                      ; F into L
-0BF4: CB55    	      bit   2, L                    ; Test IFF2 flag
-0BF6: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-0BF8: FB      	      ei                            ; Re-enable interrupts
+0BF9: E1      	      pop   HL                      ; F into L
+0BFA: CB55    	      bit   2, L                    ; Test IFF2 flag
+0BFC: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+0BFE: FB      	      ei                            ; Re-enable interrupts
               	
-0BF9: E1      	      pop   HL                      ; Done
+0BFF: E1      	      pop   HL                      ; Done
               	
-0BFA: B7      	      or    A, A                    ; Set Z flag according to A
-0BFB: C8      	      ret   Z                       ; to update clock display if > 0
+0C00: B7      	      or    A, A                    ; Set Z flag according to A
+0C01: C8      	      ret   Z                       ; to update clock display if > 0
               	
               	      set_state clock_state, CLOCK_UPDATE
-0BFC: F5      	      push  AF
+0C02: F5      	      push  AF
               	
-0BFD: 3E01    	      ld    A, CLOCK_UPDATE
-0BFF: 326460  	      ld    (clock_state), A
+0C03: 3E01    	      ld    A, CLOCK_UPDATE
+0C05: 326460  	      ld    (clock_state), A
               	
-0C02: F1      	      pop   AF
+0C08: F1      	      pop   AF
               	
-0C03: C9      	      ret
+0C09: C9      	      ret
               	#endlocal
               	
               	;---- State 03 -------------------------------------------------------
               	;     Exit the config app by releasing the foreground mutex.
-0C04:         	clock_exit_app
+0C0A:         	clock_exit_app
               	      set_state clock_state, CLOCK_APP_START
-0C04: F5      	      push  AF
+0C0A: F5      	      push  AF
               	
-0C05: 3E00    	      ld    A, CLOCK_APP_START
-0C07: 326460  	      ld    (clock_state), A
+0C0B: 3E00    	      ld    A, CLOCK_APP_START
+0C0D: 326460  	      ld    (clock_state), A
               	
-0C0A: F1      	      pop   AF
+0C10: F1      	      pop   AF
               	      mtx_unlock foreground_mtx
-0C0B: F5      	      push  AF
-0C0C: E5      	      push  HL
+0C11: F5      	      push  AF
+0C12: E5      	      push  HL
               	
-0C0D: ED57    	      ld    A, I                    ; IFF2 to P/V flag
-0C0F: F5      	      push  AF                      ; Save flags
-0C10: F3      	      di                            ; Ensure interrupts disabled
+0C13: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+0C15: F5      	      push  AF                      ; Save flags
+0C16: F3      	      di                            ; Ensure interrupts disabled
               	
-0C11: AF      	      xor   A, A                    ; Load zero to unlock the mutex
-0C12: 320060  	      ld    (foreground_mtx), A
+0C17: AF      	      xor   A, A                    ; Load zero to unlock the mutex
+0C18: 320060  	      ld    (foreground_mtx), A
               	
-0C15: E1      	      pop   HL                      ; F into L
-0C16: CB55    	      bit   2, L                    ; Test IFF2 flag
-0C18: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
-0C1A: FB      	      ei                            ; Re-enable interrupts
+0C1B: E1      	      pop   HL                      ; F into L
+0C1C: CB55    	      bit   2, L                    ; Test IFF2 flag
+0C1E: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+0C20: FB      	      ei                            ; Re-enable interrupts
               	
-0C1B: E1      	      pop   HL                      ; Done
-0C1C: F1      	      pop   AF
+0C21: E1      	      pop   HL                      ; Done
+0C22: F1      	      pop   AF
               	
-0C1D: C9      	      ret
+0C23: C9      	      ret
               	
               	; State machine jump table
-0C1E: 4D08    	clock_jp_tbl            .dw   clock_app_start
-0C20: 8008    	                        .dw   clock_update
-0C22: D00B    	                        .dw   clock_idle
-0C24: 040C    	                        .dw   clock_exit_app
+0C24: 4D08    	clock_jp_tbl            .dw   clock_app_start
+0C26: 8008    	                        .dw   clock_update
+0C28: D60B    	                        .dw   clock_idle
+0C2A: 0A0C    	                        .dw   clock_exit_app
               	
               	; Days per month in a common year - keep aligned to 16 bytes
-0C26: FFFFFFFF	      .align 0x10
-0C2A: FF...   	
+0C2C: FFFFFFFF	      .align 0x10
 0C30: 31283130	days_common_year        .dm   0x31, 0x28, 0x31, 0x30, 0x31, 0x30
 0C34: 3130    	
 0C36: 31313031	                        .dm   0x31, 0x31, 0x30, 0x31, 0x30, 0x31
@@ -3970,9 +3989,12 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     row 0 instead of the working row number to the display control
               	;     register.
               	;
-              	;     Dimming is enabled by storing a value of 1 in the disp_dim
-              	;     variable. When this value is ANDed with disp_dim_ctr, and when
-              	;     both LSb's are set, the row will be enabled.
+              	;     Dimming is enabled by storing some number of 1's in the least
+              	;     significant bit positions of the disp_dim variable. This value
+              	;     is then ANDed with disp_dim_ctr, and when the Z flag is set, the
+              	;     row will be enabled. This allows for a configurable duty cycle
+              	;     down to some small fraction, but realistically, 2 levels of
+              	;     dimming to be provided: 50% and 25% d/c
               	
 13C5: 218960  	      ld    HL, disp_dim_ctr        ; Is the display being dimmed?
 13C8: 3A8A60  	      ld    A, (disp_dim)
@@ -4369,18 +4391,18 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 
 ; +++ global symbols +++
 
-APP_CLOCK           = $0003 =     3               clock.inc:76
-APP_CONFIGR         = $0004 =     4               clock.inc:77
-BTN_ALL             = $000F =    15               clock.inc:30
-BTN_DN              = $0002 =     2               clock.inc:27 (unused)
-BTN_DN_BIT          = $0001 =     1               clock.inc:32
-BTN_ENT             = $0004 =     4               clock.inc:28 (unused)
-BTN_ENT_BIT         = $0002 =     2               clock.inc:33
-BTN_ESC             = $0008 =     8               clock.inc:29
-BTN_ESC_BIT         = $0003 =     3               clock.inc:34
+APP_CLOCK           = $0003 =     3               clock.inc:83
+APP_CONFIGR         = $0004 =     4               clock.inc:84
+BTN_ALL             = $000F =    15               clock.inc:31
+BTN_DN              = $0002 =     2               clock.inc:28 (unused)
+BTN_DN_BIT          = $0001 =     1               clock.inc:36
+BTN_ENT             = $0004 =     4               clock.inc:29 (unused)
+BTN_ENT_BIT         = $0002 =     2               clock.inc:37
+BTN_ESC             = $0008 =     8               clock.inc:30
+BTN_ESC_BIT         = $0003 =     3               clock.inc:38
 BTN_REG             = $0008 =     8               clock.inc:25
-BTN_UP              = $0001 =     1               clock.inc:26 (unused)
-BTN_UP_BIT          = $0000 =     0               clock.inc:31
+BTN_UP              = $0001 =     1               clock.inc:27 (unused)
+BTN_UP_BIT          = $0000 =     0               clock.inc:35
 CHAR_ROM_BASE       = $E000 = 57344               platform.inc:30
 CHAR_ROM_SZ         = $2000 =  8192               platform.inc:31 (unused)
 CLOCK_APP_START     = $0000 =     0  ROM          clock_app.s:18
@@ -4425,13 +4447,18 @@ CTC_CTL_RISE        = $0010 =    16               ctc.inc:5 (unused)
 CTC_CTL_SW_RESET    = $0002 =     2               ctc.inc:2 (unused)
 CTC_CTL_TCONST      = $0004 =     4               ctc.inc:3
 CTC_CTL_WORD        = $0001 =     1               ctc.inc:1
-DEBUG_PORT          = $00DE =   222               clock.inc:83
-DISP_CTRL           = $0021 =    33               clock.inc:64
-DISP_DATA           = $0020 =    32               clock.inc:63
+DEBUG_PORT          = $00DE =   222               clock.inc:90
+DIMM_ROW            = $0030 =    48               clock.inc:32
+DIMM_ROW_SW0        = $0004 =     4               clock.inc:39 (unused)
+DIMM_ROW_SW1        = $0004 =     4               clock.inc:40 (unused)
+DISP_CTRL           = $0021 =    33               clock.inc:71
+DISP_DATA           = $0020 =    32               clock.inc:70
+DUTY_CYCLE          = $0040 =    64               clock.inc:33 (unused)
+DUTY_CYCLE_BIT      = $0006 =     6               clock.inc:41
 FCTC                = $8000 =4096000               platform.inc:8 (unused)
 FSYS                = $8D80 =6000000               platform.inc:7
 FUART               = $8000 =7372800               platform.inc:9 (unused)
-OUTPUT_REG          = $000C =    12               clock.inc:38 (unused)
+OUTPUT_REG          = $000C =    12               clock.inc:45 (unused)
 RAM                 = $6000 = 24576  RAM          platform.inc:4 (unused)
 RAM_BASE            = $6000 = 24576               platform.inc:23
 RAM_SZ              = $2000 =  8192               platform.inc:24
@@ -4444,34 +4471,34 @@ ROM_end             = $5F00 = 24320  ROM          platform.inc:6 (unused)
 ROM_size            = $5F00 = 24320  ROM          platform.inc:6 (unused)
 RTC_ALM_ALM0        = $0040 =    64               rtc.inc:1
 RTC_ALM_ALM1        = $0080 =   128               rtc.inc:2
-RTC_ALM_CFG         = $00C0 =   192               clock.inc:57
-RTC_CTRL            = $001E =    30               clock.inc:55
+RTC_ALM_CFG         = $00C0 =   192               clock.inc:64
+RTC_CTRL            = $001E =    30               clock.inc:62
 RTC_CTRL_24HR       = $0002 =     2               rtc.inc:41
-RTC_CTRL_CFG        = $0006 =     6               clock.inc:60
+RTC_CTRL_CFG        = $0006 =     6               clock.inc:67
 RTC_CTRL_DSE        = $0001 =     1               rtc.inc:40 (unused)
 RTC_CTRL_RUN_BAT    = $0004 =     4               rtc.inc:42
 RTC_CTRL_UTI        = $0008 =     8               rtc.inc:43
-RTC_DAY             = $0016 =    22               clock.inc:47
-RTC_DAY_ALM         = $0017 =    23               clock.inc:48
-RTC_DOW             = $0018 =    24               clock.inc:49
-RTC_FLAGS           = $001D =    29               clock.inc:54
+RTC_DAY             = $0016 =    22               clock.inc:54
+RTC_DAY_ALM         = $0017 =    23               clock.inc:55
+RTC_DOW             = $0018 =    24               clock.inc:56
+RTC_FLAGS           = $001D =    29               clock.inc:61
 RTC_FLAG_AF         = $0008 =     8               rtc.inc:38 (unused)
 RTC_FLAG_BVF        = $0001 =     1               rtc.inc:35 (unused)
 RTC_FLAG_PF         = $0004 =     4               rtc.inc:37 (unused)
 RTC_FLAG_PWRF       = $0002 =     2               rtc.inc:36 (unused)
-RTC_HRS             = $0014 =    20               clock.inc:45
-RTC_HRS_ALM         = $0015 =    21               clock.inc:46
-RTC_INTS            = $001C =    28               clock.inc:53
-RTC_INTS_CFG        = $0008 =     8               clock.inc:59
+RTC_HRS             = $0014 =    20               clock.inc:52
+RTC_HRS_ALM         = $0015 =    21               clock.inc:53
+RTC_INTS            = $001C =    28               clock.inc:60
+RTC_INTS_CFG        = $0008 =     8               clock.inc:66
 RTC_INT_ABE         = $0001 =     1               rtc.inc:30 (unused)
 RTC_INT_AIE         = $0008 =     8               rtc.inc:33
 RTC_INT_PIE         = $0004 =     4               rtc.inc:32 (unused)
 RTC_INT_PWRIE       = $0002 =     2               rtc.inc:31 (unused)
-RTC_MIN             = $0012 =    18               clock.inc:43
-RTC_MIN_ALM         = $0013 =    19               clock.inc:44
-RTC_MON             = $0019 =    25               clock.inc:50
-RTC_RATES           = $001B =    27               clock.inc:52
-RTC_RATES_CFG       = $0000 =     0               clock.inc:58
+RTC_MIN             = $0012 =    18               clock.inc:50
+RTC_MIN_ALM         = $0013 =    19               clock.inc:51
+RTC_MON             = $0019 =    25               clock.inc:57
+RTC_RATES           = $001B =    27               clock.inc:59
+RTC_RATES_CFG       = $0000 =     0               clock.inc:65
 RTC_RS_122_070US    = $0030 =    48               rtc.inc:7 (unused)
 RTC_RS_125MS        = $00D0 =   208               rtc.inc:17 (unused)
 RTC_RS_15_625MS     = $00A0 =   160               rtc.inc:14 (unused)
@@ -4488,8 +4515,8 @@ RTC_RS_62_5MS       = $00C0 =   192               rtc.inc:16 (unused)
 RTC_RS_7_8125MS     = $0090 =   144               rtc.inc:13 (unused)
 RTC_RS_976_5625US   = $0060 =    96               rtc.inc:10 (unused)
 RTC_RS_NONE         = $0000 =     0               rtc.inc:4
-RTC_SEC             = $0010 =    16               clock.inc:41
-RTC_SEC_ALM         = $0011 =    17               clock.inc:42
+RTC_SEC             = $0010 =    16               clock.inc:48
+RTC_SEC_ALM         = $0011 =    17               clock.inc:49
 RTC_WD_187_5MS      = $0040 =    64               rtc.inc:25 (unused)
 RTC_WD_1_5SEC       = $0000 =     0               rtc.inc:21
 RTC_WD_23_4375MS    = $0010 =    16               rtc.inc:22 (unused)
@@ -4498,15 +4525,15 @@ RTC_WD_3S           = $0070 =   112               rtc.inc:28 (unused)
 RTC_WD_46_875MS     = $0020 =    32               rtc.inc:23 (unused)
 RTC_WD_750MS        = $0060 =    96               rtc.inc:27 (unused)
 RTC_WD_93_75MS      = $0030 =    48               rtc.inc:24 (unused)
-RTC_YEAR            = $001A =    26               clock.inc:51
-TASK_BUTTON_RD      = $0001 =     1               clock.inc:74
-TASK_DISPLAY        = $0005 =     5               clock.inc:78
-TASK_WD_POKE        = $0002 =     2               clock.inc:75
+RTC_YEAR            = $001A =    26               clock.inc:58
+TASK_BUTTON_RD      = $0001 =     1               clock.inc:81
+TASK_DISPLAY        = $0005 =     5               clock.inc:85
+TASK_WD_POKE        = $0002 =     2               clock.inc:82
 TZ_ROM_BASE         = $C000 = 49152               platform.inc:27
 TZ_ROM_SZ           = $2000 =  8192               platform.inc:28 (unused)
-TZ_SW1_REG          = $0009 =     9               clock.inc:35
-TZ_SW2_REG          = $000A =    10               clock.inc:36 (unused)
-TZ_SW3_REG          = $000B =    11               clock.inc:37 (unused)
+TZ_SW1_REG          = $0009 =     9               clock.inc:42
+TZ_SW2_REG          = $000A =    10               clock.inc:43 (unused)
+TZ_SW3_REG          = $000B =    11               clock.inc:44 (unused)
 VECTOR_INT_PG       = $0001 =     1               platform.inc:36
 WDT_POKE            = $0004 =     4               clock.inc:22
 _INITIALIZED        = $7F00 = 32512  _INITIALIZED platform.inc:5
@@ -4515,7 +4542,7 @@ _INITIALIZED_size   = $0100 =   256  _INITIALIZED platform.inc:5 (unused)
 _INITIALIZER        = $5F00 = 24320  _INITIALIZER platform.inc:7
 _INITIALIZER_end    = $6000 = 24576  _INITIALIZER platform.inc:7 (unused)
 _INITIALIZER_size   = $0100 =   256  _INITIALIZER platform.inc:7
-bcd_to_dec          = $0CA7 =  3239  ROM          clock_app.s:1075
+bcd_to_dec          = $0CA7 =  3239  ROM          clock_app.s:1088
 btn_ack             = $605C = 24668  RAM          clock.s:369
 btn_debounce        = $605E = 24670  RAM          clock.s:371
 btn_flags           = $605F = 24671  RAM          clock.s:372
@@ -4525,9 +4552,9 @@ button_rd_task      = $0500 =  1280  ROM          clock.s:376
 clock_app           = $0800 =  2048  ROM          clock_app.s:78
 clock_app_sem       = $6001 = 24577  RAM          clock.s:233
 clock_app_start     = $084D =  2125  ROM          clock_app.s:97
-clock_exit_app      = $0C04 =  3076  ROM          clock_app.s:930
-clock_idle          = $0BD0 =  3024  ROM          clock_app.s:908
-clock_jp_tbl        = $0C1E =  3102  ROM          clock_app.s:937
+clock_exit_app      = $0C0A =  3082  ROM          clock_app.s:943
+clock_idle          = $0BD6 =  3030  ROM          clock_app.s:921
+clock_jp_tbl        = $0C24 =  3108  ROM          clock_app.s:950
 clock_row           = $6074 = 24692  RAM          clock_app.s:44
 clock_rtc_day       = $606A = 24682  RAM          clock_app.s:32 (unused)
 clock_rtc_dow       = $606B = 24683  RAM          clock_app.s:33 (unused)
@@ -4592,11 +4619,11 @@ configr_title       = $11B7 =  4535  ROM          configr_app.s:817
 configr_year_msg    = $0F65 =  3941  ROM          configr_app.s:428
 ctc_ch0_isr         = $1300 =  4864  ROM          ctc_isr.s:4
 ctc_ch1_isr         = $1380 =  4992  ROM          ctc_isr.s:30
-ctc_ch2_isr         = $1400 =  5120  ROM          ctc_isr.s:187
-ctc_ch3_isr         = $1480 =  5248  ROM          ctc_isr.s:233
+ctc_ch2_isr         = $1400 =  5120  ROM          ctc_isr.s:190
+ctc_ch3_isr         = $1480 =  5248  ROM          ctc_isr.s:236
 day_array_ptr       = $607B = 24699  RAM          clock_app.s:49
-days_common_year    = $0C30 =  3120  ROM          clock_app.s:944
-days_leap_year      = $0C40 =  3136  ROM          clock_app.s:949
+days_common_year    = $0C30 =  3120  ROM          clock_app.s:957
+days_leap_year      = $0C40 =  3136  ROM          clock_app.s:962
 disp_cur_row        = $6088 = 24712  RAM          ctc_isr.s:24
 disp_dim            = $608A = 24714  RAM          ctc_isr.s:26
 disp_dim_ctr        = $6089 = 24713  RAM          ctc_isr.s:25
@@ -4611,9 +4638,9 @@ display_row3        = $6030 = 24624  RAM          clock.s:248 (unused)
 display_status      = $6061 = 24673  RAM          clock.s:430
 display_syncd       = $6062 = 24674  RAM          clock.s:431 (unused)
 display_task        = $0600 =  1536  ROM          clock.s:438
-find_first_sunday   = $0C70 =  3184  ROM          clock_app.s:976
-find_last_sunday    = $0C8B =  3211  ROM          clock_app.s:1020
-find_second_sunday  = $0CA0 =  3232  ROM          clock_app.s:1058
+find_first_sunday   = $0C70 =  3184  ROM          clock_app.s:989
+find_last_sunday    = $0C8B =  3211  ROM          clock_app.s:1033
+find_second_sunday  = $0CA0 =  3232  ROM          clock_app.s:1071
 foreground_mtx      = $6000 = 24576  RAM          clock.s:227
 init                = $0300 =   768  ROM          clock.s:263
 int_vector_table    = $0100 =   256  ROM          clock.s:51 (unused)
@@ -4627,7 +4654,7 @@ row_borrows         = $607E = 24702  RAM          clock_app.s:57
 row_buf_ptr         = $6079 = 24697  RAM          clock_app.s:48
 row_carrys          = $607D = 24701  RAM          clock_app.s:51
 row_flags           = $607F = 24703  RAM          clock_app.s:63
-short_day_names     = $0C50 =  3152  ROM          clock_app.s:954
+short_day_names     = $0C50 =  3152  ROM          clock_app.s:967
 staging_dp1         = $6058 = 24664  RAM          clock.s:257 (unused)
 staging_dp2         = $6059 = 24665  RAM          clock.s:258 (unused)
 staging_dp3         = $605A = 24666  RAM          clock.s:259 (unused)
@@ -4668,7 +4695,7 @@ dsky_effect = $0615 =  1557  ROM          clock.s:452
 
 ; +++ local symbols +++
 
-apply_dimming      = $0B1D =  2845  ROM          clock_app.s:752
+apply_dimming      = $0B23 =  2851  ROM          clock_app.s:765
 begin_computation  = $08FE =  2302  ROM          clock_app.s:229
 check1             = $0A1A =  2586  ROM          clock_app.s:489
 check1_done        = $0A2E =  2606  ROM          clock_app.s:505
@@ -4684,18 +4711,18 @@ check_end_cond     = $0AA3 =  2723  ROM          clock_app.s:632
 check_for_dst      = $0AEA =  2794  ROM          clock_app.s:702
 check_start_cond   = $0A58 =  2648  ROM          clock_app.s:560
 day_continue       = $099B =  2459  ROM          clock_app.s:364
-dimming_off        = $0B1C =  2844  ROM          clock_app.s:749
+dimming_off        = $0B22 =  2850  ROM          clock_app.s:762
 dimming_on         = $0B18 =  2840  ROM          clock_app.s:745
-display_date       = $0B68 =  2920  ROM          clock_app.s:823
+display_date       = $0B6E =  2926  ROM          clock_app.s:836
 display_row        = $0AF9 =  2809  ROM          clock_app.s:713
-display_time       = $0B29 =  2857  ROM          clock_app.s:767 (unused)
+display_time       = $0B2F =  2863  ROM          clock_app.s:780 (unused)
 dst_end_mon_higher = $0A17 =  2583  ROM          clock_app.s:486
-hrs_min_to_buf     = $0B4C =  2892  ROM          clock_app.s:795
+hrs_min_to_buf     = $0B52 =  2898  ROM          clock_app.s:808
 mon_borrow_fix_day = $09AE =  2478  ROM          clock_app.s:387
-mon_day_dec        = $0BA3 =  2979  ROM          clock_app.s:874
-mon_day_to_buf     = $0B86 =  2950  ROM          clock_app.s:846
+mon_day_dec        = $0BA9 =  2985  ROM          clock_app.s:887
+mon_day_to_buf     = $0B8C =  2956  ROM          clock_app.s:859
 no_day_borrow      = $0978 =  2424  ROM          clock_app.s:335
-no_dimming         = $0B20 =  2848  ROM          clock_app.s:755
+no_dimming         = $0B26 =  2854  ROM          clock_app.s:768
 no_hrs_borrow      = $092E =  2350  ROM          clock_app.s:272
 no_hrs_carry       = $0938 =  2360  ROM          clock_app.s:281
 no_mon_borrow      = $09C9 =  2505  ROM          clock_app.s:409
@@ -4703,21 +4730,21 @@ no_mon_carry       = $09ED =  2541  ROM          clock_app.s:435
 nodst_start_mon_higher = $0A43 =  2627  ROM          clock_app.s:539
 not_leap_year      = $0948 =  2376  ROM          clock_app.s:295
 row_loop           = $08BE =  2238  ROM          clock_app.s:176
-row_loop_done      = $0BA8 =  2984  ROM          clock_app.s:882
+row_loop_done      = $0BAE =  2990  ROM          clock_app.s:895
 
 ; +++ local symbols +++
 
-check_semaphore = $0BE6 =  3046  ROM          clock_app.s:919
+check_semaphore = $0BEC =  3052  ROM          clock_app.s:932
 
 ; +++ local symbols +++
 
-done    = $0C89 =  3209  ROM          clock_app.s:1000
-loop    = $0C83 =  3203  ROM          clock_app.s:995
+done    = $0C89 =  3209  ROM          clock_app.s:1013
+loop    = $0C83 =  3203  ROM          clock_app.s:1008
 
 ; +++ local symbols +++
 
-done    = $0C9E =  3230  ROM          clock_app.s:1040
-loop    = $0C93 =  3219  ROM          clock_app.s:1029
+done    = $0C9E =  3230  ROM          clock_app.s:1053
+loop    = $0C93 =  3219  ROM          clock_app.s:1042
 
 ; +++ local symbols +++
 
@@ -4776,20 +4803,20 @@ test_updn_btn  = $1122 =  4386  ROM          configr_app.s:728
 ; +++ local symbols +++
 
 next_row_char  = $13AB =  5035  ROM          ctc_isr.s:109
-out_disp_ctrl  = $13D2 =  5074  ROM          ctc_isr.s:159
+out_disp_ctrl  = $13D2 =  5074  ROM          ctc_isr.s:162
 row_offset     = $1392 =  5010  ROM          ctc_isr.s:73
 row_offset_add = $139F =  5023  ROM          ctc_isr.s:87
 shift_offset   = $139B =  5019  ROM          ctc_isr.s:82
 
 ; +++ local symbols +++
 
-clock_sem   = $1417 =  5143  ROM          ctc_isr.s:201 (unused)
-configr_sem = $1440 =  5184  ROM          ctc_isr.s:206
-done        = $1469 =  5225  ROM          ctc_isr.s:211
+clock_sem   = $1417 =  5143  ROM          ctc_isr.s:204 (unused)
+configr_sem = $1440 =  5184  ROM          ctc_isr.s:209
+done        = $1469 =  5225  ROM          ctc_isr.s:214
 
 ; +++ local symbols +++
 
-done    = $14AB =  5291  ROM          ctc_isr.s:251
+done    = $14AB =  5291  ROM          ctc_isr.s:254
 
 ; +++ local symbols +++
 
@@ -4800,5 +4827,5 @@ zero_fill = $152D =  5421  ROM          c_lib.s:75
 next    = $1541 =  5441  ROM          c_lib.s:115
 
 
-total time: 0.0447 sec.
+total time: 0.0419 sec.
 no errors

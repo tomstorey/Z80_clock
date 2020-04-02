@@ -144,9 +144,12 @@ next_row_char
 ;     row 0 instead of the working row number to the display control
 ;     register.
 ;
-;     Dimming is enabled by storing a value of 1 in the disp_dim
-;     variable. When this value is ANDed with disp_dim_ctr, and when
-;     both LSb's are set, the row will be enabled.
+;     Dimming is enabled by storing some number of 1's in the least
+;     significant bit positions of the disp_dim variable. This value
+;     is then ANDed with disp_dim_ctr, and when the Z flag is set, the
+;     row will be enabled. This allows for a configurable duty cycle
+;     down to some small fraction, but realistically, 2 levels of
+;     dimming to be provided: 50% and 25% d/c
 
       ld    HL, disp_dim_ctr        ; Is the display being dimmed?
       ld    A, (disp_dim)

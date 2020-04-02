@@ -714,12 +714,12 @@ display_row
       ; Enable dimming of the display if configured
       in    A, (BTN_REG)            ; Read buttons and switches
       cpl                           ; Buttons pull down, make positive
+      ld    C, A                    ; Save A for later, determine d/c
       rra                           ; Move upper nibble to lower
       rra
       rra
       rra
-      and   A, 0x03                 ; 2 LSbs are row dimming selector
-      inc   A                       ; Testing, row to 1
+      and   A, DIMM_ROW>>4          ; 2 LSbs are row dimming selector
       ld    B, A                    ; Save for later
 
       ld    A, (clock_row)          ; Get display row counter and INC.
@@ -743,7 +743,20 @@ display_row
       jr    NC, dimming_off         ; hour >= 0600
 
 dimming_on
-      ld    A, 0x01                 ; Enable dimming
+      ld    A, 0x01                 ; Enable dimming (default 50% d/c)
+
+      ; Configure duty cycle, which is determined by the value of bit
+      ; position 6 of the buttons register:
+      ;
+      ; Low (0): 50% duty cycle
+      ; High (1): 25% duty cycle
+
+      bit   DUTY_CYCLE_BIT, C       ; Test duty cycle switch value
+      jr    Z, apply_dimming        ; Leave A as is for 50% d/c
+
+      scf                           ; Set carry flag and rotate into A
+      rla                           ; for 25% d/c
+
       jr    apply_dimming
 
 dimming_off

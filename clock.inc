@@ -22,16 +22,23 @@ CTC_CH3_TCONST    .equ  0x01
 WDT_POKE          .equ  0x04
 
 ; Buttons and switches
-BTN_REG           .equ  0x08        ; Buttons
-BTN_UP            .equ  0x01        ;    Up button mask
-BTN_DN            .equ  0x02        ;    Down button mask
-BTN_ENT           .equ  0x04        ;    Enter button mask
-BTN_ESC           .equ  0x08        ;    Escape button mask
-BTN_ALL           .equ  0x0F        ;    All buttons mask
-BTN_UP_BIT        .equ  0           ;    Up button bit
-BTN_DN_BIT        .equ  1           ;    Down button bit
-BTN_ENT_BIT       .equ  2           ;    Enter button bit
-BTN_ESC_BIT       .equ  3           ;    Escape button bit
+BTN_REG           .equ  0x08        ; Buttons/switches
+                                    ;   Masks
+BTN_UP            .equ  0x01        ;     Up button
+BTN_DN            .equ  0x02        ;     Down button
+BTN_ENT           .equ  0x04        ;     Enter button
+BTN_ESC           .equ  0x08        ;     Escape button
+BTN_ALL           .equ  0x0F        ;     All buttons
+DIMM_ROW          .equ  0x30        ;     Dimming row bits
+DUTY_CYCLE        .equ  0x40        ;     Dimming duty cycle
+                                    ;   Bits
+BTN_UP_BIT        .equ  0           ;     Up button
+BTN_DN_BIT        .equ  1           ;     Down button
+BTN_ENT_BIT       .equ  2           ;     Enter button
+BTN_ESC_BIT       .equ  3           ;     Escape button
+DIMM_ROW_SW0      .equ  4           ;     Dimming row select bit 0
+DIMM_ROW_SW1      .equ  4           ;     Dimming row select bit 1
+DUTY_CYCLE_BIT    .equ  6           ;     Dimming duty cycle
 TZ_SW1_REG        .equ  0x09        ; Switches 1 (timezone 1)
 TZ_SW2_REG        .equ  0x0A        ; Switches 2 (timezone 2)
 TZ_SW3_REG        .equ  0x0B        ; Switches 3 (timezone 3)
