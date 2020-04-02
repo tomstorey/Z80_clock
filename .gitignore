@@ -11,5 +11,7 @@
 !*.sch
 !.gitignore
 !build
+!photo.jpg
 !run
 !README.md
+!datasheets/*
