@@ -709,8 +709,50 @@ check_for_dst
       jp    begin_computation       ; Re-run computation to add 1 hour
 
 
-;---- Display time or date on a row ----------------------------------
+;---- Enable dimming, and display time or date on a row --------------
 display_row
+      ; Enable dimming of the display if configured
+      in    A, (BTN_REG)            ; Read buttons and switches
+      cpl                           ; Buttons pull down, make positive
+      rra                           ; Move upper nibble to lower
+      rra
+      rra
+      rra
+      and   A, 0x03                 ; 2 LSbs are row dimming selector
+      inc   A                       ; Testing, row to 1
+      ld    B, A                    ; Save for later
+
+      ld    A, (clock_row)          ; Get display row counter and INC.
+      inc   A                       ; Row counter range is 0..2, so
+                                    ; make comparable to switch config
+                                    ; which is 1..3. Switches set to 0
+                                    ; means dimming not enabled.
+
+      cp    A, B                    ; Compare row ctr with switches
+      jr    NZ, no_dimming          ; No match or dimming not enabled
+
+      ; Dimming enabled on this row. Dimming in effect between 2100
+      ; and 0600 hours.
+      ld    A, (clock_tz_hrs)       ; Load hours for this row
+
+      cp    A, 0x21
+      jr    Z, dimming_on           ; hour == 2100
+      jr    NC, dimming_on          ; hour > 2100
+
+      cp    A, 0x06
+      jr    NC, dimming_off         ; hour >= 0600
+
+dimming_on
+      ld    A, 0x01                 ; Enable dimming
+      jr    apply_dimming
+
+dimming_off
+      xor   A, A
+
+apply_dimming
+      ld    (disp_dim), A
+
+no_dimming
       ; The MSb switch position indicates if the row should be
       ; displaying a time (low) or date (high)
       ld    HL, (tz_sw_ptr)         ; Get value of timezone switches

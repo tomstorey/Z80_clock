@@ -324,10 +324,6 @@ init
       ld    I, A
       ei
 
-      ; Set display to dimmed
-      ld    A, 0
-      ld    (disp_dim), A
-
 ;---- Schedule applications to run
       schedule_task APP_CLOCK
       schedule_task APP_CONFIGR

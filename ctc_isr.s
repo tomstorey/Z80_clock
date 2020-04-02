@@ -50,8 +50,10 @@ ctc_ch1_isr
       ld    A, 1                    ; Reset row counter to 1
       ld    (HL), A
 
-      ld    HL, disp_dim_ctr        ; Increment dimming counter
-      inc   (HL)
+      ld    HL, disp_dim_ctr        ; Increment dimming counter each
+      inc   (HL)                    ; time 3 rows have been displayed.
+                                    ; This will result in a 50% duty
+                                    ; cycle.
 
 ;---- Once the working row is determined, the next step is to compute
 ;     an offset for the address where that rows buffer is located in
@@ -132,14 +134,19 @@ next_row_char
 ;---- Finally, the dot points are loaded and shifted, and then the row
 ;     counter is written to an output register of the display driver
 ;     board, which also serves to latch in the data to drive that row.
-;
-;     If the row is to be turned off while dimming, output row 0
-;     instead of the working row number.
 
       pop   HL                      ; Restore DP ptr
       ld    A, (HL)                 ; Load DP byte from buffer
       cpl                           ; Invert for drivers that sink
       out   (C), A
+
+;---- If the row is to be turned off while dimming is enabled, write
+;     row 0 instead of the working row number to the display control
+;     register.
+;
+;     Dimming is enabled by storing a value of 1 in the disp_dim
+;     variable. When this value is ANDed with disp_dim_ctr, and when
+;     both LSb's are set, the row will be enabled.
 
       ld    HL, disp_dim_ctr        ; Is the display being dimmed?
       ld    A, (disp_dim)
