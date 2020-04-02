@@ -1,4 +1,4 @@
-
+[<img align="right" src="photo.jpg">]
 # Z80 based, tripple timezone clock
 This repository contains design files and source code for a clock project which uses a Z80 processor, and can display upto three different timezones at once.
 
