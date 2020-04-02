@@ -1,4 +1,4 @@
-#define serial_loading 1
+; #define serial_loading 1
 
 #target ROM
 #include "platform.inc"
