@@ -1,5 +1,5 @@
-[<img align="right" src="photo.jpg">]
 # Z80 based, tripple timezone clock
+<img align="right" src="photo.jpg">
 This repository contains design files and source code for a clock project which uses a Z80 processor, and can display upto three different timezones at once.
 
 All code is written in Z80 assembly, and can be assembled with the zasm assembler available at:
