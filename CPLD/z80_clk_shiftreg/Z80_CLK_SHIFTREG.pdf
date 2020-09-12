@@ -1,0 +1,167 @@
+{COMPONENT C:\BACKUP\Z80_CLK_SHIFTREG\Z80_CLK_SHIFTREG.SYM
+
+ {ENVIRONMENT
+  {PDIFvrev 3.00}
+  {Program "CUPL(WM) Version 5.0a"}
+  {DBtype "Schematic"}
+  {DBvrev 1.01}
+  {DBtime "Sat Aug 08 11:27:57 2020 "}
+  {DBunit "MIL"}
+  {DBgrid 10}
+  {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
+          "PINNAM" 6 "PINCON" 4 "REFDES" 2 "ATTR" 6 "SDOT" 1 
+          "DEVICE" 5 "OUTLIN" 5 "ATTR2" 6 "NOTES" 6 "NETNAM" 4 
+          "CMPNAM" 5 "BORDER" 5}
+ }
+
+ {USER
+  {VIEW
+   {Mode SYMB}
+   {Nlst OPEN}
+   {Vw 0 0 2}
+   {Lv 12 2 2 2 0 0 2 2 2 2 0 0 2 1 2 0 0 0 0}
+   {Gs 10 10}
+  }
+ }
+
+ {DISPLAY
+  [Ly "PINNUM"]
+  [Ls "SOLID"][Wd 0]
+  [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+ }
+
+ {SYMBOL
+  {PIN_DEF
+   [Ly "PINCON"]
+   {P CLK {Pt "INPUT"}{Lq 0}{Ploc 100 260}}
+   {P RESET' {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
+   {P SDO {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P CS' {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P D0 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P D1 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P D2 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P D3 {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P D4 {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P D5 {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P D6 {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P D7 {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P SCK {Pt "I/O"}{Lq 0}{Ploc 280 20}}
+  }
+
+  {PKG
+   [Ly "REFDES"]
+   [Ts 25][Tj "CB"][Tr 0][Tm "N"]
+   {Rdl 190 290}
+
+   [Ly "PINNUM"]
+   [Ts 15][Tj "RC"]
+   {Pnl 120 270}
+   [Ts 15][Tj "RC"]
+   {Pnl 120 230}
+   {Pnl 120 210}
+   {Pnl 120 190}
+   {Pnl 120 170}
+   {Pnl 120 150}
+   {Pnl 120 130}
+   {Pnl 120 110}
+   {Pnl 120 90}
+   {Pnl 120 70}
+   {Pnl 120 50}
+   {Pnl 120 30}
+   [Ts 15][Tj "LC"]
+   {Pnl 260 30}
+
+   {Sd A 43 1 4 6 18 19 20 21 24 25 26 27 5}
+  }
+
+  {PIC
+   [Ly "GATE"]
+   [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+   {R 130 280 250 0}
+   {L 130 260 100 260}
+   {L 130 270 140 260 130 250}
+   {L 120 220 100 220}
+   {C 125 220 5}
+   {L 130 200 100 200}
+   {L 120 180 100 180}
+   {C 125 180 5}
+   {L 130 160 100 160}
+   {L 130 140 100 140}
+   {L 130 120 100 120}
+   {L 130 100 100 100}
+   {L 130 80 100 80}
+   {L 130 60 100 60}
+   {L 130 40 100 40}
+   {L 130 20 100 20}
+   {L 250 20 280 20}
+   [Ly "PINNAM"]
+   [Tj "LC"]
+   {T "CLK" 140 260}
+   {T "RESET'" 140 220}
+   {T "SDO" 140 200}
+   {T "CS'" 140 180}
+   {T "D0" 140 160}
+   {T "D1" 140 140}
+   {T "D2" 140 120}
+   {T "D3" 140 100}
+   {T "D4" 140 80}
+   {T "D5" 140 60}
+   {T "D6" 140 40}
+   {T "D7" 140 20}
+   [Tj "RC"]
+   {T "SCK" 240 20}
+   [Ly "DEVICE"]
+   [Tj "CT"]
+   {T "F1502ISPPLCC44" 190 -10}
+  }
+
+  {ATR
+   {IN
+    {Org 100 20}
+    {Ty 255}
+   }
+   {EX
+    [Ly "ATTR2"]
+    [Ts 12][Tj "CT"][Tr 0][Tm "N"]
+    {At PLD C:\BACKUP\Z80_CLK_SHIFTREG\Z80_CLK_SHIFTREG 190 280}
+   }
+  }
+ }
+
+ {DETAIL
+  {ANNOTATE
+  }
+
+  {NET_DEF
+   {N CLK
+   }
+   {N RESET'
+   }
+   {N SDO
+   }
+   {N CS'
+   }
+   {N D0
+   }
+   {N D1
+   }
+   {N D2
+   }
+   {N D3
+   }
+   {N D4
+   }
+   {N D5
+   }
+   {N D6
+   }
+   {N D7
+   }
+   {N SCK
+   }
+  }
+
+  {SUBCOMP
+  }
+ }
+}

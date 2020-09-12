@@ -1,0 +1,155 @@
+Name     Z80_CLK_SHIFTREG ;
+PartNo   00 ;
+Date     8/2/2020 ;
+Revision 01 ;
+Designer Engineer ;
+Company  Engineer ;
+Assembly None ;
+Location U1 ;
+Device   f1502ispplcc44 ;
+
+/*
+ * Device pinout
+ *
+ *                                 r                               
+ *                                 e                               
+ *                     s  s  V     s    c  G                       
+ *                  c  c  d  C     e    l  N                       
+ *                  s  k  o  C     t    k  D                       
+ *               ____________________________________              
+ *              /   6  5  4  3  2  1 44 43 42 41 40  \             
+ *         TDI |  7                                39 |            
+ *             |  8                                38 | TDO        
+ *             |  9                                37 |            
+ *         GND | 10                                36 |            
+ *             | 11                                35 | VCC        
+ *             | 12            ATF1502             34 |            
+ *         TMS | 13          44-Lead PLCC          33 |            
+ *             | 14                                32 | TCK        
+ *         VCC | 15                                31 |            
+ *             | 16                                30 | GND        
+ *             | 17                                29 |            
+ *             |   18 19 20 21 22 23 24 25 26 27 28   |            
+ *              \____________________________________/             
+ *                 d  d  d  d  G  V  d  d  d  d                    
+ *                 0  1  2  3  N  C  4  5  6  7                    
+ *                             D  C                                
+ *
+ */
+
+property ATMEL {pin_keep=off};
+property ATMEL {logic_doubling=on};
+
+$define STATE_IDLE 0
+$define STATE_LOAD 1
+$define STATE_HOLD 2
+$define STATE_SHIFT 3
+
+/********************************* INPUT PINS *********************************/
+pin 1 = !reset;             /* GCLR */
+pin 6 = !cs;                /* Chip Select */
+pin [27, 26, 25, 24, 21, 20, 19, 18] = [d7..0]; /* Data bus - inputs */
+pin 43 = clk;               /* GCLK1 */
+
+/********************************* OUTPUT PINS ********************************/
+pin 4 = sdo;                /* Serial Data Out */
+pin 5 = sck;                /* Serial Clock */
+
+field data = [d7..0];       /* Field for referring to data bus */
+
+/*
+ * The shift register is comprised of the sdo pin and 7 internal DFFs for 8
+ * bits in total.
+ */
+node [shifter6..0];
+field shifter = [sdo, shifter6..0];
+field shifted = [shifter6..0, 'b'0];
+
+/*
+ * ctr is used to count the number of bits that have been shifted. When ctr
+ * reaches 8, shifting is terminated and the state machine returns to the
+ * IDLE state.
+ */
+node [ctr3..0];
+field ctr = [ctr3..0];
+
+/* State machine state bits */
+node [state1..0];
+field state = [state1..0];
+
+/*
+ * The serial clock is derived from the system clock, and is active when the
+ * state machine is in the SHIFT state.
+ */
+sck = clk & state:STATE_SHIFT;
+
+/*
+ * The counter is clocked by the serial clock, such that each bit transmitted
+ * will increment the counter.
+ *
+ * The counter resets each time the cs pin is asserted, or on system reset.
+ */
+ctr.ck = sck;
+ctr.ar = (cs # reset);
+
+ctr0.d = !ctr0;
+ctr1.d = ctr1 $ ctr0;
+ctr2.d = ctr2 $ ctr1 & ctr0;
+ctr3.d = ctr3 $ ctr2 & ctr1 & ctr0;
+
+/*
+ * The state machine controls the operation of the peripheral.
+ *
+ * On reset, and after each shift operation, the state machine rests in the IDLE
+ * state.
+ *
+ * When the cs pin is asserted, the state machine proceeds to the LOAD state,
+ * where the value presented on the data bus is latched into the shift register.
+ * At the next clock the state machine then advances to the HOLD state where it
+ * waits for the cs pin to be deasserted.
+ *
+ * The state machine then waits in the SHIFT state until 8 bits have been
+ * shifted, and then returns to IDLE.
+ *
+ * The state machine is clocked by the global clock, and is reset upon system
+ * reset.
+ */
+state.ck = clk;
+state.ar = reset;
+
+sequence state {
+    present STATE_IDLE
+        if cs next STATE_LOAD;
+        default next STATE_IDLE;
+
+    present STATE_LOAD
+        default next STATE_HOLD;
+
+    present STATE_HOLD
+        if !cs next STATE_SHIFT;
+        default next STATE_HOLD;
+
+    present STATE_SHIFT
+        if ctr:8 next STATE_IDLE;
+        default next STATE_SHIFT;
+}
+
+/*
+ * The shift register serialises the data that was loaded from the data bus.
+ *
+ * When the state machine is in the LOAD state, the shift register is loaded
+ * with the value presented on the data bus.
+ *
+ * When the state machine is in the SHIFT state, the value contained in the
+ * shift register is moved from LSb to MSb one bit each clock period, for a
+ * total of 8 clocks. As the data is shifted out, the shift register is
+ * filled with zeroes.
+ */
+shifter.ck = (clk & state:STATE_LOAD) #
+             (!clk & state:STATE_SHIFT);
+shifter.ar = reset;
+shifter.d = data & state:STATE_LOAD #
+            shifter & state:STATE_HOLD #
+            shifted & state:STATE_SHIFT;
+
+/* END */

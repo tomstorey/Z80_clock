@@ -1,0 +1,299 @@
+
+*******************************************************************************
+                               Z80_CLK_SHIFTREG
+*******************************************************************************
+
+CUPL(WM)        5.0a Serial# 60008009
+Device          f1502ispplcc44  Library DLIB-h-40-1
+Created         Sat Aug 08 11:27:57 2020
+Name            Z80_CLK_SHIFTREG 
+Partno          00 
+Revision        01 
+Date            8/2/2020 
+Designer        Engineer 
+Company         Engineer 
+Assembly        None 
+Location        U1 
+
+===============================================================================
+                            Expanded Product Terms
+===============================================================================
+
+ctr =>
+    ctr3 , ctr2 , ctr1 , ctr0
+
+ctr0.d  =>
+    !ctr0
+
+ctr0.ar  =>
+    cs
+  # reset
+
+ctr0.ck  =>
+    sck
+
+ctr1.d  =>
+    !ctr0 & ctr1
+  # ctr0 & !ctr1
+
+ctr1.ar  =>
+    cs
+  # reset
+
+ctr1.ck  =>
+    sck
+
+ctr2.d  =>
+    !ctr1 & ctr2
+  # !ctr0 & ctr2
+  # ctr0 & ctr1 & !ctr2
+
+ctr2.ar  =>
+    cs
+  # reset
+
+ctr2.ck  =>
+    sck
+
+ctr3.d  =>
+    !ctr2 & ctr3
+  # !ctr1 & ctr3
+  # !ctr0 & ctr3
+  # ctr0 & ctr1 & ctr2 & !ctr3
+
+ctr3.ar  =>
+    cs
+  # reset
+
+ctr3.ck  =>
+    sck
+
+data =>
+    d7 , d6 , d5 , d4 , d3 , d2 , d1 , d0
+
+sck =>
+    clk & state0 & state1
+
+sdo.d  =>
+    d7 & state0 & !state1
+  # sdo & !state0 & state1
+  # shifter6 & state0 & state1
+
+sdo.ar  =>
+    reset
+
+sdo.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifted =>
+    shifter6 , shifter5 , shifter4 , shifter3 , shifter2 , shifter1 , 
+      shifter0
+
+shifter =>
+    sdo , shifter6 , shifter5 , shifter4 , shifter3 , shifter2 , shifter1 , 
+      shifter0
+
+shifter0.d  =>
+    d0 & state0 & !state1
+  # shifter0 & !state0 & state1
+
+shifter0.ar  =>
+    reset
+
+shifter0.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter1.d  =>
+    d1 & state0 & !state1
+  # shifter1 & !state0 & state1
+  # shifter0 & state0 & state1
+
+shifter1.ar  =>
+    reset
+
+shifter1.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter2.d  =>
+    d2 & state0 & !state1
+  # shifter2 & !state0 & state1
+  # shifter1 & state0 & state1
+
+shifter2.ar  =>
+    reset
+
+shifter2.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter3.d  =>
+    d3 & state0 & !state1
+  # shifter3 & !state0 & state1
+  # shifter2 & state0 & state1
+
+shifter3.ar  =>
+    reset
+
+shifter3.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter4.d  =>
+    d4 & state0 & !state1
+  # shifter4 & !state0 & state1
+  # shifter3 & state0 & state1
+
+shifter4.ar  =>
+    reset
+
+shifter4.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter5.d  =>
+    d5 & state0 & !state1
+  # shifter5 & !state0 & state1
+  # shifter4 & state0 & state1
+
+shifter5.ar  =>
+    reset
+
+shifter5.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+shifter6.d  =>
+    d6 & state0 & !state1
+  # shifter6 & !state0 & state1
+  # shifter5 & state0 & state1
+
+shifter6.ar  =>
+    reset
+
+shifter6.ck  =>
+    clk & state0 & !state1
+  # !clk & state0 & state1
+
+state =>
+    state1 , state0
+
+state0.d  =>
+    cs & !state0 & !state1
+  # ctr1 & state0 & state1
+  # !cs & !state0 & state1
+  # !ctr3 & state0 & state1
+  # ctr2 & state0 & state1
+  # ctr0 & state0 & state1
+
+state0.ar  =>
+    reset
+
+state0.ck  =>
+    clk
+
+state1.d  =>
+    ctr1 & state0 & state1
+  # state0 & !state1
+  # !state0 & state1
+  # !ctr3 & state0 & state1
+  # ctr2 & state0 & state1
+  # ctr0 & state0 & state1
+
+state1.ar  =>
+    reset
+
+state1.ck  =>
+    clk
+
+
+===============================================================================
+                                 Symbol Table
+===============================================================================
+
+Pin Variable                                    Pterms   Max     Min    
+Pol   Name              Ext     Pin     Type     Used   Pterms  Level   
+--- --------            ---     ---     ----    ------  ------  -----   
+
+    clk                         43       V        -       -       -     
+ !  cs                          6        V        -       -       -     
+    ctr                         0        F        -       -       -     
+    ctr0                        55       N        -       -       -     
+    ctr0                d       55       M        1       0       1     
+    ctr0                ar      55       M        2       0       1     
+    ctr0                ck      55       M        1       0       1     
+    ctr1                        54       N        -       -       -     
+    ctr1                d       54       M        2       0       1     
+    ctr1                ar      54       M        2       0       1     
+    ctr1                ck      54       M        1       0       1     
+    ctr2                        53       N        -       -       -     
+    ctr2                d       53       M        3       0       1     
+    ctr2                ar      53       M        2       0       1     
+    ctr2                ck      53       M        1       0       1     
+    ctr3                        52       N        -       -       -     
+    ctr3                d       52       M        4       0       1     
+    ctr3                ar      52       M        2       0       1     
+    ctr3                ck      52       M        1       0       1     
+    d0                          18       V        -       -       -     
+    d1                          19       V        -       -       -     
+    d2                          20       V        -       -       -     
+    d3                          21       V        -       -       -     
+    d4                          24       V        -       -       -     
+    d5                          25       V        -       -       -     
+    d6                          26       V        -       -       -     
+    d7                          27       V        -       -       -     
+    data                        0        F        -       -       -     
+ !  reset                       1        V        -       -       -     
+    sck                         5        V        1       0       1     
+    sdo                         4        V        -       -       -     
+    sdo                 d       4        X        3       0       1     
+    sdo                 ar      4        X        1       0       1     
+    sdo                 ck      4        X        2       0       1     
+    shifted                     0        F        -       -       -     
+    shifter                     0        F        -       -       -     
+    shifter0                    51       N        -       -       -     
+    shifter0            d       51       M        2       0       1     
+    shifter0            ar      51       M        1       0       1     
+    shifter0            ck      51       M        2       0       1     
+    shifter1                    50       N        -       -       -     
+    shifter1            d       50       M        3       0       1     
+    shifter1            ar      50       M        1       0       1     
+    shifter1            ck      50       M        2       0       1     
+    shifter2                    49       N        -       -       -     
+    shifter2            d       49       M        3       0       1     
+    shifter2            ar      49       M        1       0       1     
+    shifter2            ck      49       M        2       0       1     
+    shifter3                    48       N        -       -       -     
+    shifter3            d       48       M        3       0       1     
+    shifter3            ar      48       M        1       0       1     
+    shifter3            ck      48       M        2       0       1     
+    shifter4                    47       N        -       -       -     
+    shifter4            d       47       M        3       0       1     
+    shifter4            ar      47       M        1       0       1     
+    shifter4            ck      47       M        2       0       1     
+    shifter5                    46       N        -       -       -     
+    shifter5            d       46       M        3       0       1     
+    shifter5            ar      46       M        1       0       1     
+    shifter5            ck      46       M        2       0       1     
+    shifter6                    45       N        -       -       -     
+    shifter6            d       45       M        3       0       1     
+    shifter6            ar      45       M        1       0       1     
+    shifter6            ck      45       M        2       0       1     
+    state                       0        F        -       -       -     
+    state0                      57       N        -       -       -     
+    state0              d       57       M        6       0       1     
+    state0              ar      57       M        1       0       1     
+    state0              ck      57       M        1       0       1     
+    state1                      56       N        -       -       -     
+    state1              d       56       M        6       0       1     
+    state1              ar      56       M        1       0       1     
+    state1              ck      56       M        1       0       1     
+
+
+LEGEND    D : default variable         F : field      G : group
+          I : intermediate variable    N : node       M : extended node
+          U : undefined                V : variable   X : extended variable
+          T : function
+
