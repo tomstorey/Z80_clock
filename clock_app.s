@@ -714,7 +714,7 @@ display_row
       ; Enable dimming of the display if configured
       in    A, (BTN_REG)            ; Read buttons and switches
       cpl                           ; Buttons pull down, make positive
-      ld    C, A                    ; Save A for later, determine d/c
+      ld    C, A                    ; Save for determining duty cycle
       rra                           ; Move upper nibble to lower
       rra
       rra
