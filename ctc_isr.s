@@ -137,7 +137,10 @@ next_row_char
 
       pop   HL                      ; Restore DP ptr
       ld    A, (HL)                 ; Load DP byte from buffer
-      cpl                           ; Invert for drivers that sink
+#if rev_a_hw
+      cpl                           ; Invert for drivers using neg
+                                    ; polarity logic, e.g. 74HC595
+#endif
       out   (C), A
 
 ;---- If the row is to be turned off while dimming is enabled, write
