@@ -1,6 +1,6 @@
-# Z80 based, tripple timezone clock
+# Z80 based, triple time zone clock
 <img align="right" src="photo.jpg">
-This repository contains design files and source code for a clock project which uses a Z80 processor, and can display upto three different timezones at once.
+This repository contains design files and source code for a clock project which uses a Z80 processor, and can display upto three different time zones at once.
 
 All code is written in Z80 assembly, and can be assembled with the zasm assembler available at:
 
@@ -8,16 +8,14 @@ https://k1.spdns.de/Develop/Projects/zasm/Distributions/
 
 Other assemblers may work, perhaps with minor modification to the code.
 
-The display is made up of three rows of eight 16-segment displays, and is driven by a shift register of 136 bits (128 for display segments plus 8 for the dot points of the displays.)
+The display is made up of three rows of eight 16-segment displays, and is driven by a shift register of 136 bits (128 for display segments plus 8 for the dot points of the displays) so that an entire row is driven all at once.
 
-Within the clock is a [Texas Instruments BQ4845 Real Time Clock](http://www.ti.com/product/BQ4845). A backup battery maintains the time while the power is off. The RTC time and date is configured to represent UTC, and each timezone is then calculated as an offset from UTC, either positive or negative.
-
-DIP switches allow the display to be configured to any combination of times and dates.
+Within the clock is a [Texas Instruments BQ4845 Real Time Clock](http://www.ti.com/product/BQ4845). A backup battery maintains the time while the power is off. The RTC time and date is configured to represent UTC, and each time zone is then calculated as an offset from UTC, either positive or negative.
 
 Three ROMs provide all of the non-volatile storage needs:
 
  1. App ROM contains the application code
- 2. TZ ROM contains timezone information
+ 2. TZ ROM contains time zone information
  3. Char ROM contains data for displaying characters
 
 The following table describes the address ranges covered by each of the memories:
@@ -29,6 +27,7 @@ The following table describes the address ranges covered by each of the memories
 | **TZ ROM**   | 0xC000 | 0xDFFF |   8K |
 | **Char ROM** | 0xE000 | 0xFFFF |   8K |
 
+DIP switches allow each row of the display to be configured to any time or date according to entries stored within the TZ ROM.
 
 
 ## Source code structure/explanation
@@ -36,7 +35,7 @@ Assembly source files end with the `.s` extension. `.inc` files provide defines/
 
 `clock.s` is the top source file, which includes a variety of `.inc` and other `.s` files to build up the entire application.
 
-Other files on no particular order:
+Other files in no particular order:
 
 `configr_app.s` implements an "application" of sorts which allows the user to configure the time and date of the RTC.
 
@@ -81,28 +80,20 @@ There are a couple of small Python based utilities included as well, which were 
 `reader.py` was intended to provide an ability to read back a portion of memory, but is in an unknown state at this time and the matching functionality is not implemented in the current serial loader.
 
 ## Hardware designs/schematics
-Hardware is still a small work in progress, but is largely complete, correct, and at the very least is functional.
-
-There are no PCB designs as the prototype hardware was built as rats nest on proto boards.
+Hardware designs are functional and complete. There are no PCB designs as the prototype hardware was built as rats nest on proto boards.
 
 At time of writing, the following TODO list remains:
 
- - Modifications/corrections to RAM decoding logic and address lines to allow RAM to span the entire address range 0x6000-0x9FFF
- - Implementing a 555 timer based oscillator to drive the piezo speaker which could be used for alarms, beeps when pressing buttons, etc (currently it is hooked up to a pin of an output register, but this requires driving in software to perform the oscillation which is very intensive depending on the frequency)
- - Note 1 below
+ - Determine best way to drive the speaker - there is a free CTC channel which could be used for this?
 
 Otherwise, here are some lightweight descriptions of the schematic files:
 
 `CPU board *.sch` contains the processor and all memories (RAM/ROMs), reset circuitry, oscillator, and power input.
 
-`timer rtc io.sch` is a module which contains the RTC, a Z80 CTC peripheral, and user interface inputs such as buttons and DIP switches. It also has the speaker. The RTC also includes a watchdog reset function. See note 1 below.
+`timer rtc io.sch` is a module which contains the RTC, a Z80 CTC peripheral, and user interface inputs such as buttons and DIP switches. It also has the speaker. The RTC also includes a watchdog reset function.
 
-`display driver shift reg.sch` contains all of the shift registers to drive all display segments on one row. In the current revision it implements a discrete parallel-load to serial-output peripheral that allows the Z80 to OUT a byte and have it shifted serially into the shift registers that drive the displays. See note 2 below.
+`display driver rev X.sch` contains all of the shift registers to drive all display segments on one row. Rev A implemented a discrete parallel-load to serial-output peripheral with 74HC595 shift registers for the drivers. Rev B changed the shift registers to TLC5916's (proper LED drivers) and also uses an ATF1502AS CPLD to implement the shift register logic. Both boards are functionally equivalent in that the CPU can simply OUT a byte and the shifter will automatically shift the byte out. Char ROM data may need to be inverted depending on which revision is in use - something I should probably make consistent, but notes are included in the char_rom.s file to help you figure that out in the mean time.
 
-`uard board.sch` contains a Z80 SIO peripheral which was used for serial loading of code for execution from RAM. See note 1 below.
+`uart board.sch` contains a Z80 SIO peripheral which was used for serial loading of code for execution from RAM. In a future revision I'll likely repurpose this to interface with a GPS module to perform time synchronisation to compensate for drift in the RTC.
 
-There is currently no schematic for the display board itself, this is a work in progress.
-
-Notes:
- 1. There is currently a hardware conflict between the `timer rtc io` (CTC) and `uart board` (SIO) modules. The CTC was originally intended to be the only Z80 family peripheral in the clock, and the hardware was designed to set the bus direction to output when the Z80 attempts to read an interrupt vector. The SIO was added later, and was configured as the start of the interrupt daisy chain. Consequently, when the SIO generates an interrupt and the Z80 attempts to read the interrupt vector, the CTC will also attempt to output its vector at the same time. This resulted in some very eratic behaviour, so the SIO must be used in polled mode at present. A fix for this is on the cards, most likely beginning with a reversal of the interrupt daisy chain so that the CTC is the start of the interrupt daisy chain.
- 2. I intend to replace the discrete parallel-load shift register with a CPLD implementation, perhaps on something like an Atmel ATF150x device. I also intend to replace all of the 74x595 shift registers with something more appropriate for driving LEDs (and to save a few resistors...!)
+There is currently no real schematic for the display board itself, this is a work in progress. I'll get around to it some day. :-)
