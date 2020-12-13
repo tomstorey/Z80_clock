@@ -1,5 +1,11 @@
 ; #define serial_loading 1
 
+; Revision A hardware used 74HC595 shift registers for the LED driver
+; board. These were replaced with TLC5916 LED drivers in the Rev B
+; LED driver board. If you have built Rev A hardware, set the
+; following flag to 1.
+#define rev_a_hw 0
+
 #target ROM
 #include "platform.inc"
 #include "ctc.inc"
