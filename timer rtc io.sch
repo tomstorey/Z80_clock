@@ -16703,8 +16703,8 @@ http://www.st.com&lt;p&gt;
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="T1" library="transistor" deviceset="BC547" device=""/>
 <part name="R2" library="rcl" deviceset="R-EU_" device="0207/10" value="1K"/>
-<part name="U11" library="74xx-us" deviceset="74*30" device="N" technology="LS"/>
-<part name="U12" library="74xx-us" deviceset="74*00" device="N" technology="LS"/>
+<part name="U11" library="74xx-us" deviceset="74*30" device="N" technology="LS" value="74HC30"/>
+<part name="U12" library="74xx-us" deviceset="74*00" device="N" technology="LS" value="74HC00"/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
 <part name="P+20" library="supply1" deviceset="+5V" device=""/>
