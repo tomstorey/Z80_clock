@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.5.2">
+<eagle version="9.6.1">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -15411,10 +15411,6 @@ Extended by Federico Battaglin &lt;author&gt;&amp;lt;federico.rd@fdpinternationa
 
 GREEN  CPU RUNNING
 RED    CPU HALTED</text>
-<wire x1="317.5" y1="142.24" x2="347.98" y2="142.24" width="0.254" layer="90"/>
-<wire x1="347.98" y1="142.24" x2="347.98" y2="129.54" width="0.254" layer="90"/>
-<wire x1="347.98" y1="129.54" x2="317.5" y2="129.54" width="0.254" layer="90"/>
-<wire x1="317.5" y1="129.54" x2="317.5" y2="142.24" width="0.254" layer="90"/>
 </plain>
 <instances>
 <instance part="U5" gate="1" x="144.78" y="142.24" smashed="yes">
@@ -16275,15 +16271,7 @@ RED    CPU HALTED</text>
 <pinref part="U12" gate="G$1" pin="A15"/>
 <wire x1="307.34" y1="132.08" x2="304.8" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="304.8" y1="132.08" x2="304.8" y2="129.54" width="0.1524" layer="91"/>
-<label x="304.8" y="132.08" size="1.27" layer="95" rot="R180"/>
-</segment>
-<segment>
-<pinref part="U13" gate="G$1" pin="A14"/>
-<wire x1="332.74" y1="134.62" x2="330.2" y2="134.62" width="0.1524" layer="91"/>
-<label x="330.2" y="134.62" size="1.27" layer="95" rot="R180"/>
-<pinref part="U13" gate="G$1" pin="A13"/>
-<wire x1="332.74" y1="137.16" x2="330.2" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="330.2" y1="137.16" x2="330.2" y2="134.62" width="0.1524" layer="91"/>
+<label x="304.546" y="132.588" size="1.27" layer="95" rot="MR270"/>
 </segment>
 <segment>
 <pinref part="U14" gate="G$1" pin="A16"/>
@@ -16299,7 +16287,7 @@ RED    CPU HALTED</text>
 <wire x1="358.14" y1="137.16" x2="355.6" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="355.6" y1="137.16" x2="355.6" y2="134.62" width="0.1524" layer="91"/>
 <junction x="355.6" y="134.62"/>
-<label x="355.6" y="137.16" size="1.27" layer="95" rot="R180"/>
+<label x="354.838" y="135.128" size="1.27" layer="95" rot="MR270"/>
 </segment>
 <segment>
 <pinref part="U15" gate="G$1" pin="A16"/>
@@ -16315,7 +16303,7 @@ RED    CPU HALTED</text>
 <wire x1="383.54" y1="137.16" x2="381" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="381" y1="137.16" x2="381" y2="134.62" width="0.1524" layer="91"/>
 <junction x="381" y="134.62"/>
-<label x="381" y="137.16" size="1.27" layer="95" rot="R180"/>
+<label x="380.238" y="135.128" size="1.27" layer="95" rot="MR270"/>
 </segment>
 <segment>
 <pinref part="C19" gate="G$1" pin="-"/>
@@ -16480,6 +16468,11 @@ RED    CPU HALTED</text>
 <wire x1="2.54" y1="195.58" x2="-5.08" y2="195.58" width="0.1524" layer="91"/>
 <pinref part="GND24" gate="1" pin="GND"/>
 <wire x1="-5.08" y1="195.58" x2="-5.08" y2="190.5" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="U13" gate="G$1" pin="A14"/>
+<wire x1="332.74" y1="134.62" x2="330.2" y2="134.62" width="0.1524" layer="91"/>
+<label x="329.946" y="134.62" size="1.27" layer="95" rot="MR270"/>
 </segment>
 </net>
 <net name="D0" class="0">
@@ -17190,7 +17183,8 @@ RED    CPU HALTED</text>
 <label x="297.18" y="137.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="325.12" y1="137.16" x2="327.66" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="325.12" y1="137.16" x2="332.74" y2="137.16" width="0.1524" layer="91"/>
+<pinref part="U13" gate="G$1" pin="A13"/>
 </segment>
 </net>
 <net name="A14" class="0">
