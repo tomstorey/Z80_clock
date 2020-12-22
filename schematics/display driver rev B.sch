@@ -14672,8 +14672,8 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <wire x1="543.56" y1="96.52" x2="543.56" y2="109.22" width="0.1524" layer="94"/>
 <wire x1="513.08" y1="83.82" x2="513.08" y2="73.66" width="0.1524" layer="88"/>
 <wire x1="502.92" y1="86.36" x2="513.08" y2="86.36" width="0.1524" layer="88"/>
-<text x="510.54" y="12.7" size="1.778" layer="97">LAYOUT OF SHIFT REGISTERS AND RELATION TO HEADERS AS SEEN FROM BOTTOM OF DISPLAY
-DRIVER BOARD</text>
+<text x="510.54" y="12.7" size="1.778" layer="97">LAYOUT OF SHIFT REGISTERS AND RELATION TO HEADERS AS SEEN FROM BOTTOM OF
+PROTOTYPE DISPLAY DRIVER BOARD</text>
 <wire x1="518.16" y1="63.5" x2="528.32" y2="63.5" width="0.1524" layer="88"/>
 <wire x1="518.16" y1="48.26" x2="528.32" y2="48.26" width="0.1524" layer="88"/>
 <wire x1="533.4" y1="50.8" x2="538.48" y2="50.8" width="0.1524" layer="88"/>
