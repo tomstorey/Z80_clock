@@ -15,5 +15,7 @@
 !run
 !README.md
 !datasheets/*
-!schematics/*
+!schematics/*.brd
+!schematics/*.sch
+!schematics/*.lbr
 !source/*
