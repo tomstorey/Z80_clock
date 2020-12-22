@@ -14546,12 +14546,12 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="GND31" library="supply1" deviceset="GND" device=""/>
 <part name="GND32" library="supply1" deviceset="GND" device=""/>
 <part name="GND33" library="supply1" deviceset="GND" device=""/>
-<part name="SV5" library="con-ml" deviceset="ML10E" device=""/>
+<part name="JTAG" library="con-ml" deviceset="ML10E" device=""/>
 <part name="GND34" library="supply1" deviceset="GND" device=""/>
 <part name="P+11" library="supply1" deviceset="+5V" device=""/>
-<part name="R19" library="rcl" deviceset="R-EU_" device="0207/10"/>
-<part name="R20" library="rcl" deviceset="R-EU_" device="0207/10"/>
-<part name="R21" library="rcl" deviceset="R-EU_" device="0207/10"/>
+<part name="R19" library="rcl" deviceset="R-EU_" device="0207/10" value="10K"/>
+<part name="R20" library="rcl" deviceset="R-EU_" device="0207/10" value="10K"/>
+<part name="R21" library="rcl" deviceset="R-EU_" device="0207/10" value="10K"/>
 <part name="GND35" library="supply1" deviceset="GND" device=""/>
 <part name="P+12" library="supply1" deviceset="+5V" device=""/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
@@ -16013,55 +16013,55 @@ DRIVER BOARD</text>
 <instance part="GND33" gate="1" x="269.24" y="299.72" smashed="yes">
 <attribute name="VALUE" x="266.7" y="297.18" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-1" x="337.82" y="99.06" smashed="yes">
+<instance part="JTAG" gate="-1" x="337.82" y="99.06" smashed="yes">
 <attribute name="NAME" x="340.36" y="98.298" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="96.139" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-2" x="360.68" y="71.12" smashed="yes">
-<attribute name="NAME" x="363.22" y="70.358" size="1.778" layer="95"/>
-<attribute name="VALUE" x="360.426" y="68.199" size="1.778" layer="96"/>
+<instance part="JTAG" gate="-2" x="363.22" y="71.12" smashed="yes">
+<attribute name="NAME" x="365.76" y="70.358" size="1.778" layer="95"/>
+<attribute name="VALUE" x="362.966" y="68.199" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-3" x="360.68" y="93.98" smashed="yes" rot="MR0">
-<attribute name="NAME" x="358.14" y="93.218" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="360.934" y="91.059" size="1.778" layer="96" rot="MR0"/>
+<instance part="JTAG" gate="-3" x="363.22" y="93.98" smashed="yes" rot="MR0">
+<attribute name="NAME" x="360.68" y="93.218" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="363.474" y="91.059" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="SV5" gate="-4" x="360.68" y="78.74" smashed="yes">
-<attribute name="NAME" x="363.22" y="77.978" size="1.778" layer="95"/>
-<attribute name="VALUE" x="360.426" y="75.819" size="1.778" layer="96"/>
+<instance part="JTAG" gate="-4" x="363.22" y="78.74" smashed="yes">
+<attribute name="NAME" x="365.76" y="77.978" size="1.778" layer="95"/>
+<attribute name="VALUE" x="362.966" y="75.819" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-5" x="337.82" y="96.52" smashed="yes">
+<instance part="JTAG" gate="-5" x="337.82" y="96.52" smashed="yes">
 <attribute name="NAME" x="340.36" y="95.758" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="93.599" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-6" x="337.82" y="83.82" smashed="yes">
+<instance part="JTAG" gate="-6" x="337.82" y="83.82" smashed="yes">
 <attribute name="NAME" x="340.36" y="83.058" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="80.899" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-7" x="337.82" y="81.28" smashed="yes">
+<instance part="JTAG" gate="-7" x="337.82" y="81.28" smashed="yes">
 <attribute name="NAME" x="340.36" y="80.518" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="78.359" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-8" x="337.82" y="78.74" smashed="yes">
+<instance part="JTAG" gate="-8" x="337.82" y="78.74" smashed="yes">
 <attribute name="NAME" x="340.36" y="77.978" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="75.819" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-9" x="337.82" y="93.98" smashed="yes">
+<instance part="JTAG" gate="-9" x="337.82" y="93.98" smashed="yes">
 <attribute name="NAME" x="340.36" y="93.218" size="1.778" layer="95"/>
 <attribute name="VALUE" x="337.566" y="91.059" size="1.778" layer="96"/>
 </instance>
-<instance part="SV5" gate="-10" x="360.68" y="68.58" smashed="yes">
-<attribute name="NAME" x="363.22" y="67.818" size="1.778" layer="95"/>
-<attribute name="VALUE" x="360.426" y="65.659" size="1.778" layer="96"/>
+<instance part="JTAG" gate="-10" x="363.22" y="68.58" smashed="yes">
+<attribute name="NAME" x="365.76" y="67.818" size="1.778" layer="95"/>
+<attribute name="VALUE" x="362.966" y="65.659" size="1.778" layer="96"/>
 </instance>
-<instance part="GND34" gate="1" x="355.6" y="60.96" smashed="yes">
-<attribute name="VALUE" x="353.06" y="58.42" size="1.778" layer="96"/>
+<instance part="GND34" gate="1" x="358.14" y="60.96" smashed="yes">
+<attribute name="VALUE" x="355.6" y="58.42" size="1.778" layer="96"/>
 </instance>
-<instance part="P+11" gate="1" x="355.6" y="86.36" smashed="yes">
-<attribute name="VALUE" x="353.06" y="81.28" size="1.778" layer="96" rot="R90"/>
+<instance part="P+11" gate="1" x="358.14" y="86.36" smashed="yes">
+<attribute name="VALUE" x="355.6" y="81.28" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="R19" gate="G$1" x="317.5" y="106.68" smashed="yes" rot="R90">
-<attribute name="NAME" x="316.0014" y="102.87" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="320.802" y="102.87" size="1.778" layer="96" rot="R90"/>
+<instance part="R19" gate="G$1" x="314.96" y="106.68" smashed="yes" rot="R90">
+<attribute name="NAME" x="313.4614" y="102.87" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="318.262" y="102.87" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="R20" gate="G$1" x="322.58" y="106.68" smashed="yes" rot="R90">
 <attribute name="NAME" x="321.0814" y="102.87" size="1.778" layer="95" rot="R90"/>
@@ -16074,8 +16074,8 @@ DRIVER BOARD</text>
 <instance part="GND35" gate="1" x="327.66" y="76.2" smashed="yes">
 <attribute name="VALUE" x="325.12" y="73.66" size="1.778" layer="96"/>
 </instance>
-<instance part="P+12" gate="1" x="317.5" y="119.38" smashed="yes">
-<attribute name="VALUE" x="314.96" y="114.3" size="1.778" layer="96" rot="R90"/>
+<instance part="P+12" gate="1" x="314.96" y="119.38" smashed="yes">
+<attribute name="VALUE" x="312.42" y="114.3" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="GND7" gate="1" x="340.36" y="299.72" smashed="yes">
 <attribute name="VALUE" x="337.82" y="297.18" size="1.778" layer="96"/>
@@ -16667,14 +16667,14 @@ DRIVER BOARD</text>
 <wire x1="269.24" y1="307.34" x2="269.24" y2="302.26" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-10" pin="S"/>
+<pinref part="JTAG" gate="-10" pin="S"/>
 <pinref part="GND34" gate="1" pin="GND"/>
-<wire x1="358.14" y1="68.58" x2="355.6" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="355.6" y1="68.58" x2="355.6" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="SV5" gate="-2" pin="S"/>
-<wire x1="358.14" y1="71.12" x2="355.6" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="355.6" y1="71.12" x2="355.6" y2="68.58" width="0.1524" layer="91"/>
-<junction x="355.6" y="68.58"/>
+<wire x1="360.68" y1="68.58" x2="358.14" y2="68.58" width="0.1524" layer="91"/>
+<wire x1="358.14" y1="68.58" x2="358.14" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="JTAG" gate="-2" pin="S"/>
+<wire x1="360.68" y1="71.12" x2="358.14" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="358.14" y1="71.12" x2="358.14" y2="68.58" width="0.1524" layer="91"/>
+<junction x="358.14" y="68.58"/>
 </segment>
 <segment>
 <pinref part="R21" gate="G$1" pin="1"/>
@@ -17031,20 +17031,20 @@ DRIVER BOARD</text>
 <wire x1="330.2" y1="259.08" x2="330.2" y2="264.16" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-4" pin="S"/>
+<pinref part="JTAG" gate="-4" pin="S"/>
 <pinref part="P+11" gate="1" pin="+5V"/>
-<wire x1="358.14" y1="78.74" x2="355.6" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="355.6" y1="78.74" x2="355.6" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="360.68" y1="78.74" x2="358.14" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="358.14" y1="78.74" x2="358.14" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="P+12" gate="1" pin="+5V"/>
 <pinref part="R19" gate="G$1" pin="2"/>
-<wire x1="317.5" y1="116.84" x2="317.5" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="314.96" y1="116.84" x2="314.96" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="R20" gate="G$1" pin="2"/>
-<wire x1="317.5" y1="114.3" x2="317.5" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="317.5" y1="114.3" x2="322.58" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="314.96" y1="114.3" x2="314.96" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="314.96" y1="114.3" x2="322.58" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="322.58" y1="114.3" x2="322.58" y2="111.76" width="0.1524" layer="91"/>
-<junction x="317.5" y="114.3"/>
+<junction x="314.96" y="114.3"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -18847,11 +18847,11 @@ DRIVER BOARD</text>
 <label x="327.66" y="233.68" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-9" pin="S"/>
+<pinref part="JTAG" gate="-9" pin="S"/>
 <wire x1="335.28" y1="93.98" x2="322.58" y2="93.98" width="0.1524" layer="91"/>
-<label x="312.42" y="93.98" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="307.34" y="93.98" size="1.27" layer="95" rot="R180" xref="yes"/>
 <wire x1="322.58" y1="93.98" x2="317.5" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="317.5" y1="93.98" x2="312.42" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="317.5" y1="93.98" x2="307.34" y2="93.98" width="0.1524" layer="91"/>
 <pinref part="R20" gate="G$1" pin="1"/>
 <wire x1="322.58" y1="101.6" x2="322.58" y2="93.98" width="0.1524" layer="91"/>
 <junction x="322.58" y="93.98"/>
@@ -18864,14 +18864,14 @@ DRIVER BOARD</text>
 <label x="327.66" y="220.98" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-5" pin="S"/>
+<pinref part="JTAG" gate="-5" pin="S"/>
 <wire x1="335.28" y1="96.52" x2="322.58" y2="96.52" width="0.1524" layer="91"/>
-<label x="312.42" y="96.52" size="1.27" layer="95" rot="R180" xref="yes"/>
-<wire x1="322.58" y1="96.52" x2="317.5" y2="96.52" width="0.1524" layer="91"/>
+<label x="307.34" y="96.52" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="322.58" y1="96.52" x2="314.96" y2="96.52" width="0.1524" layer="91"/>
 <pinref part="R19" gate="G$1" pin="1"/>
-<wire x1="317.5" y1="96.52" x2="312.42" y2="96.52" width="0.1524" layer="91"/>
-<wire x1="317.5" y1="101.6" x2="317.5" y2="96.52" width="0.1524" layer="91"/>
-<junction x="317.5" y="96.52"/>
+<wire x1="314.96" y1="96.52" x2="307.34" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="314.96" y1="101.6" x2="314.96" y2="96.52" width="0.1524" layer="91"/>
+<junction x="314.96" y="96.52"/>
 </segment>
 </net>
 <net name="TCK" class="0">
@@ -18881,11 +18881,11 @@ DRIVER BOARD</text>
 <label x="327.66" y="193.04" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-1" pin="S"/>
+<pinref part="JTAG" gate="-1" pin="S"/>
 <wire x1="335.28" y1="99.06" x2="327.66" y2="99.06" width="0.1524" layer="91"/>
-<label x="312.42" y="99.06" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="307.34" y="99.06" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="R21" gate="G$1" pin="2"/>
-<wire x1="327.66" y1="99.06" x2="312.42" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="327.66" y1="99.06" x2="307.34" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="327.66" y1="91.44" x2="327.66" y2="99.06" width="0.1524" layer="91"/>
 <junction x="327.66" y="99.06"/>
 </segment>
@@ -18897,9 +18897,9 @@ DRIVER BOARD</text>
 <label x="327.66" y="180.34" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="SV5" gate="-3" pin="S"/>
-<wire x1="363.22" y1="93.98" x2="368.3" y2="93.98" width="0.1524" layer="91"/>
-<label x="368.3" y="93.98" size="1.27" layer="95" xref="yes"/>
+<pinref part="JTAG" gate="-3" pin="S"/>
+<wire x1="365.76" y1="93.98" x2="370.84" y2="93.98" width="0.1524" layer="91"/>
+<label x="370.84" y="93.98" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>
