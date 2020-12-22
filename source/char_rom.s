@@ -1,6 +1,9 @@
+#if !defined(unified_image) || unified_image == 0
 #target ROM
 #code ROM, 0, 512
+
       .org 0
+#endif
 
       ; Char ROM is made up of 256 double words, each corresponding to
       ; one character able to be displayed.
@@ -294,5 +297,3 @@
       .dw 0x0000        ; 253   0xFD   11111101   375
       .dw 0x0000        ; 254   0xFE   11111110   376
       .dw 0xFFFF        ; 255   0xFF   11111111   377
-
-      .end

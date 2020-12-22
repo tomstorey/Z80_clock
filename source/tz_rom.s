@@ -1,9 +1,12 @@
+#if !defined(unified_image) || unified_image == 0
 #target ROM
 #code ROM, 0, 8192
 
+      .org 0
+#endif
+
 ;     Correct as of Tue 31 Mar 2020
 
-      .org 0
 ;---- Entry 0
 ;     This entry is reserved for blanking display lines
       .db 0xFF

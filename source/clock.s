@@ -1,3 +1,7 @@
+; Uncomment the below line if you are using the serial bootloader to
+; load code and execute from RAM. Adjustments will be made to assemble
+; the code appropriately for execution from RAM, as defined in the
+; platform.inc file.
 ; #define serial_loading 1
 
 ; Revision A hardware used 74HC595 shift registers for the LED driver
@@ -5,6 +9,14 @@
 ; LED driver board. If you have built Rev A hardware, set the
 ; following flag to 1.
 #define rev_a_hw 0
+
+; Adjust the following setting accordingly, if you would like to build
+; a unified ROM image containing application code, TZ ROM and char ROM
+; in a single image, instead of individually.
+;
+;  0 = build only application code
+;  1 = build unified image
+#define unified_image 0
 
 #target ROM
 #include "platform.inc"
@@ -526,5 +538,15 @@ wd_poke_task
 #include "ctc_isr.s"
 #include "c_lib.s"
 
+#if unified_image == 1
+      .org TZ_ROM_BASE
+
+#include "tz_rom.s"
+
+      .org CHAR_ROM_BASE
+
+#include "char_rom.s"
+
+#endif
 
       .end

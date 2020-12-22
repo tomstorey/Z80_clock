@@ -18,7 +18,11 @@ RAM_BASE                .equ  0x7800
 RAM_SZ                  .equ  1792
 #else
 ROM_BASE                .equ  0
+#if unified_image == 0
 ROM_SZ                  .equ  24576
+#else
+ROM_SZ                  .equ  65536
+#endif
 
 RAM_BASE                .equ  0x6000
 RAM_SZ                  .equ  8192
