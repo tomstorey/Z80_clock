@@ -32,6 +32,11 @@ ctc_ch1_isr
       ex    AF, AF'
       exx
 
+;---- Set current display row to 0 - turns off the row early to
+;     prevent a small amount of aliasing on the previous row
+      xor   A, A
+      out   (DISP_CTRL), A
+
 ;---- First thing to do is to determine the current row being worked
 ;     on. At boot, memory is zeroised, so incrementing early means
 ;     row 1 is the starting row. Each iteration the counter is inc'd

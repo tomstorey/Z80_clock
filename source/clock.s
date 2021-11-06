@@ -342,15 +342,20 @@ init
       ld    I, A
       ei
 
-;---- Schedule applications to run
-      schedule_task APP_CLOCK
-      schedule_task APP_CONFIGR
-
-      jp    main_loop
+      jp    main
 
 ;---- Main application loop
 ;     Runs all scheduled tasks and applications.
       .align 0x100
+main
+;---- Schedule applications to run
+      schedule_task APP_CLOCK
+      schedule_task APP_CONFIGR
+
+;---- Allow the clock to run immediately to populate display
+;     staging buffers
+      sem_post clock_app_sem
+
 main_loop
       ; Inputs
       run_task TASK_BUTTON_RD, button_rd_task

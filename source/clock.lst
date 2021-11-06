@@ -1,9 +1,13 @@
               	; --------------------------------------
               	; zasm: assemble "clock.s"
-              	; date: 2020-12-13 19:28:07
+              	; date: 2021-11-06 18:55:32
               	; --------------------------------------
 
 
+              	; Uncomment the below line if you are using the serial bootloader to
+              	; load code and execute from RAM. Adjustments will be made to assemble
+              	; the code appropriately for execution from RAM, as defined in the
+              	; platform.inc file.
               	; #define serial_loading 1
               	
               	; Revision A hardware used 74HC595 shift registers for the LED driver
@@ -11,6 +15,14 @@
               	; LED driver board. If you have built Rev A hardware, set the
               	; following flag to 1.
 0000:         	#define rev_a_hw 0
+              	
+              	; Adjust the following setting accordingly, if you would like to build
+              	; a unified ROM image containing application code, TZ ROM and char ROM
+              	; in a single image, instead of individually.
+              	;
+              	;  0 = build only application code
+              	;  1 = build unified image
+0000:         	#define unified_image 0
               	
               	#target ROM
               	#include "platform.inc"
@@ -34,7 +46,11 @@
               	RAM_SZ                  .equ  1792
               	#else
 0000:         	ROM_BASE                .equ  0
+              	#if unified_image == 0
 6000:         	ROM_SZ                  .equ  24576
+              	#else
+              	ROM_SZ                  .equ  65536
+              	#endif
               	
 6000:         	RAM_BASE                .equ  0x6000
 2000:         	RAM_SZ                  .equ  8192
@@ -982,70 +998,92 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 0353: ED47    	      ld    I, A
 0355: FB      	      ei
               	
-              	;---- Schedule applications to run
-              	      schedule_task APP_CLOCK
-0356: E5      	      push  HL
-              	
-0357: 211360  	      ld    HL, task_sched+APP_CLOCK
-035A: 3603    	      ld    (HL), APP_CLOCK
-              	
-035C: E1      	      pop   HL
-              	      schedule_task APP_CONFIGR
-035D: E5      	      push  HL
-              	
-035E: 211460  	      ld    HL, task_sched+APP_CONFIGR
-0361: 3604    	      ld    (HL), APP_CONFIGR
-              	
-0363: E1      	      pop   HL
-              	
-0364: C30004  	      jp    main_loop
+0356: C30004  	      jp    main
               	
               	;---- Main application loop
               	;     Runs all scheduled tasks and applications.
-0367: FFFFFFFF	      .align 0x100
-036B: FF...   	
-0400:         	main_loop
+0359: FFFFFFFF	      .align 0x100
+035D: FF...   	
+0400:         	main
+              	;---- Schedule applications to run
+              	      schedule_task APP_CLOCK
+0400: E5      	      push  HL
+              	
+0401: 211360  	      ld    HL, task_sched+APP_CLOCK
+0404: 3603    	      ld    (HL), APP_CLOCK
+              	
+0406: E1      	      pop   HL
+              	      schedule_task APP_CONFIGR
+0407: E5      	      push  HL
+              	
+0408: 211460  	      ld    HL, task_sched+APP_CONFIGR
+040B: 3604    	      ld    (HL), APP_CONFIGR
+              	
+040D: E1      	      pop   HL
+              	
+              	;---- Allow the clock to run immediately to populate display
+              	;     staging buffers
+              	      sem_post clock_app_sem
+040E: F5      	      push  AF
+040F: E5      	      push  HL
+              	
+0410: ED57    	      ld    A, I                    ; IFF2 to P/V flag
+0412: F5      	      push  AF                      ; Save flags
+0413: F3      	      di                            ; Ensure interrupts disabled
+              	
+0414: 210160  	      ld    HL, clock_app_sem
+0417: 34      	      inc   (HL)
+              	
+0418: E1      	      pop   HL                      ; F into L
+0419: CB55    	      bit   2, L                    ; Test IFF2 flag
+041B: 2801    	      jr    Z, $+3                  ; If IFF2 was not set, go to done
+041D: FB      	      ei                            ; Re-enable interrupts
+              	
+041E: E1      	      pop   HL
+041F: F1      	      pop   AF
+              	
+0420:         	main_loop
               	      ; Inputs
               	      run_task TASK_BUTTON_RD, button_rd_task
-0400: 211160  	      ld    HL, task_sched+TASK_BUTTON_RD
-0403: 7E      	      ld    A, (HL)
-0404: B7      	      or    A, A
-              	
-0405: C40005  	      call  NZ, button_rd_task
-              	
-              	      ; Applications
-              	      run_task APP_CLOCK, clock_app
-0408: 211360  	      ld    HL, task_sched+APP_CLOCK
-040B: 7E      	      ld    A, (HL)
-040C: B7      	      or    A, A
-              	
-040D: C40008  	      call  NZ, clock_app
-              	      run_task APP_CONFIGR, configr_app
-0410: 211460  	      ld    HL, task_sched+APP_CONFIGR
-0413: 7E      	      ld    A, (HL)
-0414: B7      	      or    A, A
-              	
-0415: C4000D  	      call  NZ, configr_app
-              	
-              	      ; Outputs
-              	      run_task TASK_DISPLAY, display_task
-0418: 211560  	      ld    HL, task_sched+TASK_DISPLAY
-041B: 7E      	      ld    A, (HL)
-041C: B7      	      or    A, A
-              	
-041D: C40006  	      call  NZ, display_task
-              	
-              	      ; Other
-              	      run_task TASK_WD_POKE, wd_poke_task
-0420: 211260  	      ld    HL, task_sched+TASK_WD_POKE
+0420: 211160  	      ld    HL, task_sched+TASK_BUTTON_RD
 0423: 7E      	      ld    A, (HL)
 0424: B7      	      or    A, A
               	
-0425: C40007  	      call  NZ, wd_poke_task
+0425: C40005  	      call  NZ, button_rd_task
               	
-0428: 76      	      halt
+              	      ; Applications
+              	      run_task APP_CLOCK, clock_app
+0428: 211360  	      ld    HL, task_sched+APP_CLOCK
+042B: 7E      	      ld    A, (HL)
+042C: B7      	      or    A, A
               	
-0429: 18D5    	      jr    main_loop
+042D: C40008  	      call  NZ, clock_app
+              	      run_task APP_CONFIGR, configr_app
+0430: 211460  	      ld    HL, task_sched+APP_CONFIGR
+0433: 7E      	      ld    A, (HL)
+0434: B7      	      or    A, A
+              	
+0435: C4000D  	      call  NZ, configr_app
+              	
+              	      ; Outputs
+              	      run_task TASK_DISPLAY, display_task
+0438: 211560  	      ld    HL, task_sched+TASK_DISPLAY
+043B: 7E      	      ld    A, (HL)
+043C: B7      	      or    A, A
+              	
+043D: C40006  	      call  NZ, display_task
+              	
+              	      ; Other
+              	      run_task TASK_WD_POKE, wd_poke_task
+0440: 211260  	      ld    HL, task_sched+TASK_WD_POKE
+0443: 7E      	      ld    A, (HL)
+0444: B7      	      or    A, A
+              	
+0445: C40007  	      call  NZ, wd_poke_task
+              	
+0448: 76      	      halt
+              	
+0449: 18D5    	      jr    main_loop
               	
               	
               	;---------------------------------------------------------------------
@@ -1068,8 +1106,8 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 605F: 00      	btn_flags               .db 0       ; Button reader task flags
               	
               	#code ROM
-042B: FFFFFFFF	      .align 0x100
-042F: FF...   	
+044B: FFFFFFFF	      .align 0x100
+044F: FF...   	
 0500:         	button_rd_task
               	#local
 0500: 3E01    	      ld    A, 0x01                 ; For extra button debouncing,
@@ -3883,6 +3921,9 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
 1380: 08      	      ex    AF, AF'
 1381: D9      	      exx
               	
+1382: AF      	      xor   A, A
+1383: D321    	      out   (DISP_CTRL), A
+              	
               	;---- First thing to do is to determine the current row being worked
               	;     on. At boot, memory is zeroised, so incrementing early means
               	;     row 1 is the starting row. Each iteration the counter is inc'd
@@ -3892,17 +3933,17 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     is used to determine if the current working row should be on or
               	;     off while dimming is active.
               	
-1382: 218860  	      ld    HL, disp_cur_row        ; Increment row counter
-1385: 34      	      inc   (HL)
-1386: 7E      	      ld    A, (HL)
-1387: FE04    	      cp    A, 4                    ; If at row 4, go back to 1
-1389: 2007    	      jr    NZ, row_offset
+1385: 218860  	      ld    HL, disp_cur_row        ; Increment row counter
+1388: 34      	      inc   (HL)
+1389: 7E      	      ld    A, (HL)
+138A: FE04    	      cp    A, 4                    ; If at row 4, go back to 1
+138C: 2007    	      jr    NZ, row_offset
               	
-138B: 3E01    	      ld    A, 1                    ; Reset row counter to 1
-138D: 77      	      ld    (HL), A
+138E: 3E01    	      ld    A, 1                    ; Reset row counter to 1
+1390: 77      	      ld    (HL), A
               	
-138E: 218960  	      ld    HL, disp_dim_ctr        ; Increment dimming counter each
-1391: 34      	      inc   (HL)                    ; time 3 rows have been displayed.
+1391: 218960  	      ld    HL, disp_dim_ctr        ; Increment dimming counter each
+1394: 34      	      inc   (HL)                    ; time 3 rows have been displayed.
               	                                    ; This will result in a 50% duty
               	                                    ; cycle.
               	
@@ -3921,28 +3962,28 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     And finally, the buffer offset is added to a pointer for the row
               	;     data buffer.
               	
-1392:         	row_offset
-1392: 213860  	      ld    HL, display_dp1         ; Ptr to DP buffer for this row
+1395:         	row_offset
+1395: 213860  	      ld    HL, display_dp1         ; Ptr to DP buffer for this row
               	
-1395: 3D      	      dec   A                       ; Decrement row counter by 1
-1396: 2807    	      jr    Z, row_offset_add       ; If row ctr == 0, skip offset adj
+1398: 3D      	      dec   A                       ; Decrement row counter by 1
+1399: 2807    	      jr    Z, row_offset_add       ; If row ctr == 0, skip offset adj
               	
-1398: 47      	      ld    B, A                    ; Row counter becomes loop counter
-1399: 3E04    	      ld    A, 4                    ; Offset start value
+139B: 47      	      ld    B, A                    ; Row counter becomes loop counter
+139C: 3E04    	      ld    A, 4                    ; Offset start value
               	
-139B:         	shift_offset
-139B: 87      	      add   A, A                    ; Double for each row to offset
-139C: 23      	      inc   HL                      ; Inc DP ptr for each row
-139D: 10FC    	      djnz  shift_offset
+139E:         	shift_offset
+139E: 87      	      add   A, A                    ; Double for each row to offset
+139F: 23      	      inc   HL                      ; Inc DP ptr for each row
+13A0: 10FC    	      djnz  shift_offset
               	
-139F:         	row_offset_add
-139F: E5      	      push  HL                      ; Save DP ptr for later
+13A2:         	row_offset_add
+13A2: E5      	      push  HL                      ; Save DP ptr for later
               	
-13A0: 212760  	      ld    HL, display_row1+7      ; HL = pointer to row buffer.
+13A3: 212760  	      ld    HL, display_row1+7      ; HL = pointer to row buffer.
               	                                    ; +7 to load data backwards.
-13A3: 1600    	      ld    D, 0                    ; DE = row multiple offset
-13A5: 5F      	      ld    E, A
-13A6: 19      	      add   HL, DE                  ; Add row offset to pointer
+13A6: 1600    	      ld    D, 0                    ; DE = row multiple offset
+13A8: 5F      	      ld    E, A
+13A9: 19      	      add   HL, DE                  ; Add row offset to pointer
               	
               	;---- The outer loop iterates over each of the 8 columns on the row.
               	;     The row buffer pointer points to the character to be displayed,
@@ -3954,45 +3995,45 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     data to control 16 segments, the character value is doubled and
               	;     then added as an offset to the base addr of the character ROM.
               	
-13A7: 0E20    	      ld    C, DISP_DATA            ; Display data shift register addr
-13A9: 0608    	      ld    B, 8                    ; Outer loop - chars per row
+13AA: 0E20    	      ld    C, DISP_DATA            ; Display data shift register addr
+13AC: 0608    	      ld    B, 8                    ; Outer loop - chars per row
               	
-13AB:         	next_row_char
-13AB: 1600    	      ld    D, 0                    ; DE = char value to display
-13AD: 5E      	      ld    E, (HL)
-13AE: EB      	      ex    DE, HL                  ; Each char ROM entry is 2 bytes
-13AF: 29      	      add   HL, HL                  ; (16 segments), so double DE to
-13B0: EB      	      ex    DE, HL                  ; make offset.
+13AE:         	next_row_char
+13AE: 1600    	      ld    D, 0                    ; DE = char value to display
+13B0: 5E      	      ld    E, (HL)
+13B1: EB      	      ex    DE, HL                  ; Each char ROM entry is 2 bytes
+13B2: 29      	      add   HL, HL                  ; (16 segments), so double DE to
+13B3: EB      	      ex    DE, HL                  ; make offset.
               	
-13B1: E5      	      push  HL                      ; HL = ptr to row buf pos
+13B4: E5      	      push  HL                      ; HL = ptr to row buf pos
               	
-13B2: 2100E0  	      ld    HL, CHAR_ROM_BASE       ; HL = char ROM base addr
-13B5: 19      	      add   HL, DE                  ; Add DE for char offset in ROM
+13B5: 2100E0  	      ld    HL, CHAR_ROM_BASE       ; HL = char ROM base addr
+13B8: 19      	      add   HL, DE                  ; Add DE for char offset in ROM
               	
-13B6: C5      	      push  BC                      ; BC contains outer loop counter
+13B9: C5      	      push  BC                      ; BC contains outer loop counter
               	
-13B7: 0602    	      ld    B, 2                    ; Inner loop - 2 chars from ROM
+13BA: 0602    	      ld    B, 2                    ; Inner loop - 2 chars from ROM
               	
-13B9: EDB3    	      otir                          ; xfer char data
+13BC: EDB3    	      otir                          ; xfer char data
               	                                    ; 18 clocks between bytes
               	
-13BB: C1      	      pop   BC                      ; Restore outer loop counter
-13BC: E1      	      pop   HL                      ; Restore pointer to row buf
-13BD: 2B      	      dec   HL                      ; Move to "next" row buffer pos
+13BE: C1      	      pop   BC                      ; Restore outer loop counter
+13BF: E1      	      pop   HL                      ; Restore pointer to row buf
+13C0: 2B      	      dec   HL                      ; Move to "next" row buffer pos
               	
-13BE: 10EB    	      djnz  next_row_char
+13C1: 10EB    	      djnz  next_row_char
               	
               	;---- Finally, the dot points are loaded and shifted, and then the row
               	;     counter is written to an output register of the display driver
               	;     board, which also serves to latch in the data to drive that row.
               	
-13C0: E1      	      pop   HL                      ; Restore DP ptr
-13C1: 7E      	      ld    A, (HL)                 ; Load DP byte from buffer
+13C3: E1      	      pop   HL                      ; Restore DP ptr
+13C4: 7E      	      ld    A, (HL)                 ; Load DP byte from buffer
               	#if rev_a_hw
               	      cpl                           ; Invert for drivers using neg
               	                                    ; polarity logic, e.g. 74HC595
               	#endif
-13C2: ED79    	      out   (C), A
+13C5: ED79    	      out   (C), A
               	
               	;---- If the row is to be turned off while dimming is enabled, write
               	;     row 0 instead of the working row number to the display control
@@ -4005,22 +4046,22 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;     down to some small fraction, but realistically, 2 levels of
               	;     dimming to be provided: 50% and 25% d/c
               	
-13C4: 218960  	      ld    HL, disp_dim_ctr        ; Is the display being dimmed?
-13C7: 3A8A60  	      ld    A, (disp_dim)
-13CA: A6      	      and   A, (HL)
-13CB: 3A8860  	      ld    A, (disp_cur_row)       ; Default write row counter
-13CE: 2801    	      jr    Z, out_disp_ctrl
+13C7: 218960  	      ld    HL, disp_dim_ctr        ; Is the display being dimmed?
+13CA: 3A8A60  	      ld    A, (disp_dim)
+13CD: A6      	      and   A, (HL)
+13CE: 3A8860  	      ld    A, (disp_cur_row)       ; Default write row counter
+13D1: 2801    	      jr    Z, out_disp_ctrl
               	
-13D0: AF      	      xor   A, A                    ; If dimming, this row will be off
+13D3: AF      	      xor   A, A                    ; If dimming, this row will be off
               	
-13D1:         	out_disp_ctrl
-13D1: D321    	      out   (DISP_CTRL), A
+13D4:         	out_disp_ctrl
+13D4: D321    	      out   (DISP_CTRL), A
               	
-13D3: 08      	      ex    AF, AF'
-13D4: D9      	      exx
+13D6: 08      	      ex    AF, AF'
+13D7: D9      	      exx
               	
-13D5: FB      	      ei
-13D6: ED4D    	      reti
+13D8: FB      	      ei
+13D9: ED4D    	      reti
               	#endlocal
               	
               	
@@ -4040,8 +4081,8 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	;---------------------------------------------------------------------
               	#data RAM
               	#code ROM
-13D8: FFFFFFFF	      .align 0x80
-13DC: FF...   	
+13DB: FFFFFFFF	      .align 0x80
+13DF: FF...   	
 1400:         	ctc_ch2_isr
               	#local
 1400: 08      	      ex    AF, AF'
@@ -4387,6 +4428,16 @@ E000:         	CHAR_ROM_BASE           .equ  0xE000
               	
               	; END c_lib.s
               	
+              	#if unified_image == 1
+              	      .org TZ_ROM_BASE
+              	
+              	#include "tz_rom.s"
+              	
+              	      .org CHAR_ROM_BASE
+              	
+              	#include "char_rom.s"
+              	
+              	#endif
               	
               	      .end
 
@@ -4412,8 +4463,8 @@ BTN_ESC_BIT         = $0003 =     3               clock.inc:38
 BTN_REG             = $0008 =     8               clock.inc:25
 BTN_UP              = $0001 =     1               clock.inc:27 (unused)
 BTN_UP_BIT          = $0000 =     0               clock.inc:35
-CHAR_ROM_BASE       = $E000 = 57344               platform.inc:30
-CHAR_ROM_SZ         = $2000 =  8192               platform.inc:31 (unused)
+CHAR_ROM_BASE       = $E000 = 57344               platform.inc:34
+CHAR_ROM_SZ         = $2000 =  8192               platform.inc:35 (unused)
 CLOCK_APP_START     = $0000 =     0  ROM          clock_app.s:18
 CLOCK_EXIT          = $0003 =     3  ROM          clock_app.s:21
 CLOCK_IDLE          = $0002 =     2  ROM          clock_app.s:20
@@ -4469,13 +4520,13 @@ FSYS                = $8D80 =6000000               platform.inc:7
 FUART               = $8000 =7372800               platform.inc:9 (unused)
 OUTPUT_REG          = $000C =    12               clock.inc:45 (unused)
 RAM                 = $6000 = 24576  RAM          platform.inc:4 (unused)
-RAM_BASE            = $6000 = 24576               platform.inc:23
-RAM_SZ              = $2000 =  8192               platform.inc:24
+RAM_BASE            = $6000 = 24576               platform.inc:27
+RAM_SZ              = $2000 =  8192               platform.inc:28
 RAM_end             = $7F00 = 32512  RAM          platform.inc:4
 RAM_size            = $1F00 =  7936  RAM          platform.inc:4
 ROM                 = $0000 =     0  ROM          platform.inc:6 (unused)
 ROM_BASE            = $0000 =     0               platform.inc:20
-ROM_SZ              = $6000 = 24576               platform.inc:21
+ROM_SZ              = $6000 = 24576               platform.inc:22
 ROM_end             = $5F00 = 24320  ROM          platform.inc:6 (unused)
 ROM_size            = $5F00 = 24320  ROM          platform.inc:6 (unused)
 RTC_ALM_ALM0        = $0040 =    64               rtc.inc:1
@@ -4538,12 +4589,12 @@ RTC_YEAR            = $001A =    26               clock.inc:58
 TASK_BUTTON_RD      = $0001 =     1               clock.inc:81
 TASK_DISPLAY        = $0005 =     5               clock.inc:85
 TASK_WD_POKE        = $0002 =     2               clock.inc:82
-TZ_ROM_BASE         = $C000 = 49152               platform.inc:27
-TZ_ROM_SZ           = $2000 =  8192               platform.inc:28 (unused)
+TZ_ROM_BASE         = $C000 = 49152               platform.inc:31
+TZ_ROM_SZ           = $2000 =  8192               platform.inc:32 (unused)
 TZ_SW1_REG          = $0009 =     9               clock.inc:42
 TZ_SW2_REG          = $000A =    10               clock.inc:43 (unused)
 TZ_SW3_REG          = $000B =    11               clock.inc:44 (unused)
-VECTOR_INT_PG       = $0001 =     1               platform.inc:36
+VECTOR_INT_PG       = $0001 =     1               platform.inc:40
 WDT_POKE            = $0004 =     4               clock.inc:22
 _INITIALIZED        = $7F00 = 32512  _INITIALIZED platform.inc:5
 _INITIALIZED_end    = $8000 = 32768  _INITIALIZED platform.inc:5 (unused)
@@ -4552,14 +4603,14 @@ _INITIALIZER        = $5F00 = 24320  _INITIALIZER platform.inc:7
 _INITIALIZER_end    = $6000 = 24576  _INITIALIZER platform.inc:7 (unused)
 _INITIALIZER_size   = $0100 =   256  _INITIALIZER platform.inc:7
 bcd_to_dec          = $0CA7 =  3239  ROM          clock_app.s:1088
-btn_ack             = $605C = 24668  RAM          clock.s:375
-btn_debounce        = $605E = 24670  RAM          clock.s:377
-btn_flags           = $605F = 24671  RAM          clock.s:378
-btn_state           = $605D = 24669  RAM          clock.s:376
-btn_valid           = $605B = 24667  RAM          clock.s:374
-button_rd_task      = $0500 =  1280  ROM          clock.s:382
+btn_ack             = $605C = 24668  RAM          clock.s:392
+btn_debounce        = $605E = 24670  RAM          clock.s:394
+btn_flags           = $605F = 24671  RAM          clock.s:395
+btn_state           = $605D = 24669  RAM          clock.s:393
+btn_valid           = $605B = 24667  RAM          clock.s:391
+button_rd_task      = $0500 =  1280  ROM          clock.s:399
 clock_app           = $0800 =  2048  ROM          clock_app.s:78
-clock_app_sem       = $6001 = 24577  RAM          clock.s:239
+clock_app_sem       = $6001 = 24577  RAM          clock.s:251
 clock_app_start     = $084D =  2125  ROM          clock_app.s:97
 clock_exit_app      = $0C0A =  3082  ROM          clock_app.s:943
 clock_idle          = $0BD6 =  3030  ROM          clock_app.s:921
@@ -4581,8 +4632,8 @@ clock_tz_dow        = $6071 = 24689  RAM          clock_app.s:40
 clock_tz_hrs        = $606F = 24687  RAM          clock_app.s:38
 clock_tz_min        = $606E = 24686  RAM          clock_app.s:37
 clock_tz_mon        = $6072 = 24690  RAM          clock_app.s:41
-clock_upd_req_sem   = $6003 = 24579  RAM          clock.s:241
-clock_upd_sem       = $6004 = 24580  RAM          clock.s:242
+clock_upd_req_sem   = $6003 = 24579  RAM          clock.s:253
+clock_upd_sem       = $6004 = 24580  RAM          clock.s:254
 clock_update        = $0880 =  2176  ROM          clock_app.s:127
 configr_adjust_date = $0F32 =  3890  ROM          configr_app.s:403
 configr_adjust_day  = $1066 =  4198  ROM          configr_app.s:604
@@ -4593,7 +4644,7 @@ configr_adjust_month = $0FE9 =  4073  ROM          configr_app.s:515
 configr_adjust_time = $0DEC =  3564  ROM          configr_app.s:168
 configr_adjust_year = $0F78 =  3960  ROM          configr_app.s:437
 configr_app         = $0D00 =  3328  ROM          configr_app.s:53
-configr_app_sem     = $6002 = 24578  RAM          clock.s:240
+configr_app_sem     = $6002 = 24578  RAM          clock.s:252
 configr_app_start   = $0D4A =  3402  ROM          configr_app.s:69
 configr_apply_date  = $114F =  4431  ROM          configr_app.s:769
 configr_apply_time  = $0F11 =  3857  ROM          configr_app.s:377
@@ -4628,77 +4679,79 @@ configr_title       = $11B7 =  4535  ROM          configr_app.s:817
 configr_year_msg    = $0F65 =  3941  ROM          configr_app.s:428
 ctc_ch0_isr         = $1300 =  4864  ROM          ctc_isr.s:4
 ctc_ch1_isr         = $1380 =  4992  ROM          ctc_isr.s:30
-ctc_ch2_isr         = $1400 =  5120  ROM          ctc_isr.s:193
-ctc_ch3_isr         = $1480 =  5248  ROM          ctc_isr.s:239
+ctc_ch2_isr         = $1400 =  5120  ROM          ctc_isr.s:196
+ctc_ch3_isr         = $1480 =  5248  ROM          ctc_isr.s:242
 day_array_ptr       = $607B = 24699  RAM          clock_app.s:49
 days_common_year    = $0C30 =  3120  ROM          clock_app.s:957
 days_leap_year      = $0C40 =  3136  ROM          clock_app.s:962
 disp_cur_row        = $6088 = 24712  RAM          ctc_isr.s:24
 disp_dim            = $608A = 24714  RAM          ctc_isr.s:26
 disp_dim_ctr        = $6089 = 24713  RAM          ctc_isr.s:25
-display_ctr         = $6060 = 24672  RAM          clock.s:435
-display_dp1         = $6038 = 24632  RAM          clock.s:255
-display_dp2         = $6039 = 24633  RAM          clock.s:256 (unused)
-display_dp3         = $603A = 24634  RAM          clock.s:257 (unused)
-display_effect      = $6063 = 24675  RAM          clock.s:438
-display_row1        = $6020 = 24608  RAM          clock.s:252
-display_row2        = $6028 = 24616  RAM          clock.s:253 (unused)
-display_row3        = $6030 = 24624  RAM          clock.s:254 (unused)
-display_status      = $6061 = 24673  RAM          clock.s:436
-display_syncd       = $6062 = 24674  RAM          clock.s:437 (unused)
-display_task        = $0600 =  1536  ROM          clock.s:444
+display_ctr         = $6060 = 24672  RAM          clock.s:452
+display_dp1         = $6038 = 24632  RAM          clock.s:267
+display_dp2         = $6039 = 24633  RAM          clock.s:268 (unused)
+display_dp3         = $603A = 24634  RAM          clock.s:269 (unused)
+display_effect      = $6063 = 24675  RAM          clock.s:455
+display_row1        = $6020 = 24608  RAM          clock.s:264
+display_row2        = $6028 = 24616  RAM          clock.s:265 (unused)
+display_row3        = $6030 = 24624  RAM          clock.s:266 (unused)
+display_status      = $6061 = 24673  RAM          clock.s:453
+display_syncd       = $6062 = 24674  RAM          clock.s:454 (unused)
+display_task        = $0600 =  1536  ROM          clock.s:461
 find_first_sunday   = $0C70 =  3184  ROM          clock_app.s:989
 find_last_sunday    = $0C8B =  3211  ROM          clock_app.s:1033
 find_second_sunday  = $0CA0 =  3232  ROM          clock_app.s:1071
-foreground_mtx      = $6000 = 24576  RAM          clock.s:233
-init                = $0300 =   768  ROM          clock.s:269
-int_vector_table    = $0100 =   256  ROM          clock.s:57 (unused)
-main_loop           = $0400 =  1024  ROM          clock.s:342
-mem_test            = $0283 =   643  ROM          clock.s:188
+foreground_mtx      = $6000 = 24576  RAM          clock.s:245
+init                = $0300 =   768  ROM          clock.s:281
+int_vector_table    = $0100 =   256  ROM          clock.s:69 (unused)
+main                = $0400 =  1024  ROM          clock.s:350
+main_loop           = $0420 =  1056  ROM          clock.s:359
+mem_test            = $0283 =   643  ROM          clock.s:200
 memcpy              = $1500 =  5376  ROM          c_lib.s:21
 memset              = $1540 =  5440  ROM          c_lib.s:111
-nmi_vector          = $0066 =   102  ROM          clock.s:53 (unused)
-proc_test           = $0200 =   512  ROM          clock.s:74
-rev_a_hw            = $0000 =     0               clock.s:7
+nmi_vector          = $0066 =   102  ROM          clock.s:65 (unused)
+proc_test           = $0200 =   512  ROM          clock.s:86
+rev_a_hw            = $0000 =     0               clock.s:11
 row_borrows         = $607E = 24702  RAM          clock_app.s:57
 row_buf_ptr         = $6079 = 24697  RAM          clock_app.s:48
 row_carrys          = $607D = 24701  RAM          clock_app.s:51
 row_flags           = $607F = 24703  RAM          clock_app.s:63
 short_day_names     = $0C50 =  3152  ROM          clock_app.s:967
-staging_dp1         = $6058 = 24664  RAM          clock.s:263 (unused)
-staging_dp2         = $6059 = 24665  RAM          clock.s:264 (unused)
-staging_dp3         = $605A = 24666  RAM          clock.s:265 (unused)
-staging_row1        = $6040 = 24640  RAM          clock.s:260
-staging_row2        = $6048 = 24648  RAM          clock.s:261
-staging_row3        = $6050 = 24656  RAM          clock.s:262
+staging_dp1         = $6058 = 24664  RAM          clock.s:275 (unused)
+staging_dp2         = $6059 = 24665  RAM          clock.s:276 (unused)
+staging_dp3         = $605A = 24666  RAM          clock.s:277 (unused)
+staging_row1        = $6040 = 24640  RAM          clock.s:272
+staging_row2        = $6048 = 24648  RAM          clock.s:273
+staging_row3        = $6050 = 24656  RAM          clock.s:274
 strncpy             = $1520 =  5408  ROM          c_lib.s:57
-task_sched          = $6010 = 24592  RAM          clock.s:245
+task_sched          = $6010 = 24592  RAM          clock.s:257
 tz_rom_ptr          = $6077 = 24695  RAM          clock_app.s:47
 tz_sw_ptr           = $6075 = 24693  RAM          clock_app.s:46
-wd_poke_task        = $0700 =  1792  ROM          clock.s:514
+unified_image       = $0000 =     0               clock.s:19
+wd_poke_task        = $0700 =  1792  ROM          clock.s:531
 
 ; +++ local symbols +++
 
-next_regs      = $0201 =   513  ROM          clock.s:79 (unused)
-proc_test_done = $026B =   619  ROM          clock.s:153
-proc_test_err  = $0282 =   642  ROM          clock.s:171
-write_pattern  = $0253 =   595  ROM          clock.s:131
+next_regs      = $0201 =   513  ROM          clock.s:91 (unused)
+proc_test_done = $026B =   619  ROM          clock.s:165
+proc_test_err  = $0282 =   642  ROM          clock.s:183
+write_pattern  = $0253 =   595  ROM          clock.s:143
 
 ; +++ local symbols +++
 
-mem_test_err      = $02A3 =   675  ROM          clock.s:221
-mem_test_loop     = $0294 =   660  ROM          clock.s:205
-mem_test_next     = $028A =   650  ROM          clock.s:196
-mem_test_patterns = $02A4 =   676  ROM          clock.s:224
+mem_test_err      = $02A3 =   675  ROM          clock.s:233
+mem_test_loop     = $0294 =   660  ROM          clock.s:217
+mem_test_next     = $028A =   650  ROM          clock.s:208
+mem_test_patterns = $02A4 =   676  ROM          clock.s:236
 
 ; +++ local symbols +++
 
-done    = $0525 =  1317  ROM          clock.s:414
+done    = $0525 =  1317  ROM          clock.s:431
 
 ; +++ local symbols +++
 
-done        = $063E =  1598  ROM          clock.s:493
-dsky_effect = $0615 =  1557  ROM          clock.s:458
+done        = $063E =  1598  ROM          clock.s:510
+dsky_effect = $0615 =  1557  ROM          clock.s:475
 
 ; +++ local symbols +++
 
@@ -4812,21 +4865,21 @@ test_updn_btn  = $1122 =  4386  ROM          configr_app.s:728
 
 ; +++ local symbols +++
 
-next_row_char  = $13AB =  5035  ROM          ctc_isr.s:109
-out_disp_ctrl  = $13D1 =  5073  ROM          ctc_isr.s:165
-row_offset     = $1392 =  5010  ROM          ctc_isr.s:73
-row_offset_add = $139F =  5023  ROM          ctc_isr.s:87
-shift_offset   = $139B =  5019  ROM          ctc_isr.s:82
+next_row_char  = $13AE =  5038  ROM          ctc_isr.s:112
+out_disp_ctrl  = $13D4 =  5076  ROM          ctc_isr.s:168
+row_offset     = $1395 =  5013  ROM          ctc_isr.s:76
+row_offset_add = $13A2 =  5026  ROM          ctc_isr.s:90
+shift_offset   = $139E =  5022  ROM          ctc_isr.s:85
 
 ; +++ local symbols +++
 
-clock_sem   = $1417 =  5143  ROM          ctc_isr.s:207 (unused)
-configr_sem = $1440 =  5184  ROM          ctc_isr.s:212
-done        = $1469 =  5225  ROM          ctc_isr.s:217
+clock_sem   = $1417 =  5143  ROM          ctc_isr.s:210 (unused)
+configr_sem = $1440 =  5184  ROM          ctc_isr.s:215
+done        = $1469 =  5225  ROM          ctc_isr.s:220
 
 ; +++ local symbols +++
 
-done    = $14AB =  5291  ROM          ctc_isr.s:257
+done    = $14AB =  5291  ROM          ctc_isr.s:260
 
 ; +++ local symbols +++
 
@@ -4837,5 +4890,5 @@ zero_fill = $152D =  5421  ROM          c_lib.s:75
 next    = $1541 =  5441  ROM          c_lib.s:115
 
 
-total time: 0.1766 sec.
+total time: 0.1230 sec.
 no errors
