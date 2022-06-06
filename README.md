@@ -97,3 +97,25 @@ Otherwise, here are some lightweight descriptions of the schematic files:
 `uart board.sch` contains a Z80 SIO peripheral which was used for serial loading of code for execution from RAM. In a future revision I'll likely repurpose this to interface with a GPS module to perform time synchronisation to compensate for drift in the RTC.
 
 There is currently no real schematic for the display board itself, this is a work in progress. I'll get around to it some day. :-)
+
+## z80clock on MAME
+
+A [MAME driver](https://github.com/mamedev/mame/blob/master/src/mame/drivers/z80clock.cpp)
+to emulate for this project was added by
+[Phill (@smf)](https://github.com/smf-) for his
+[Using MAME as a development tool](https://www.meetup.com/london-retro-computing/events/282682483/)
+presentation to the
+[London Retro Computing Meetup](https://www.meetup.com/london-retro-computing/)
+
+If you don't already have MAME get it from
+[MAMEdev.org](https://www.mamedev.org/). The z80clock driver has been present
+since MAME 0.239.
+
+To run the driver:
+
+```
+mame z80clock -cart1 clock.rom -cart2 tz_rom.rom -cart3 char_rom.rom
+```
+
+Assuming the roms (in the `source` directory) are in the current directory
+and `mame` is on the path.
